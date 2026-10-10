@@ -1,0 +1,1001 @@
+/* The translator's own views, built from the island's tokens and classes
+   (.card, .btn, .pill, .chip, .kbd, .icon-btn, .seg, .shimmer) in style.css. */
+
+.view.translate,
+.view.history,
+.view.settings-integrated {
+  display: flex;
+  gap: 10px;
+}
+
+.translate > .left {
+  flex: 0 0 340px;
+  width: 340px;
+}
+
+.translate > .right {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.history > .card,
+.settings-integrated > .card {
+  flex: 1 1 auto;
+}
+
+/* Left card: the source. The first 62px are Ari's. */
+.src-body {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 14px;
+  padding-inline-start: 84px;
+  min-width: 0;
+}
+
+.lang-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgb(var(--fg) / 0.1);
+  font: 500 12px var(--font);
+  color: var(--ink-2);
+  border: 1px solid rgb(var(--fg) / 0.14);
+  min-width: 0;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: default;
+}
+
+select.chip {
+  min-width: 104px;
+  padding-inline-end: 26px;
+  appearance: none;
+  -webkit-appearance: none;
+  outline: none;
+  flex: 1 1 auto;
+  cursor: pointer;
+}
+
+select.chip option {
+  background-color: var(--menu-bg);
+  color: var(--ink);
+}
+
+.src-chip {
+  flex: 0 0 auto;
+  max-width: none;
+  overflow: visible;
+  padding-inline: 10px;
+  background: transparent;
+  color: var(--dim);
+}
+
+.swap {
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+  border-radius: 8px;
+  background: rgb(var(--fg) / 0.08);
+  color: var(--dim-2);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s, transform 0.08s;
+}
+
+.swap:hover {
+  background: rgb(var(--fg) / 0.18);
+  color: var(--ink);
+}
+
+.swap:active {
+  transform: scale(0.92);
+}
+
+.icon-btn {
+  cursor: pointer;
+}
+
+.icon-btn:hover {
+  background: rgb(var(--fg) / 0.15);
+  color: var(--ink);
+}
+
+.src-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  font: 500 11.5px var(--font);
+  border-radius: 999px;
+  border: 0;
+  background: rgb(var(--fg) / 0.08);
+  color: var(--ink-2);
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s, transform 0.08s;
+}
+
+.src-action-btn:hover {
+  background: rgb(var(--fg) / 0.16);
+  color: var(--ink-strong);
+}
+
+.src-action-btn:active {
+  transform: scale(0.94);
+}
+
+.src-action-btn.clear-btn:hover {
+  background: rgba(244, 80, 94, 0.2);
+  color: var(--red-text);
+}
+
+.src-input {
+  flex: 1 1 auto;
+  min-height: 90px;
+  width: 100%;
+  resize: none;
+  border: 0;
+  outline: none;
+  background: rgb(var(--fg) / 0.06);
+  border-radius: 12px;
+  padding: 8px 12px;
+  color: var(--ink);
+  font: 400 13.5px/1.45 var(--font);
+  cursor: text;
+  user-select: text;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgb(var(--fg) / 0.18) transparent;
+}
+
+.src-input::placeholder {
+  color: var(--dim-3);
+}
+
+.src-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 24px;
+}
+
+.counter {
+  font: 400 11px var(--mono);
+  color: var(--dim-4);
+}
+
+.clean-chip {
+  padding: 4px 10px;
+  font-size: 11px;
+  color: var(--ink-2);
+  border-color: rgba(52, 211, 153, 0.5);
+  background: rgba(52, 211, 153, 0.12);
+  flex: 0 1 auto;
+  cursor: pointer;
+}
+
+.clean-chip:hover {
+  background: rgba(52, 211, 153, 0.22);
+}
+
+/* Right card: the result. */
+.res-body {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 14px 10px;
+  min-width: 0;
+}
+
+.res-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.engine-pills {
+  display: flex;
+  gap: 6px;
+  flex: 0 0 auto;
+}
+
+.pill.engine {
+  width: 96px;
+  height: 32px;
+  flex: 0 0 96px;
+  cursor: pointer;
+  border-radius: 16px;
+  transition: transform 0.08s, filter 0.12s;
+}
+
+.pill.engine:active {
+  transform: scale(0.95);
+}
+
+.pill.engine .lbl {
+  left: auto;
+  right: auto;
+  inset-inline-start: 36px;
+  inset-inline-end: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  text-align: center;
+  padding: 0;
+  padding-inline-end: 6px;
+}
+
+.pill.engine.on {
+  filter: brightness(1.15);
+}
+
+.tone-select {
+  flex: 1 1 110px;
+  max-width: 150px;
+  margin-inline-start: auto;
+  font-size: 11.5px;
+  padding: 4px 10px;
+}
+
+.res-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 2px 2px 12px;
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 14px), transparent);
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 14px), transparent);
+  scrollbar-width: thin;
+  scrollbar-color: rgb(var(--fg) / 0.18) transparent;
+}
+
+.res-placeholder {
+  font: 400 12.5px var(--font);
+  color: var(--dim-4);
+  padding-top: 4px;
+}
+
+.res-loading {
+  font: 500 12.5px var(--font);
+  padding-top: 4px;
+}
+
+.res-text {
+  font: 400 14px/1.5 var(--font);
+  color: var(--ink);
+  user-select: text;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.res-text.live {
+  color: var(--ink-2);
+}
+
+.res-text.err {
+  color: var(--red-text);
+  font-size: 12.5px;
+}
+
+.res-translit {
+  font: 400 11.5px var(--mono);
+  color: var(--dim-2);
+  padding-top: 2px;
+  user-select: text;
+}
+
+.res-notice {
+  margin: 0 0 6px;
+  padding: 5px 9px;
+  border-radius: 10px;
+  background: rgba(245, 165, 36, 0.13);
+  color: var(--amber-text);
+  font: 400 11px/1.4 var(--font);
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+}
+
+.res-notice .link-btn {
+  color: var(--ink);
+  text-decoration: underline;
+  padding: 0;
+  cursor: pointer;
+}
+
+.alts {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.alt-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+
+.alt-pos {
+  font: 600 10px var(--font);
+  color: var(--dim-3);
+  margin-inline-end: 2px;
+}
+
+.alt-pill {
+  border: 1px solid rgb(var(--fg) / 0.14);
+  background: var(--card-flat);
+  color: var(--ink-2);
+  font: 400 11px var(--font);
+  padding: 1px 8px;
+  border-radius: 999px;
+  cursor: pointer;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: background 0.12s, border-color 0.12s;
+}
+
+.alt-pill:hover {
+  background: rgb(var(--fg) / 0.12);
+  border-color: rgb(var(--fg) / 0.3);
+}
+
+.breakdown {
+  margin-top: 6px;
+}
+
+.bk-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: 0;
+  background: transparent;
+  color: var(--dim);
+  font: 500 11px var(--font);
+  padding: 0;
+  cursor: pointer;
+}
+
+.bk-toggle:hover {
+  color: var(--ink);
+}
+
+.bk-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 4px;
+}
+
+.bk-item {
+  font: 400 11.5px/1.4 var(--font);
+  color: var(--ink-2);
+  padding: 4px 8px;
+  border-radius: 8px;
+  background: rgb(var(--fg) / 0.05);
+  user-select: text;
+}
+
+.bk-term {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.bk-desc {
+  color: var(--dim-2);
+  font-size: 11px;
+}
+
+.res-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font: 400 10.5px var(--font);
+  color: var(--dim-3);
+}
+
+.meta-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex: 0 0 auto;
+}
+
+.res-footer {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.res-footer .btn {
+  flex: 0 0 auto;
+  padding: 6px 11px;
+  font-size: 12.5px;
+  font-weight: 500;
+  min-height: 32px;
+  gap: 6px;
+  white-space: nowrap;
+  cursor: pointer;
+  border-radius: 999px;
+}
+
+.btn.secondary.on {
+  background: rgb(var(--fg) / 0.24);
+}
+
+/* History */
+.hist-body {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 14px;
+  padding-inline-start: 88px;
+  min-width: 0;
+}
+
+.hist-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hist-head .seg {
+  margin-inline-start: 0;
+}
+
+.seg-btn {
+  font: 400 11px var(--font);
+  padding: 3px 9px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--dim-3);
+  cursor: pointer;
+}
+
+.seg-btn.on {
+  background: var(--seg-on);
+  color: var(--ink);
+}
+
+.hist-search {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: 0;
+  outline: none;
+  background: rgb(var(--fg) / 0.07);
+  border-radius: 999px;
+  padding: 4px 12px;
+  color: var(--ink);
+  font: 400 12px var(--font);
+  cursor: text;
+}
+
+.hist-search::placeholder {
+  color: var(--dim-3);
+}
+
+.clear-all {
+  color: var(--red-text);
+  flex: 0 0 auto;
+  cursor: pointer;
+}
+
+.hist-list {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: rgb(var(--fg) / 0.18) transparent;
+}
+
+.hist-row {
+  padding: 5px 10px;
+  border-radius: 12px;
+  background: rgb(var(--fg) / 0.05);
+  cursor: pointer;
+  flex: 0 0 auto;
+  transition: background 0.12s;
+}
+
+.hist-row:hover {
+  background: rgb(var(--fg) / 0.09);
+}
+
+.hist-q {
+  font: 400 11.5px/1.35 var(--font);
+  color: var(--dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hist-t {
+  font: 500 12.5px/1.4 var(--font);
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hist-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font: 400 10px var(--font);
+  color: var(--dim-3);
+  white-space: nowrap;
+}
+
+.row-actions {
+  display: inline-flex;
+  gap: 2px;
+}
+
+.row-btn {
+  width: 20px;
+  height: 20px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--dim-3);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.row-btn:hover {
+  background: rgb(var(--fg) / 0.12);
+  color: var(--ink);
+}
+
+.row-btn.star.on {
+  color: var(--amber);
+}
+
+.row-btn.danger:hover {
+  color: var(--red-text);
+}
+
+.row-btn.done {
+  color: var(--green-2);
+}
+
+.hist-empty {
+  font: 400 12.5px var(--font);
+  color: var(--dim-3);
+  padding: 14px 4px;
+}
+
+/* Compact capsule: the time, centred between Ari and the two engines. */
+#capsule-text {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  height: 16px;
+  font: 600 12.5px/16px var(--font);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  color: var(--ink-2);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s ease-in-out;
+}
+
+/* A one-line message under the island (copied, pasted…). */
+#toast {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translate(-50%, -6px);
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: var(--island);
+  border: 1px solid rgb(var(--fg) / 0.14);
+  color: var(--ink-2);
+  font: 500 11.5px var(--font);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s ease-out, transform 0.28s cubic-bezier(0.3, 1.2, 0.4, 1);
+}
+
+#toast.on {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+/* ── Persian: right to left ────────────────────────────────────────────────────
+   i18n.ts sets <html data-dir="rtl">. The text of the cards reads and aligns
+   right to left; Ari, the pills, the header and the cards themselves keep
+   their places. What is typed or translated follows its own text's direction
+   (dir="auto"), so an English source stays left to right. */
+html[data-dir="rtl"] #views :is(.stack, .hist-head, .res-notice, .res-meta, .hist-meta, .settings-rows) {
+  direction: rtl;
+}
+
+html[data-dir="rtl"] #views :is(.src-input, .hist-search, .res-text, .hist-q, .hist-t, .alt-pill) {
+  unicode-bidi: plaintext;
+  text-align: start;
+}
+
+html[data-dir="rtl"] #capsule-text,
+html[data-dir="rtl"] #views :is(.res-translit, .counter, .bk-term) {
+  direction: ltr;
+}
+
+html[data-dir="rtl"] .target-select {
+  direction: rtl;
+}
+
+/* ── Settings View (Integrated inside Dynamic Island) ────────────────────── */
+.view.settings-integrated {
+  display: flex;
+  height: 100%;
+}
+
+.settings-island-card {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px 14px 10px;
+  padding-inline-start: 88px; /* leaves room for Ari */
+  min-width: 0;
+}
+
+.settings-nav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding-bottom: 4px;
+  flex: 0 0 auto;
+}
+
+.settings-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 999px;
+  border: 0;
+  background: rgb(var(--fg) / 0.07);
+  color: var(--dim);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.12s, color 0.12s;
+}
+.settings-nav-btn:hover {
+  background: rgb(var(--fg) / 0.14);
+  color: var(--ink);
+}
+.settings-nav-btn.on {
+  background: var(--tab-on);
+  color: var(--ink);
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.4);
+}
+
+.settings-panel {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgb(var(--fg) / 0.2) transparent;
+  padding-inline-end: 4px;
+}
+
+.set-content-scroll {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.set-banner {
+  font-size: 11.5px;
+  color: var(--dim);
+  background: rgb(var(--fg) / 0.04);
+  border-radius: 10px;
+  padding: 8px 12px;
+  line-height: 1.45;
+}
+
+.set-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 0;
+  border-bottom: 1px solid rgb(var(--fg) / 0.05);
+}
+.set-row:last-child {
+  border-bottom: 0;
+}
+
+.set-row-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.set-label {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--ink);
+}
+.set-hint {
+  font-size: 11px;
+  color: var(--dim-3);
+}
+
+.set-subrow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.set-num-input {
+  width: 72px;
+  padding: 4px 8px;
+  border-radius: 8px;
+  background: rgb(var(--fg) / 0.08);
+  border: 1px solid rgb(var(--fg) / 0.12);
+  color: var(--ink);
+  font-size: 12px;
+}
+
+.keycap-btn {
+  font-family: var(--mono);
+  font-size: 12px;
+  padding: 5px 12px;
+  border-radius: 8px;
+  background: rgb(var(--fg) / 0.09);
+  border: 1px solid rgb(var(--fg) / 0.15);
+  color: var(--ink);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.keycap-btn.recording {
+  border-color: var(--amber);
+  color: var(--amber);
+  background: rgba(245, 165, 36, 0.15);
+}
+
+.set-select, .set-text-input {
+  font-size: 12px;
+  padding: 5px 10px;
+  border-radius: 8px;
+  background: rgb(var(--fg) / 0.08);
+  border: 1px solid rgb(var(--fg) / 0.12);
+  color: var(--ink);
+  min-width: 140px;
+}
+.set-text-input.ltr {
+  direction: ltr;
+  text-align: left;
+}
+
+.set-key-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.set-icon-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: rgb(var(--fg) / 0.08);
+  border: 0;
+  color: var(--dim);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+
+.set-btn-action {
+  padding: 5px 12px;
+  font-size: 11.5px;
+  min-height: 28px;
+  cursor: pointer;
+}
+
+.set-test-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.set-test-badge {
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgb(var(--fg) / 0.08);
+  color: var(--dim);
+}
+.set-test-badge.ok {
+  background: rgba(34, 197, 94, 0.15);
+  color: var(--green);
+}
+.set-test-badge.err {
+  background: rgba(244, 80, 94, 0.15);
+  color: var(--red-text);
+}
+
+.set-range {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  border-radius: 2px;
+  background: rgb(var(--fg) / 0.2);
+  width: 120px;
+}
+.set-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: #fff;
+}
+
+.set-wardrobe-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+  gap: 8px;
+  padding-top: 4px;
+}
+.set-wardrobe-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 4px;
+  border-radius: 12px;
+  background: rgb(var(--fg) / 0.05);
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+.set-wardrobe-item:hover {
+  background: rgb(var(--fg) / 0.12);
+}
+.set-wardrobe-item.on {
+  background: rgba(99, 102, 241, 0.2);
+  border-color: rgba(99, 102, 241, 0.5);
+}
+.set-outfit-lbl {
+  font-size: 10px;
+  color: var(--dim);
+}
+
+
+
+/* ── Right to left: the whole island mirrors ─────────────────────────────────
+   i18n.ts sets <html data-dir="rtl">. Everything inside #content reads from the
+   right: the tabs, the cards (the source card moves to the right with Ari, who
+   is placed by botPosition(…, rtl)), the paddings (logical above). Text that
+   must not flip (what is typed, transliteration, counters, keycaps) keeps its
+   own direction. */
+html[data-dir="rtl"] #content {
+  direction: rtl;
+}
+
+html[data-dir="rtl"] #content :is(.kbd, .counter, .res-translit, .keycap, .code) {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+html[data-dir="rtl"] .swap svg,
+html[data-dir="rtl"] .tab-chevron {
+  transform: scaleX(-1);
+}
+
+/* ── Soft, responsive spacing ────────────────────────────────────────────────
+   The island is wider than it was; the cards share it, and the footer buttons
+   wrap into a tidy second row instead of being cut. */
+.res-footer {
+  row-gap: 6px;
+}
+
+.res-footer > .grow {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.lang-row .chip {
+  min-height: 28px;
+}
+
+.res-top {
+  flex-wrap: wrap;
+  row-gap: 6px;
+}
+
+.hist-list,
+.settings-panel,
+.res-scroll {
+  scroll-behavior: smooth;
+}
+
+.set-row {
+  flex-wrap: wrap;
+  row-gap: 6px;
+}
+
+.set-row-text {
+  min-width: 150px;
+}
+
+.set-select,
+.set-text-input {
+  max-width: 100%;
+}
+
+/* ── The result card's buttons follow the room they are given ──────────────────
+   The island is only as wide as the text asks for (translateWidth), so the
+   footer adapts instead: full labels when there is room, then the secondary
+   buttons shrink to icons (their title says what they do). Copy always keeps
+   its word. */
+.res-body {
+  container: res / inline-size;
+}
+
+.res-footer .btn svg {
+  flex: 0 0 auto;
+}
+
+@container res (max-width: 459px) {
+  .res-footer .replace-btn .kbd {
+    display: none;
+  }
+  .res-footer :is(.speak-btn, .dual-btn) > span {
+    display: none;
+  }
+  .res-footer :is(.speak-btn, .dual-btn) {
+    padding-inline: 10px;
+    gap: 0;
+  }
+}
+
+@container res (max-width: 339px) {
+  .res-footer .replace-btn > span {
+    display: none;
+  }
+  .res-footer .replace-btn {
+    padding-inline: 10px;
+    gap: 0;
+  }
+}

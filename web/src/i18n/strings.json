@@ -1,0 +1,27 @@
+{
+  "_about": "The words the island itself uses (header, wardrobe, sound), keyed by their English text, with the Persian string. The translator's own sentences are in extra.json. See src/i18n/i18n.ts.",
+  "strings": {
+    "AUTO": { "fa": "خودکار" },
+    "Auto (seasons)": { "fa": "خودکار (فصل‌ها)" },
+    "Auto · follows the seasons (now: {outfit})": { "fa": "خودکار · با فصل‌ها عوض می‌شود (اکنون: {outfit})" },
+    "Auto · {outfit}": { "fa": "خودکار · {outfit}" },
+    "Auto-close · {seconds}s": { "fa": "بسته‌شدن خودکار · {seconds} ثانیه" },
+    "Beanie": { "fa": "کلاه بافتنی" },
+    "Bow": { "fa": "پاپیون" },
+    "Bunny ears": { "fa": "گوش خرگوشی" },
+    "Crown": { "fa": "تاج" },
+    "Mute": { "fa": "بی‌صدا" },
+    "None": { "fa": "هیچ‌کدام" },
+    "Open full settings": { "fa": "باز کردن تنظیمات کامل" },
+    "Party hat": { "fa": "کلاه جشن" },
+    "Pumpkin": { "fa": "کدو تنبل" },
+    "Round glasses": { "fa": "عینک گرد" },
+    "Santa hat": { "fa": "کلاه بابانوئل" },
+    "Scarf": { "fa": "شال‌گردن" },
+    "Settings": { "fa": "تنظیمات" },
+    "Sound": { "fa": "صدا" },
+    "Sunglasses": { "fa": "عینک آفتابی" },
+    "Wardrobe": { "fa": "کمد لباس" },
+    "Witch hat": { "fa": "کلاه جادوگر" }
+  }
+}

@@ -1,0 +1,81 @@
+/* The page's own dropdown (views/select.ts): rounded, themed, kept inside the
+   island. Shared by the island and the settings window, so it only uses the
+   tokens both define (--fg, --menu-bg, --ink…). */
+
+select.dd {
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  padding-inline-end: 28px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239398a1' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 12px;
+  text-overflow: ellipsis;
+}
+
+html[dir="rtl"] select.dd,
+html[data-dir="rtl"] select.dd {
+  background-position: left 10px center;
+}
+
+select.dd:focus-visible {
+  outline: 2px solid rgb(var(--fg) / 0.35);
+  outline-offset: 1px;
+}
+
+.dd-menu {
+  position: fixed;
+  z-index: 2147483000;
+  box-sizing: border-box;
+  padding: 4px;
+  overflow-y: auto;
+  border-radius: 14px;
+  background: var(--menu-bg);
+  border: 1px solid rgb(var(--fg) / 0.14);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.42), 0 2px 6px rgba(0, 0, 0, 0.25);
+  font: 500 12.5px/1.35 var(--font);
+  color: var(--ink);
+  user-select: none;
+  opacity: 0;
+  transform: translateY(-4px) scale(0.96);
+  transition: opacity 0.12s ease-out, transform 0.18s cubic-bezier(0.3, 1.2, 0.4, 1);
+  scrollbar-width: thin;
+  scrollbar-color: rgb(var(--fg) / 0.25) transparent;
+}
+
+.dd-menu.open {
+  opacity: 1;
+  transform: none;
+}
+
+.dd-item {
+  padding: 7px 11px;
+  border-radius: 10px;
+  color: var(--ink-2);
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dd-item.hot {
+  background: rgb(var(--fg) / 0.1);
+  color: var(--ink-strong);
+}
+
+.dd-item.on {
+  color: var(--ink-strong);
+  font-weight: 650;
+}
+
+.dd-item.on::after {
+  content: "";
+  float: inline-end;
+  width: 6px;
+  height: 6px;
+  margin-top: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.7;
+}

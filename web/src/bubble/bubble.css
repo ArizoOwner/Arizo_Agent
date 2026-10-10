@@ -1,0 +1,237 @@
+/* The floating quick-translate bubble: a black squircle that opens into a card.
+   Tokens, .btn, .icon-btn and .shimmer come from ../style.css. */
+
+html,
+body.bubble-page {
+  background: transparent;
+}
+
+body.bubble-page {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 12px;
+  margin: 0;
+  overflow: hidden;
+}
+
+#bubble-root {
+  position: static;
+  display: contents;
+}
+
+.bubble-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: var(--island);
+  border: 1px solid var(--bubble-edge);
+  box-shadow: 0 8px 22px var(--bubble-shadow), inset 0 0 0 1px rgb(var(--fg) / 0.05);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  position: relative;
+  padding: 0;
+  color: var(--ink);
+  transition: transform 0.22s cubic-bezier(0.3, 1.2, 0.4, 1), border-color 0.18s, box-shadow 0.2s;
+  animation: pop-in 0.28s cubic-bezier(0.3, 1.2, 0.4, 1);
+}
+
+.bubble-btn:hover {
+  transform: scale(1.08);
+  border-color: rgb(var(--fg) / 0.32);
+}
+
+.bubble-btn:active {
+  transform: scale(0.94);
+}
+
+.bubble-btn .glyph {
+  position: absolute;
+  right: 5px;
+  bottom: 4px;
+  opacity: 0.55;
+}
+
+.bubble-card {
+  width: 322px;
+  background: var(--card);
+  border: 1px solid var(--bubble-edge);
+  border-radius: 20px;
+  box-shadow: 0 14px 34px -10px var(--bubble-shadow), inset 0 0 0 1px rgb(var(--fg) / 0.04);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: relative;
+  overflow: hidden;
+  animation: slide-in 0.28s cubic-bezier(0.3, 1.2, 0.4, 1);
+}
+
+.bubble-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(280px 200px at 50% 130%, rgba(167, 139, 250, 0.16) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.bubble-card > * {
+  position: relative;
+}
+
+.bubble-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.dir-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: 600 11px var(--font);
+  color: var(--dim);
+  background: var(--card-flat);
+  border: 1px solid rgb(var(--fg) / 0.12);
+  padding: 3px 10px;
+  border-radius: 999px;
+  letter-spacing: 0;
+}
+
+.dir-chip::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 6px rgba(34, 197, 94, 0.6);
+}
+
+.bubble-head .icon-btn {
+  width: 22px;
+  height: 22px;
+  cursor: pointer;
+}
+
+.head-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.src-preview {
+  font: 400 11.5px/1.4 var(--font);
+  color: var(--dim-2);
+  background: rgb(var(--fg) / 0.04);
+  border: 1px solid rgb(var(--fg) / 0.05);
+  border-inline-start: 2px solid var(--indigo);
+  border-radius: 10px;
+  padding: 5px 9px;
+  max-height: 36px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bubble-result {
+  font: 450 13.5px/1.6 var(--font);
+  color: var(--ink);
+  min-height: 40px;
+  max-height: 120px;
+  overflow-y: auto;
+  user-select: text;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+  scrollbar-width: thin;
+  scrollbar-color: rgb(var(--fg) / 0.18) transparent;
+}
+
+.bubble-result.err {
+  color: var(--red-text);
+  font-size: 12.5px;
+}
+
+.bubble-loading {
+  font: 500 12px var(--font);
+  padding: 6px 0;
+}
+
+.bubble-foot {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 6px;
+  padding-top: 8px;
+  border-top: 1px solid var(--hairline);
+}
+
+.bubble-foot .btn {
+  flex: 0 0 auto;
+  padding: 5px 12px;
+  font-size: 12px;
+  gap: 5px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.bubble-foot .btn.icon-only {
+  padding: 5px 8px;
+}
+
+.bubble-foot .btn.off {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.hidden {
+  display: none !important;
+}
+
+@keyframes pop-in {
+  from { opacity: 0; transform: scale(0.65); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes slide-in {
+  from { opacity: 0; transform: translateY(-8px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+html[data-dir="rtl"] .src-preview,
+html[data-dir="rtl"] .bubble-result {
+  unicode-bidi: plaintext;
+  text-align: start;
+}
+
+/* ── Tokens only this window needs ─────────────────────────────────────────── */
+:root {
+  --bubble-edge: rgb(var(--fg) / 0.1);
+  --bubble-shadow: rgba(0, 0, 0, 0.55);
+}
+
+:root[data-theme="light"] {
+  --bubble-edge: rgb(var(--fg) / 0.14);
+  --bubble-shadow: rgba(15, 23, 42, 0.28);
+}
+
+/* The button wears the island's own surface (black in the dark theme, the light
+   island in the light one), and its glyph the matching ink. */
+.bubble-btn {
+  color: var(--ink);
+}
+
+/* Right to left: the card mirrors, and the footer reads from the right. */
+html[data-dir="rtl"] .bubble-card {
+  direction: rtl;
+}
+
+html[data-dir="rtl"] .dir-chip,
+html[data-dir="rtl"] .head-actions {
+  direction: ltr;
+}
+
+html[data-dir="rtl"] .bubble-btn .glyph {
+  right: auto;
+  left: 5px;
+}

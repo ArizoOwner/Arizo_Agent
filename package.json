@@ -1,0 +1,19 @@
+{
+  "name": "arizo-translate",
+  "version": "3.0.0",
+  "private": true,
+  "license": "MIT",
+  "author": "ArizoOwner",
+  "scripts": {
+    "dev": "tauri dev",
+    "build": "tauri build",
+    "web": "npm run dev --prefix web",
+    "test": "cargo test --manifest-path src-tauri/Cargo.toml --lib && npm test --prefix web",
+    "pack": "tauri build && node scripts/pack.mjs",
+    "icons": "node scripts/gen-icons.mjs",
+    "sounds": "node scripts/gen-sounds.mjs"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2"
+  }
+}
