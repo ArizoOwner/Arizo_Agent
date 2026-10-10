@@ -1,8 +1,8 @@
 <div align="center">
 
-<img src="assets/icons/icon.png" width="112" alt="Arizo Translate icon">
+<img src="assets/readme/hero.svg" width="100%" alt="Arizo Translate — Ari, the mascot, greets in English and Persian">
 
-# Arizo Translate
+<img src="assets/readme/marquee.svg" width="100%" alt="">
 
 **A tiny friend that lives at the top of your Windows screen — and translates anything, anywhere, without making you leave what you're doing.**
 
@@ -21,13 +21,13 @@ A Dynamic Island for translation. Ari, a little mascot, watches your cursor; a s
 
 **🌐 Language:** English • [فارسی](README.fa.md)
 
-<img src="docs/media/translate-en.png" width="760" alt="Arizo Translate in action">
+<img src="assets/readme/demo.svg" width="760" alt="Typing a sentence and getting its Persian translation in the island">
 
 [Features](#features) • [Install](#install) • [Shortcuts](#keyboard-shortcuts) • [Engines](#two-engines) • [Privacy](#privacy) • [Build](#build-from-source) • [License](#license)
 
 </div>
 
----
+<div align="center"><img src="assets/readme/divider.svg" width="100%" alt=""></div>
 
 ## Why
 
@@ -49,6 +49,16 @@ Meet **Ari**: a soft little squircle with two dark eyes that breathes, blinks, f
 - 🌓 **Looks the part** — dark, light, or follow Windows. Persian (right-to-left, Vazirmatn) or English interface, switched live in **Settings** (`Ctrl+,`).
 - 🔒 **Private by design** — no telemetry, your API key lives in the Windows Credential Manager and never reaches the page.
 - 🪶 **Tiny** — a 3.7 MB installer and a 7.5 MB portable exe. Rust and the system WebView2 instead of a bundled Chromium.
+
+## Ari's wardrobe
+
+<div align="center">
+
+<img src="assets/readme/outfits.svg" width="760" alt="Ari trying on hats and accessories">
+
+</div>
+
+<div align="center"><img src="assets/readme/divider.svg" width="100%" alt=""></div>
 
 <div align="center">
 
@@ -156,8 +166,6 @@ Ari's island and engine are ported from [Coucou](https://github.com/Louis-CFM/co
 
 <div align="center">
 
-**If Ari made you smile, a ⭐ helps a lot.**
-
-Made with care by [ArizoOwner](https://github.com/ArizoOwner) · [ArizoTeam.ir](https://arizoteam.ir)
+<img src="assets/readme/footer.svg" width="100%" alt="Made with love by ArizoOwner — arizoteam.ir">
 
 </div>

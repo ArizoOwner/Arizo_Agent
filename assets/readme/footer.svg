@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 190" width="1200" height="190" role="img" aria-label="Made by ArizoOwner">
+
+<defs>
+  
+  <linearGradient id="fb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fbfbfd"/><stop offset="1" stop-color="#c4c8d3"/></linearGradient>
+  <radialGradient id="fe" cx="0.5" cy="0.5" r="0.62"><stop offset="0.62" stop-color="#8e94a8" stop-opacity="0"/><stop offset="1" stop-color="#8e94a8" stop-opacity="0.5"/></radialGradient>
+  <radialGradient id="fh" cx="0.36" cy="0.3" r="0.45"><stop offset="0" stop-color="#fff" stop-opacity="0.85"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+  <filter id="fblur" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="9"/></filter>
+  <linearGradient id="fbg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a0a12"/><stop offset="1" stop-color="#16101f"/></linearGradient>
+  <linearGradient id="w1" x1="0" x2="1"><stop offset="0" stop-color="#3b82f6" stop-opacity=".5"/><stop offset="1" stop-color="#a78bfa" stop-opacity=".5"/></linearGradient>
+  <clipPath id="fc"><rect width="1200" height="190" rx="26"/></clipPath>
+</defs>
+<style>
+  text{font-family:'Segoe UI','Inter',system-ui,-apple-system,Arial,sans-serif}
+  .float{animation:float 5s ease-in-out infinite}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+  .breathe{transform-box:fill-box;transform-origin:50% 100%;animation:breathe 4s ease-in-out infinite}
+  @keyframes breathe{0%,100%{transform:scale(1,1)}50%{transform:scale(1.025,.972)}}
+  .eye{transform-box:fill-box;transform-origin:center;animation:blink 5s infinite}
+  @keyframes blink{0%,91%,100%{transform:scaleY(1)}94%{transform:scaleY(.08)}}
+  .look{animation:look 9s ease-in-out infinite}
+  @keyframes look{0%,100%{transform:translate(0,0)}15%{transform:translate(-14px,3px)}35%{transform:translate(12px,-3px)}55%{transform:translate(0,6px)}75%{transform:translate(8px,2px)}}
+  .spark{transform-box:fill-box;transform-origin:center;animation:spark 3s ease-in-out infinite}
+  @keyframes spark{0%,100%{transform:scale(.2) rotate(0);opacity:0}50%{transform:scale(1) rotate(45deg);opacity:1}}
+  .drift{animation:drift 7s ease-in-out infinite}
+  @keyframes drift{0%,100%{transform:translate(0,0)}50%{transform:translate(0,-14px)}}
+  .twinkle{animation:twinkle 4s ease-in-out infinite}
+  @keyframes twinkle{0%,100%{opacity:.15}50%{opacity:.9}}
+  .pair{transform-box:fill-box;transform-origin:center;animation:pair 9s infinite both;opacity:0}
+  @keyframes pair{0%{opacity:0;transform:scale(.7) translateY(10px)}4%{opacity:1;transform:scale(1.04) translateY(0)}6%{transform:scale(1)}29%{opacity:1;transform:scale(1)}33%{opacity:0;transform:scale(.9) translateY(-8px)}100%{opacity:0}}
+</style>
+<g clip-path="url(#fc)">
+  <rect width="1200" height="190" fill="url(#fbg)"/>
+  <path fill="url(#w1)" opacity=".5"><animate attributeName="d" dur="9s" repeatCount="indefinite" values="M0 120 C 200 80, 400 160, 600 120 S 1000 160, 1200 120 V190 H0 Z;M0 140 C 200 100, 400 180, 600 140 S 1000 110, 1200 150 V190 H0 Z;M0 120 C 200 80, 400 160, 600 120 S 1000 160, 1200 120 V190 H0 Z"/></path>
+  <path fill="url(#w1)" opacity=".35"><animate attributeName="d" dur="12s" repeatCount="indefinite" values="M0 150 C 200 110, 400 190, 600 150 S 1000 120, 1200 160 V190 H0 Z;M0 130 C 200 90, 400 170, 600 130 S 1000 170, 1200 120 V190 H0 Z;M0 150 C 200 110, 400 190, 600 150 S 1000 120, 1200 160 V190 H0 Z"/></path>
+  <g transform="translate(600 196) scale(.62)"><g class="drift">
+  <g class="breathe">
+    <path d="M120.0 0.0L119.8 18.8L119.4 28.5L118.6 36.4L117.5 43.2L116.1 49.3L114.4 54.8L112.3 59.8L110.0 64.4L107.3 68.6L104.3 72.5L100.9 76.1L97.3 79.4L93.2 82.4L88.8 85.2L84.0 87.6L78.8 89.8L73.2 91.7L67.0 93.4L60.3 94.8L52.9 96.0L44.6 96.9L34.9 97.5L23.0 97.9L0.0 98.0L-23.0 97.9L-34.9 97.5L-44.6 96.9L-52.9 96.0L-60.3 94.8L-67.0 93.4L-73.2 91.7L-78.8 89.8L-84.0 87.6L-88.8 85.2L-93.2 82.4L-97.3 79.4L-100.9 76.1L-104.3 72.5L-107.3 68.6L-110.0 64.4L-112.3 59.8L-114.4 54.8L-116.1 49.3L-117.5 43.2L-118.6 36.4L-119.4 28.5L-119.8 18.8L-120.0 0.0L-119.8 -18.8L-119.4 -28.5L-118.6 -36.4L-117.5 -43.2L-116.1 -49.3L-114.4 -54.8L-112.3 -59.8L-110.0 -64.4L-107.3 -68.6L-104.3 -72.5L-100.9 -76.1L-97.3 -79.4L-93.2 -82.4L-88.8 -85.2L-84.0 -87.6L-78.8 -89.8L-73.2 -91.7L-67.0 -93.4L-60.3 -94.8L-52.9 -96.0L-44.6 -96.9L-34.9 -97.5L-23.0 -97.9L-0.0 -98.0L23.0 -97.9L34.9 -97.5L44.6 -96.9L52.9 -96.0L60.3 -94.8L67.0 -93.4L73.2 -91.7L78.8 -89.8L84.0 -87.6L88.8 -85.2L93.2 -82.4L97.3 -79.4L100.9 -76.1L104.3 -72.5L107.3 -68.6L110.0 -64.4L112.3 -59.8L114.4 -54.8L116.1 -49.3L117.5 -43.2L118.6 -36.4L119.4 -28.5L119.8 -18.8Z" fill="url(#fb)"/>
+    <path d="M120.0 0.0L119.8 18.8L119.4 28.5L118.6 36.4L117.5 43.2L116.1 49.3L114.4 54.8L112.3 59.8L110.0 64.4L107.3 68.6L104.3 72.5L100.9 76.1L97.3 79.4L93.2 82.4L88.8 85.2L84.0 87.6L78.8 89.8L73.2 91.7L67.0 93.4L60.3 94.8L52.9 96.0L44.6 96.9L34.9 97.5L23.0 97.9L0.0 98.0L-23.0 97.9L-34.9 97.5L-44.6 96.9L-52.9 96.0L-60.3 94.8L-67.0 93.4L-73.2 91.7L-78.8 89.8L-84.0 87.6L-88.8 85.2L-93.2 82.4L-97.3 79.4L-100.9 76.1L-104.3 72.5L-107.3 68.6L-110.0 64.4L-112.3 59.8L-114.4 54.8L-116.1 49.3L-117.5 43.2L-118.6 36.4L-119.4 28.5L-119.8 18.8L-120.0 0.0L-119.8 -18.8L-119.4 -28.5L-118.6 -36.4L-117.5 -43.2L-116.1 -49.3L-114.4 -54.8L-112.3 -59.8L-110.0 -64.4L-107.3 -68.6L-104.3 -72.5L-100.9 -76.1L-97.3 -79.4L-93.2 -82.4L-88.8 -85.2L-84.0 -87.6L-78.8 -89.8L-73.2 -91.7L-67.0 -93.4L-60.3 -94.8L-52.9 -96.0L-44.6 -96.9L-34.9 -97.5L-23.0 -97.9L-0.0 -98.0L23.0 -97.9L34.9 -97.5L44.6 -96.9L52.9 -96.0L60.3 -94.8L67.0 -93.4L73.2 -91.7L78.8 -89.8L84.0 -87.6L88.8 -85.2L93.2 -82.4L97.3 -79.4L100.9 -76.1L104.3 -72.5L107.3 -68.6L110.0 -64.4L112.3 -59.8L114.4 -54.8L116.1 -49.3L117.5 -43.2L118.6 -36.4L119.4 -28.5L119.8 -18.8Z" fill="url(#fe)"/>
+    <path d="M120.0 0.0L119.8 18.8L119.4 28.5L118.6 36.4L117.5 43.2L116.1 49.3L114.4 54.8L112.3 59.8L110.0 64.4L107.3 68.6L104.3 72.5L100.9 76.1L97.3 79.4L93.2 82.4L88.8 85.2L84.0 87.6L78.8 89.8L73.2 91.7L67.0 93.4L60.3 94.8L52.9 96.0L44.6 96.9L34.9 97.5L23.0 97.9L0.0 98.0L-23.0 97.9L-34.9 97.5L-44.6 96.9L-52.9 96.0L-60.3 94.8L-67.0 93.4L-73.2 91.7L-78.8 89.8L-84.0 87.6L-88.8 85.2L-93.2 82.4L-97.3 79.4L-100.9 76.1L-104.3 72.5L-107.3 68.6L-110.0 64.4L-112.3 59.8L-114.4 54.8L-116.1 49.3L-117.5 43.2L-118.6 36.4L-119.4 28.5L-119.8 18.8L-120.0 0.0L-119.8 -18.8L-119.4 -28.5L-118.6 -36.4L-117.5 -43.2L-116.1 -49.3L-114.4 -54.8L-112.3 -59.8L-110.0 -64.4L-107.3 -68.6L-104.3 -72.5L-100.9 -76.1L-97.3 -79.4L-93.2 -82.4L-88.8 -85.2L-84.0 -87.6L-78.8 -89.8L-73.2 -91.7L-67.0 -93.4L-60.3 -94.8L-52.9 -96.0L-44.6 -96.9L-34.9 -97.5L-23.0 -97.9L-0.0 -98.0L23.0 -97.9L34.9 -97.5L44.6 -96.9L52.9 -96.0L60.3 -94.8L67.0 -93.4L73.2 -91.7L78.8 -89.8L84.0 -87.6L88.8 -85.2L93.2 -82.4L97.3 -79.4L100.9 -76.1L104.3 -72.5L107.3 -68.6L110.0 -64.4L112.3 -59.8L114.4 -54.8L116.1 -49.3L117.5 -43.2L118.6 -36.4L119.4 -28.5L119.8 -18.8Z" fill="url(#fh)"/>
+    
+    <ellipse cx="-74" cy="22" rx="17" ry="9" fill="#ff8fa6" opacity="0.38" filter="url(#fblur)" style="filter:blur(4px)"/>
+    <ellipse cx="74" cy="22" rx="17" ry="9" fill="#ff8fa6" opacity="0.38" style="filter:blur(4px)"/>
+    <g class="look"><g class="eye"><ellipse cx="-46" cy="-4" rx="11" ry="17" fill="#0e0c10"/><circle cx="-42.5" cy="-10" r="3.6" fill="#fff"/></g><g class="eye"><ellipse cx="46" cy="-4" rx="11" ry="17" fill="#0e0c10"/><circle cx="49.5" cy="-10" r="3.6" fill="#fff"/></g></g>
+    
+  </g></g></g>
+  <text x="48" y="74" font-size="22" font-weight="700" fill="#fff">Made with <tspan fill="#ff7a9c">♥</tspan> by ArizoOwner</text>
+  <text x="48" y="104" font-size="15" fill="#9aa0b8">If Ari made you smile, a ⭐ helps a lot.</text>
+  <text x="1152" y="74" text-anchor="end" font-size="20" font-weight="700" fill="#fff">arizoteam.ir</text>
+  <text x="1152" y="104" text-anchor="end" font-size="15" fill="#9aa0b8" direction="rtl" style="font-family:Vazirmatn,Tahoma,'Segoe UI',sans-serif">اگر آری لبخندی روی لبتان آورد، یک ⭐ بدهید</text>
+  <g transform="translate(300 140) scale(0.9)"><path class="spark" style="animation-delay:0s" d="M0-10 L2.6-2.6 10 0 2.6 2.6 0 10 -2.6 2.6 -10 0 -2.6-2.6Z" fill="#fff"/></g><g transform="translate(900 60) scale(1.1)"><path class="spark" style="animation-delay:1s" d="M0-10 L2.6-2.6 10 0 2.6 2.6 0 10 -2.6 2.6 -10 0 -2.6-2.6Z" fill="#fff"/></g><g transform="translate(1010 150) scale(0.7)"><path class="spark" style="animation-delay:2s" d="M0-10 L2.6-2.6 10 0 2.6 2.6 0 10 -2.6 2.6 -10 0 -2.6-2.6Z" fill="#fff"/></g>
+</g>
+<rect width="1200" height="190" rx="26" fill="none" stroke="#ffffff14"/>
+</svg>

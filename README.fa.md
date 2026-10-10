@@ -1,8 +1,8 @@
 <div align="center">
 
-<img src="assets/icons/icon.png" width="112" alt="آیکون آریزو ترنسلیت">
+<img src="assets/readme/hero.svg" width="100%" alt="آریزو ترنسلیت — آری، شخصیت برنامه، به فارسی و انگلیسی سلام می‌کند">
 
-# آریزو ترنسلیت (Arizo Translate)
+<img src="assets/readme/marquee.svg" width="100%" alt="">
 
 **دوست کوچکی که بالای صفحه‌ی ویندوز شما زندگی می‌کند — و هر متنی را، در هر برنامه‌ای، بدون اینکه کارتان را رها کنید ترجمه می‌کند.**
 
@@ -21,7 +21,7 @@
 
 **🌐 زبان مستندات:** [English](README.md) • فارسی
 
-<img src="docs/media/translate-fa.png" width="760" alt="آریزو ترنسلیت در عمل">
+<img src="assets/readme/demo.svg" width="760" alt="تایپ یک جمله و دریافت ترجمه‌ی فارسی آن در جزیره">
 
 [قابلیت‌ها](#قابلیتها) • [نصب](#نصب) • [میانبرها](#کلیدهای-میانبر) • [موتورها](#دو-موتور-ترجمه) • [حریم خصوصی](#حریم-خصوصی) • [ساخت](#ساخت-از-روی-سورس) • [لایسنس](#لایسنس)
 
@@ -30,6 +30,12 @@
 <div dir="rtl">
 
 ---
+
+</div>
+
+<div align="center"><img src="assets/readme/divider.svg" width="100%" alt=""></div>
+
+<div dir="rtl">
 
 ## چرا؟
 
@@ -53,6 +59,20 @@
 - 🪶 **سبک** — نصب‌کننده‌ی ۳٫۷ مگابایتی و نسخه‌ی پرتابل ۷٫۵ مگابایتی. Rust و WebView2 خود ویندوز، به‌جای یک Chromium همراه برنامه.
 
 </div>
+
+<div dir="rtl">
+
+## کمد لباس آری
+
+</div>
+
+<div align="center">
+
+<img src="assets/readme/outfits.svg" width="760" alt="آری در حال امتحان کلاه و لوازم">
+
+</div>
+
+<div align="center"><img src="assets/readme/divider.svg" width="100%" alt=""></div>
 
 <div align="center">
 
@@ -168,8 +188,6 @@ Issue و Pull Request خوش‌آمد است. پیش از ارسال، `npm test
 
 <div align="center">
 
-**اگر آری لبخندی روی لبتان آورد، یک ⭐ خیلی کمک می‌کند.**
-
-ساخته‌شده با دقت توسط [ArizoOwner](https://github.com/ArizoOwner) · [ArizoTeam.ir](https://arizoteam.ir)
+<img src="assets/readme/footer.svg" width="100%" alt="ساخته‌شده با دقت توسط ArizoOwner — arizoteam.ir">
 
 </div>

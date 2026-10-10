@@ -11,7 +11,8 @@
     "test": "cargo test --manifest-path src-tauri/Cargo.toml --lib && npm test --prefix web",
     "pack": "tauri build && node scripts/pack.mjs",
     "icons": "node scripts/gen-icons.mjs",
-    "sounds": "node scripts/gen-sounds.mjs"
+    "sounds": "node scripts/gen-sounds.mjs",
+    "readme-art": "node scripts/gen-readme-art.mjs"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2"
