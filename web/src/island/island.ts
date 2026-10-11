@@ -138,7 +138,12 @@ export class Island {
         State.wardrobePreview = outfit;
         State.notify();
       },
-      heightChanged: () => this.animateGeometry(false),
+      // The translate view grows and shrinks with its text: closing the gap back to
+      // a short phrase uses the no-overshoot curve, growing uses the spring.
+      heightChanged: () => {
+        const { w, h } = this.targetSize();
+        this.animateGeometry(h < this.height.value || w < this.width.value);
+      },
       retranslate: (item: HistoryItem) => {
         this.setView("translate");
         this.translate.setText(item.query, item.targetLang);

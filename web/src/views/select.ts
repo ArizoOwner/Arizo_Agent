@@ -38,6 +38,7 @@ function openMenu(sel: HTMLSelectElement) {
       class: i === sel.selectedIndex ? "dd-item on" : "dd-item",
       role: "option",
       text: opt.textContent || opt.value,
+      title: opt.textContent || opt.value,
     });
     item.addEventListener("mousemove", () => highlight(i));
     item.addEventListener("mousedown", (e) => e.preventDefault());
@@ -108,7 +109,7 @@ function openMenu(sel: HTMLSelectElement) {
   document.body.append(menu);
   const a = sel.getBoundingClientRect();
   const b = boundsOf(sel);
-  const width = Math.min(Math.max(a.width, 168), b.right - b.left);
+  const width = Math.min(Math.max(a.width, 220), b.right - b.left);
   menu.style.width = `${width}px`;
   const natural = Math.min(menu.scrollHeight, 252);
   const below = b.bottom - a.bottom - 4;

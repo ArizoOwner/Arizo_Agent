@@ -46,10 +46,10 @@ export const EXPANDED_CORNER = 22;
 export const WAKE_STRIP_W = 240;
 export const WAKE_STRIP_H = 6;
 
-/** The translate view at rest: spacious and legible. It grows with text up to PANEL_H. */
-export const TRANSLATE_MIN_H = 290;
-/** Base content height for translate at rest. */
-const INPUT_REST_PX = 60;
+/** The translate view at rest: compact, sleek and legible. It grows with text up to PANEL_H. */
+export const TRANSLATE_MIN_H = 235;
+/** What the island has around its two cards: the 34px header plus the 8px top and 10px bottom padding. */
+const ISLAND_CHROME_PX = 52;
 
 /**
  * The translate view's width follows its text, like its height: a short phrase
@@ -57,8 +57,8 @@ const INPUT_REST_PX = 60;
  * text decides: the buttons adapt to the room (container queries in
  * translate.css), the island never widens for them.
  */
-export const TRANSLATE_MIN_W = 700;
-export const TRANSLATE_MAX_W = 780;
+export const TRANSLATE_MIN_W = 740;
+export const TRANSLATE_MAX_W = 860;
 /** Characters at which the translate view has reached its maximum width. */
 const WIDTH_FULL_AT_CHARS = 160;
 /** Widths move in steps so typing does not make the island breathe on every key. */
@@ -71,10 +71,14 @@ export function translateWidth(chars: number): number {
   return Math.min(TRANSLATE_MAX_W, stepped);
 }
 
-/** Island height for content of given height. */
-export function translateHeight(contentPx: number): number {
-  const extra = Math.max(0, Math.round(contentPx) - INPUT_REST_PX);
-  return Math.min(PANEL_H, TRANSLATE_MIN_H + extra);
+/**
+ * Island height for two cards that each need `cardPx` to show everything without
+ * scrolling (the taller of the two). Never shorter than the resting height, never
+ * taller than the window: only past that does a card scroll.
+ */
+export function translateHeight(cardPx: number): number {
+  const wanted = Math.round(Math.max(0, cardPx)) + ISLAND_CHROME_PX;
+  return Math.min(PANEL_H, Math.max(TRANSLATE_MIN_H, wanted));
 }
 
 export const VIEW_LAYOUTS: Record<IslandViewName, ViewLayout> = {

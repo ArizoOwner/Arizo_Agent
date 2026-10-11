@@ -15,16 +15,21 @@ use std::time::{Duration, Instant};
 use arboard::{Clipboard, ImageData};
 use windows::Win32::Foundation::{HWND, LPARAM, LRESULT, POINT, WPARAM};
 use windows::Win32::System::DataExchange::GetClipboardSequenceNumber;
-use windows::Win32::System::Threading::{AttachThreadInput, GetCurrentThreadId};
+use windows::Win32::System::Threading::{AttachThreadInput, GetCurrentProcessId, GetCurrentThreadId};
 use windows::Win32::UI::Input::KeyboardAndMouse::{
-    GetAsyncKeyState, SendInput, INPUT, INPUT_0, INPUT_KEYBOARD, KEYBDINPUT, KEYEVENTF_KEYUP,
-    VIRTUAL_KEY, VK_A, VK_C, VK_CONTROL, VK_LCONTROL, VK_LMENU, VK_LSHIFT, VK_LWIN, VK_MENU, VK_RCONTROL, VK_RMENU,
+    GetAsyncKeyState, MapVirtualKeyW, SendInput, INPUT, INPUT_0, INPUT_KEYBOARD, KEYBDINPUT,
+    KEYEVENTF_EXTENDEDKEY, KEYEVENTF_KEYUP, MAPVK_VK_TO_VSC, VIRTUAL_KEY, VK_A, VK_C, VK_CONTROL,
+    VK_INSERT, VK_LCONTROL, VK_LMENU, VK_LSHIFT, VK_LWIN, VK_MENU, VK_RCONTROL, VK_RMENU,
     VK_RSHIFT, VK_RWIN, VK_SHIFT, VK_V,
 };
 use windows::Win32::UI::WindowsAndMessaging::{
-    CallNextHookEx, GetClassNameW, GetForegroundWindow, GetMessageW, GetWindowThreadProcessId,
-    PostThreadMessageW, SetForegroundWindow, SetWindowsHookExW, UnhookWindowsHookEx, WindowFromPoint, MSG,
-    MSLLHOOKSTRUCT, WH_MOUSE_LL, WM_LBUTTONDOWN, WM_LBUTTONUP, WM_QUIT, WM_RBUTTONDOWN, WM_RBUTTONUP,
+    AllowSetForegroundWindow, BringWindowToTop, CallNextHookEx, GetClassNameW, GetForegroundWindow,
+    GetGUIThreadInfo, GetMessageW, GetWindow, GetWindowLongPtrW, GetWindowTextW,
+    GetWindowThreadProcessId, IsWindow, IsWindowVisible, PostThreadMessageW, SendMessageTimeoutW,
+    SetForegroundWindow, SetWindowsHookExW, UnhookWindowsHookEx, WindowFromPoint, GUITHREADINFO,
+    GWL_EXSTYLE, GW_HWNDNEXT, MSG, MSLLHOOKSTRUCT, SMTO_ABORTIFHUNG, WH_MOUSE_LL, WM_COPY,
+    WM_LBUTTONDOWN, WM_LBUTTONUP, WM_PASTE, WM_QUIT, WM_RBUTTONDOWN, WM_RBUTTONUP,
+    WS_EX_APPWINDOW, WS_EX_TOOLWINDOW,
 };
 
 fn sleep(ms: u64) {
@@ -34,16 +39,16 @@ fn sleep(ms: u64) {
 // ── Keys ──────────────────────────────────────────────────────────────────────
 
 fn key_event(vk: VIRTUAL_KEY, up: bool) -> INPUT {
+    let scan = unsafe { MapVirtualKeyW(vk.0 as u32, MAPVK_VK_TO_VSC) } as u16;
+    // Insert, like the arrows, is an "extended" key: without the flag Windows reads it as keypad 0.
+    let mut flags = if up { KEYEVENTF_KEYUP } else { Default::default() };
+    if vk == VK_INSERT {
+        flags |= KEYEVENTF_EXTENDEDKEY;
+    }
     INPUT {
         r#type: INPUT_KEYBOARD,
         Anonymous: INPUT_0 {
-            ki: KEYBDINPUT {
-                wVk: vk,
-                wScan: 0,
-                dwFlags: if up { KEYEVENTF_KEYUP } else { Default::default() },
-                time: 0,
-                dwExtraInfo: 0,
-            },
+            ki: KEYBDINPUT { wVk: vk, wScan: scan, dwFlags: flags, time: 0, dwExtraInfo: 0 },
         },
     }
 }
@@ -98,11 +103,21 @@ fn release_held_modifiers() {
     }
 }
 
-fn ctrl_combo(vk: VIRTUAL_KEY) {
+/// `modifier` + `key`, pressed one after the other with pauses: some engines (Chromium,
+/// Qt, Electron) drop a combination whose keys arrive in the same instant.
+fn chord(modifier: VIRTUAL_KEY, key: VIRTUAL_KEY) {
     release_held_modifiers();
-    send(&[key_event(VK_CONTROL, false), key_event(vk, false)]);
-    sleep(30);
-    send(&[key_event(vk, true), key_event(VK_CONTROL, true)]);
+    send(&[key_event(modifier, false)]);
+    sleep(25);
+    send(&[key_event(key, false)]);
+    sleep(45);
+    send(&[key_event(key, true)]);
+    sleep(25);
+    send(&[key_event(modifier, true)]);
+}
+
+fn ctrl_combo(vk: VIRTUAL_KEY) {
+    chord(VK_CONTROL, vk);
 }
 
 pub fn send_copy() {
@@ -117,14 +132,63 @@ pub fn send_select_all() {
     ctrl_combo(VK_A);
 }
 
+/// Ctrl+Insert copies in nearly every Windows program, including the ones that
+/// ignore a synthetic Ctrl+C.
+fn send_copy_alt() {
+    chord(VK_CONTROL, VK_INSERT);
+}
+
+/// The control that has the keyboard focus inside the window `hwnd` (a text box, an
+/// edit field), or the window itself when it cannot be told. Classic Win32 and many
+/// toolkits answer; Chromium and Qt draw their own fields and answer with the window.
+fn focused_control(hwnd: HWND) -> HWND {
+    unsafe {
+        let thread = GetWindowThreadProcessId(hwnd, None);
+        let mut info = GUITHREADINFO { cbSize: std::mem::size_of::<GUITHREADINFO>() as u32, ..Default::default() };
+        if thread != 0 && GetGUIThreadInfo(thread, &mut info).is_ok() && !info.hwndFocus.0.is_null() {
+            return info.hwndFocus;
+        }
+    }
+    hwnd
+}
+
+/// Asks the focused control directly to copy or paste, with no keyboard involved.
+/// Works for standard edit boxes and rich edits; harmless where it is not understood.
+fn send_clipboard_message(hwnd: HWND, msg: u32) {
+    let target = focused_control(hwnd);
+    let mut out = 0usize;
+    unsafe {
+        let _ = SendMessageTimeoutW(target, msg, WPARAM(0), LPARAM(0), SMTO_ABORTIFHUNG, 400, Some(&mut out));
+    }
+}
+
 // ── Windows ───────────────────────────────────────────────────────────────────
 
 static TARGET: AtomicIsize = AtomicIsize::new(0);
 
 /// Remember the window the user is working in, so the result can go back to it.
 pub fn save_target_window() {
-    let hwnd = unsafe { GetForegroundWindow() };
-    TARGET.store(hwnd.0 as isize, Ordering::Relaxed);
+    unsafe {
+        let hwnd = GetForegroundWindow();
+        if hwnd.0.is_null() {
+            crate::log("target: no foreground window when the shortcut was pressed");
+            return;
+        }
+        let mut pid = 0;
+        GetWindowThreadProcessId(hwnd, Some(&mut pid));
+        let mut buf = [0u16; 128];
+        let n = GetClassNameW(hwnd, &mut buf);
+        let class = String::from_utf16_lossy(&buf[..n.max(0) as usize]);
+        let own = pid == GetCurrentProcessId();
+        crate::log(&format!(
+            "target: foreground={:#x} class={class} own_window={own} (kept {:#x})",
+            hwnd.0 as isize,
+            TARGET.load(Ordering::Relaxed)
+        ));
+        if pid != 0 && !own {
+            TARGET.store(hwnd.0 as isize, Ordering::Relaxed);
+        }
+    }
 }
 
 /// Forget it: when the island is opened from the tray no app is "the target", and a
@@ -133,23 +197,106 @@ pub fn clear_target_window() {
     TARGET.store(0, Ordering::Relaxed);
 }
 
+/// The window the user was working in before Arizo came up: walking the windows from the
+/// top of the stack down, the first normal, visible one that belongs to another program.
+/// Used when no target was saved (the island was opened from the tray or its button, which
+/// is itself the foreground window), so a replace still has somewhere to go.
+fn previous_app_window() -> Option<HWND> {
+    let own_pid = unsafe { GetCurrentProcessId() };
+    let mut hwnd = unsafe { GetForegroundWindow() };
+    // When Windows has already handed the focus to another program, that is the one.
+    if !hwnd.0.is_null() {
+        let mut pid = 0;
+        unsafe { GetWindowThreadProcessId(hwnd, Some(&mut pid)) };
+        if pid != 0 && pid != own_pid {
+            return Some(hwnd);
+        }
+    }
+    let mut guard = 0;
+    while !hwnd.0.is_null() && guard < 400 {
+        guard += 1;
+        hwnd = unsafe { GetWindow(hwnd, GW_HWNDNEXT) }.unwrap_or_default();
+        if hwnd.0.is_null() {
+            break;
+        }
+        let mut pid = 0;
+        unsafe { GetWindowThreadProcessId(hwnd, Some(&mut pid)) };
+        if pid == 0 || pid == own_pid || !unsafe { IsWindowVisible(hwnd) }.as_bool() {
+            continue;
+        }
+        // Skip tool windows, tooltips and the taskbar: only a window one would work in.
+        let ex = unsafe { GetWindowLongPtrW(hwnd, GWL_EXSTYLE) } as u32;
+        if ex & WS_EX_TOOLWINDOW.0 != 0 && ex & WS_EX_APPWINDOW.0 == 0 {
+            continue;
+        }
+        let mut title = [0u16; 8];
+        if unsafe { GetWindowTextW(hwnd, &mut title) } == 0 {
+            continue;
+        }
+        let mut class = [0u16; 64];
+        let n = unsafe { GetClassNameW(hwnd, &mut class) };
+        let class = String::from_utf16_lossy(&class[..n.max(0) as usize]);
+        if matches!(class.as_str(), "Shell_TrayWnd" | "Shell_SecondaryTrayWnd" | "Progman" | "WorkerW" | "Windows.UI.Core.CoreWindow") {
+            continue;
+        }
+        return Some(hwnd);
+    }
+    None
+}
+
 pub fn restore_target_window() {
     let raw = TARGET.load(Ordering::Relaxed);
-    if raw == 0 {
-        return;
-    }
-    let target = HWND(raw as *mut _);
+    let saved = HWND(raw as *mut _);
+    let target = if raw != 0 && unsafe { IsWindow(Some(saved)).as_bool() } {
+        saved
+    } else {
+        // No target was saved, or it has closed: the app the user came from.
+        match previous_app_window() {
+            Some(prev) => {
+                crate::log(&format!("target: none saved, using the previous app window {:#x}", prev.0 as isize));
+                TARGET.store(prev.0 as isize, Ordering::Relaxed);
+                prev
+            }
+            None => {
+                crate::log("target: none saved and no previous app window found");
+                return;
+            }
+        }
+    };
+
     unsafe {
-        if GetForegroundWindow() == target {
+        let fg = GetForegroundWindow();
+        if fg == target {
             return;
         }
-        let me = GetCurrentThreadId();
-        let theirs = GetWindowThreadProcessId(target, None);
-        let _ = AttachThreadInput(me, theirs, true);
+
+        let cur_thread = GetCurrentThreadId();
+        let fg_thread = if !fg.0.is_null() {
+            GetWindowThreadProcessId(fg, None)
+        } else {
+            0
+        };
+        let target_thread = GetWindowThreadProcessId(target, None);
+
+        if fg_thread != 0 && fg_thread != cur_thread {
+            let _ = AttachThreadInput(cur_thread, fg_thread, true);
+        }
+        if target_thread != 0 && target_thread != cur_thread {
+            let _ = AttachThreadInput(cur_thread, target_thread, true);
+        }
+
+        let _ = AllowSetForegroundWindow(0xFFFF_FFFF);
+        let _ = BringWindowToTop(target);
         let _ = SetForegroundWindow(target);
-        let _ = AttachThreadInput(me, theirs, false);
+
+        if target_thread != 0 && target_thread != cur_thread {
+            let _ = AttachThreadInput(cur_thread, target_thread, false);
+        }
+        if fg_thread != 0 && fg_thread != cur_thread {
+            let _ = AttachThreadInput(cur_thread, fg_thread, false);
+        }
     }
-    sleep(40);
+    sleep(100);
 }
 
 // ── Clipboard ─────────────────────────────────────────────────────────────────
@@ -221,15 +368,38 @@ fn sequence() -> u32 {
     unsafe { GetClipboardSequenceNumber() }
 }
 
-/// Sends Ctrl+C and reports whether the clipboard really changed: no marker text is
-/// ever written, so nothing the user had is overwritten unless something was selected.
+/// Waits until the clipboard changes (its sequence number moves) or the time is up.
+fn clipboard_changed_since(before: u32, timeout_ms: u64) -> bool {
+    let start = Instant::now();
+    while start.elapsed() < Duration::from_millis(timeout_ms) {
+        if sequence() != before {
+            return true;
+        }
+        sleep(25);
+    }
+    sequence() != before
+}
+
+/// Copies the selection and reports whether the clipboard really changed: no marker
+/// text is ever written, so nothing the user had is overwritten unless something was
+/// selected. Not every program obeys a synthetic Ctrl+C, so three ways are tried in
+/// turn, each given time to answer: Ctrl+C, Ctrl+Insert, then a direct WM_COPY.
 fn copy_and_wait(timeout_ms: u64) -> bool {
     let before = sequence();
     send_copy();
-    let start = Instant::now();
-    while start.elapsed() < Duration::from_millis(timeout_ms) {
-        sleep(25);
-        if sequence() != before {
+    if clipboard_changed_since(before, timeout_ms) {
+        return true;
+    }
+    send_copy_alt();
+    if clipboard_changed_since(before, timeout_ms / 2) {
+        crate::log("capture: Ctrl+C was ignored, Ctrl+Insert worked");
+        return true;
+    }
+    let front = unsafe { GetForegroundWindow() };
+    if !front.0.is_null() {
+        send_clipboard_message(front, WM_COPY);
+        if clipboard_changed_since(before, timeout_ms / 2) {
+            crate::log("capture: Ctrl+C and Ctrl+Insert were ignored, WM_COPY worked");
             return true;
         }
     }
@@ -262,16 +432,20 @@ pub fn capture_selected(restore_clipboard: bool) -> String {
 /// field (Ctrl+A), so a message typed in a chat box can be translated in place.
 pub fn capture_text_or_field() -> String {
     let selected = capture_selected(false);
+    crate::log(&format!("capture: selection copy gave {} chars", selected.chars().count()));
     if !selected.is_empty() {
         return selected;
     }
     if CAPTURING.swap(true, Ordering::AcqRel) {
+        crate::log("capture: another capture is already running");
         return String::new();
     }
     let backup = snapshot();
     send_select_all();
     sleep(75);
-    let text = if copy_and_wait(450) { read_text().trim().to_string() } else { String::new() };
+    let copied = copy_and_wait(450);
+    let text = if copied { read_text().trim().to_string() } else { String::new() };
+    crate::log(&format!("capture: select-all + copy changed the clipboard={copied}, {} chars", text.chars().count()));
     if text.is_empty() {
         restore(&backup);
     }
@@ -287,20 +461,86 @@ pub fn paste_text(text: &str, backup: Option<Snapshot>, restore_clipboard: bool)
     }
     let backup = backup.unwrap_or_else(snapshot);
     restore_target_window();
-    sleep(40);
-    if !write_text(text) {
+    // Wait until the target really is in front: Ctrl+V goes to whoever has the focus,
+    // and a fixed pause is not enough for every app (Chrome, Electron, UWP).
+    let wanted = TARGET.load(Ordering::Relaxed);
+    let mut front = unsafe { GetForegroundWindow() }.0 as isize;
+    let mut waited = 0;
+    while wanted != 0 && front != wanted && waited < 600 {
+        sleep(40);
+        waited += 40;
+        if waited % 200 == 0 {
+            restore_target_window();
+        }
+        front = unsafe { GetForegroundWindow() }.0 as isize;
+    }
+    let mut pid = 0;
+    unsafe { GetWindowThreadProcessId(GetForegroundWindow(), Some(&mut pid)) };
+    let own = pid == unsafe { GetCurrentProcessId() };
+    crate::log(&format!(
+        "paste: target={wanted:#x} front={front:#x} same={} own_window={own} waited={waited}ms chars={}",
+        front == wanted,
+        text.chars().count()
+    ));
+    if own {
+        // Pasting into our own island would do nothing useful: leave the text on the clipboard.
+        write_text(text);
+        crate::log("paste: the front window is Arizo itself, text left on the clipboard");
         return false;
     }
-    sleep(70);
-    send_paste();
+    sleep(60);
+    if !write_text(text) {
+        crate::log("paste: could not write the clipboard");
+        return false;
+    }
+    sleep(80);
+    let front = unsafe { GetForegroundWindow() };
+    // One way is used, never two: a second paste after a first that worked would
+    // insert the text twice, and Windows cannot tell whether a keystroke was obeyed.
+    // A classic edit control is asked directly (WM_PASTE); everything else, Chrome,
+    // Telegram, Electron, Office, gets the keyboard paste.
+    let standard_edit = {
+        let ctl = focused_control(front);
+        let mut buf = [0u16; 64];
+        let n = unsafe { GetClassNameW(ctl, &mut buf) };
+        let class = String::from_utf16_lossy(&buf[..n.max(0) as usize]).to_lowercase();
+        class.starts_with("edit") || class.contains("richedit") || class.contains("textbox")
+    };
+    if standard_edit {
+        // A classic Win32 edit control: ask it directly, which needs no keyboard focus
+        // tricks and cannot be swallowed by a shortcut handler.
+        send_clipboard_message(front, WM_PASTE);
+        crate::log("paste: standard edit control, WM_PASTE sent");
+    } else {
+        send_paste();
+        crate::log("paste: Ctrl+V sent");
+    }
     if restore_clipboard {
-        // Slow targets (Word, Electron apps) read the clipboard a little after Ctrl+V.
+        // Slow targets (Word, Electron apps, Telegram, Chrome) read the clipboard after Ctrl+V.
         thread::spawn(move || {
-            sleep(900);
+            sleep(1800);
             restore(&backup);
         });
     }
     true
+}
+
+/// The same as `paste_text`, but when nothing is going to receive the paste the text
+/// stays on the clipboard and the caller is told, so the user can press Ctrl+V.
+pub fn paste_or_keep(text: &str, backup: Option<Snapshot>, restore_clipboard: bool) -> PasteOutcome {
+    if paste_text(text, backup, restore_clipboard) {
+        PasteOutcome::Pasted
+    } else {
+        // Whatever stopped the paste, the translation is on the clipboard.
+        write_text(text);
+        PasteOutcome::KeptOnClipboard
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum PasteOutcome {
+    Pasted,
+    KeptOnClipboard,
 }
 
 // ── Mouse: "the user selected something" ──────────────────────────────────────

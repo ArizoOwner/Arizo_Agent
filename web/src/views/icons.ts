@@ -74,4 +74,8 @@ export const ICONS = {
   columns: "M4 5h16v14H4zM12 5v14",
   // star (outline, stroked)
   starOutline: "M12 3.8l2.4 5.1 5.6.8-4.1 4 1 5.6-4.9-2.7-4.9 2.7 1-5.6-4.1-4 5.6-.8L12 3.8z",
+  // pencil (stroked)
+  pen: "M17 3a2.8 2.8 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z",
+  // list.bullet (stroked)
+  list: "M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01",
 } as const;

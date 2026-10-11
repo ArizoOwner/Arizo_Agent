@@ -9,13 +9,13 @@
 }
 
 .translate > .left {
-  flex: 0 0 340px;
-  width: 340px;
+  flex: 1 1 50%;
+  min-width: 350px;
 }
 
 .translate > .right {
-  flex: 1 1 auto;
-  min-width: 0;
+  flex: 1 1 50%;
+  min-width: 350px;
 }
 
 .history > .card,
@@ -127,6 +127,9 @@ select.chip option {
   background: rgb(var(--fg) / 0.08);
   color: var(--ink-2);
   cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  line-height: 1.2;
   transition: background 0.12s, color 0.12s, transform 0.08s;
 }
 
@@ -146,7 +149,7 @@ select.chip option {
 
 .src-input {
   flex: 1 1 auto;
-  min-height: 90px;
+  min-height: 48px;
   width: 100%;
   resize: none;
   border: 0;
@@ -170,13 +173,15 @@ select.chip option {
 .src-bar {
   display: flex;
   align-items: center;
-  gap: 8px;
-  min-height: 24px;
+  gap: 6px;
+  min-height: 26px;
+  flex-wrap: wrap;
 }
 
 .counter {
   font: 400 11px var(--mono);
   color: var(--dim-4);
+  flex-shrink: 0;
 }
 
 .clean-chip {
@@ -185,7 +190,8 @@ select.chip option {
   color: var(--ink-2);
   border-color: rgba(52, 211, 153, 0.5);
   background: rgba(52, 211, 153, 0.12);
-  flex: 0 1 auto;
+  flex-shrink: 0;
+  white-space: nowrap;
   cursor: pointer;
 }
 
@@ -816,6 +822,30 @@ html[data-dir="rtl"] .target-select {
   flex-wrap: wrap;
 }
 
+.set-model-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.set-model-badge {
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgb(var(--fg) / 0.08);
+  color: var(--dim);
+}
+.set-model-badge.ok {
+  background: rgba(34, 197, 94, 0.15);
+  color: var(--green);
+}
+.set-model-badge.err {
+  background: rgba(244, 80, 94, 0.15);
+  color: var(--red-text);
+}
+
 .set-icon-btn {
   width: 28px;
   height: 28px;
@@ -990,12 +1020,11 @@ html[data-dir="rtl"] .tab-chevron {
   }
 }
 
+/* The label of "Replace in app" always stays: a bare arrow does not say what it
+   does. When the card is this narrow, the key hints go instead, and the row wraps
+   (the island grows to fit it) rather than hiding a word. */
 @container res (max-width: 339px) {
-  .res-footer .replace-btn > span {
+  .res-footer .btn .kbd {
     display: none;
-  }
-  .res-footer .replace-btn {
-    padding-inline: 10px;
-    gap: 0;
   }
 }

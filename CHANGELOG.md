@@ -1,7 +1,22 @@
 # Changelog
 
-## 3.0.1 (unreleased)
+## 3.0.1
 
+- **Models dropdown.** In Settings → AI Engine the model is now picked from a list: the
+  popular models of the chosen provider, or the full list after *Fetch models* (cached per
+  provider). *Type custom model…* still lets you enter any name.
+- **Replace in app.** The target window is remembered even when the island is opened from the
+  tray, with a fallback to the previous app; copying tries Ctrl+C, then Ctrl+Insert, then
+  `WM_COPY`; classic edit boxes are pasted into directly (`WM_PASTE`); and if nothing can
+  receive the paste, the translation stays on the clipboard and a message says so. Every step
+  is written to `arizo.log`. Known gap: it has not been verified in every app (Chrome's
+  address bar in particular), so please report any program where it still fails.
+- **Island size.** The translate view is shorter at rest, grows to fit its text and results
+  without a scrollbar, and shrinks back when the text is cleared. It is wider (740–860 px) so
+  the buttons no longer wrap.
+- **Tray menu.** Rebuilt in the app's style; every entry works (open, translate the clipboard,
+  hide or show the island, quit).
+- **Installer.** New sidebar and header artwork and installer icons (`npm run installer-art`).
 - **New icon.** Ari on a black island tile with a soft blue and violet glow, drawn in code (`npm run icons`). It is also the tray icon.
 - **Original sounds.** The 29 sound effects are now synthesized from scratch by `npm run sounds`.
 - **Dropdowns.** Opening a dropdown a second time no longer shows the square system list: the themed one is always used.

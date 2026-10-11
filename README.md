@@ -8,7 +8,7 @@
 
 A Dynamic Island for translation. Ari, a little mascot, watches your cursor; a shortcut swaps the text you just typed for its translation, right where you typed it. Persian ⇄ English out of the box, 100+ languages underneath.
 
-[![Version](https://img.shields.io/badge/version-3.0.0-8b5cf6?logo=github)](https://github.com/ArizoOwner/Arizo_Agent/releases)
+[![Version](https://img.shields.io/badge/version-3.0.1-8b5cf6?logo=github)](https://github.com/ArizoOwner/Arizo_Agent/releases)
 ![Windows 10/11](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4?logo=windows&logoColor=white)
 ![Tauri 2](https://img.shields.io/badge/Tauri-2-FFC131?logo=tauri&logoColor=black)
 ![Rust](https://img.shields.io/badge/Rust-backend-000000?logo=rust)
@@ -101,8 +101,8 @@ Download from the [Releases](https://github.com/ArizoOwner/Arizo_Agent/releases)
 
 | File | What it is |
 | :--- | :--- |
-| `Arizo-Translate-Setup-3.0.0.exe` | Installer for the current user — no administrator rights |
-| `Arizo-Translate-3.0.0-Portable.exe` | One executable, runs without installing |
+| `Arizo-Translate-Setup-3.0.1.exe` | Installer for the current user — no administrator rights |
+| `Arizo-Translate-3.0.1-Portable.exe` | One executable, runs without installing |
 | `SHA256SUMS.txt` | Checksums of both |
 
 The installer is **not code-signed**, so Windows SmartScreen shows a warning the first time: click **More info → Run anyway**. The app is open source — read it, or build it yourself.

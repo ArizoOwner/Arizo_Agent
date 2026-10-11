@@ -97,7 +97,7 @@ export function buildTranslate(actions: TranslateActions): TranslateHost {
   const langRow = h("div", { class: "lang-row" }, srcChip, swapBtn, targetSelect);
 
   const input = h("textarea", {
-    class: "src-input", dir: "auto", rows: 4, spellcheck: false,
+    class: "src-input", dir: "auto", rows: 2, spellcheck: false,
     placeholder: tl("Type or paste text to translate…"),
   });
   const clearBtn = h(
@@ -116,10 +116,12 @@ export function buildTranslate(actions: TranslateActions): TranslateHost {
   const cleanChip = h(
     "button",
     { class: "src-action-btn clean-chip", title: tl("Join lines broken by a PDF"), onclick: () => cleanLines() },
-    h("span", { text: tl("Clean PDF line breaks") }),
+    svg(ICONS.doc, 11),
+    h("span", { text: tl("Fix PDF lines") }),
   );
   const srcBar = h("div", { class: "src-bar" }, counter, h("div", { class: "grow" }), cleanChip, pasteBtn, clearBtn);
-  const left = card(null, h("div", { class: "src-body" }, langRow, input, srcBar));
+  const srcBody = h("div", { class: "src-body" }, langRow, input, srcBar);
+  const left = card(null, srcBody);
 
   // ── Right card: the result ─────────────────────────────────────────────────
   const pillEls = new Map<Engine, HTMLElement>();
@@ -182,7 +184,8 @@ export function buildTranslate(actions: TranslateActions): TranslateHost {
     h("span", { text: tl("Bilingual") }),
   );
   const footer = h("div", { class: "res-footer" }, copyBtn, replaceBtn, h("div", { class: "grow" }), speakBtn, dualBtn);
-  const right = card(null, h("div", { class: "res-body" }, topRow, resScroll, meta, footer));
+  const resBody = h("div", { class: "res-body" }, topRow, resScroll, meta, footer);
+  const right = card(null, resBody);
 
   const el = h("div", { class: "view translate" },
     h("div", { class: "left" }, left),
@@ -242,19 +245,56 @@ export function buildTranslate(actions: TranslateActions): TranslateHost {
     updateAutoLabel();
   }
 
-  /** The island grows smoothly with both input and result, avoiding cramped scrolling. */
-  function fit() {
-    input.style.height = "auto";
-    const srcContent = input.scrollHeight;
-    input.style.height = "";
+  /**
+   * The height an element's content needs, not the height it was stretched to.
+   * Both the input and the result list fill the island (flex-grow), and
+   * `scrollHeight` never goes below the current height: measured as they are,
+   * the island could grow but never shrink back. They are taken out of the flex
+   * layout for the read and put back at once, so nothing is painted in between.
+   */
+  function contentHeight(el: HTMLElement): number {
+    const { flex, height } = el.style;
+    el.style.flex = "none";
+    el.style.height = "auto";
+    const needed = el.scrollHeight;
+    el.style.flex = flex;
+    el.style.height = height;
+    return needed;
+  }
 
-    const resContent = resScroll.scrollHeight;
-    const needed = Math.max(srcContent, resContent);
+  /**
+   * What a card needs around its growing part: its padding, the gaps and every
+   * sibling of the text area (language row, buttons, meta, footer). The text
+   * area's own content is measured by contentHeight; this is the rest, so the
+   * island is tall enough for the whole card and nothing has to scroll.
+   */
+  function chromeHeight(body: HTMLElement, grower: HTMLElement): number {
+    const cs = getComputedStyle(body);
+    const gap = parseFloat(cs.rowGap) || 0;
+    let total = (parseFloat(cs.paddingTop) || 0) + (parseFloat(cs.paddingBottom) || 0);
+    let n = 0;
+    for (const child of Array.from(body.children) as HTMLElement[]) {
+      if (child === grower || child.style.display === "none") continue;
+      total += child.offsetHeight;
+      n += 1;
+    }
+    return total + gap * n;
+  }
+
+  /** The island grows and shrinks with both input and result, avoiding cramped scrolling. */
+  function fit() {
+    // The two cards are as tall as the island, so it must fit the taller of them.
+    const srcNeed = contentHeight(input) + chromeHeight(srcBody, input);
+    const resNeed = contentHeight(resScroll) + chromeHeight(resBody, resScroll);
+    // translateHeight() adds what the island has around the cards (header, margins).
+    const needed = Math.max(srcNeed, resNeed);
     const next = translateHeight(needed);
     // The width follows the longer of what is typed and what came back. With
     // nothing typed the old result is gone, so the island returns to its base width.
     const typed = input.value.trim().length;
-    const nextW = translateWidth(typed === 0 ? 0 : Math.max(typed, shown.trim().length));
+    const hasPdf = hasPdfLineBreaks(input.value);
+    const charCount = typed === 0 ? 0 : Math.max(typed, shown.trim().length, hasPdf ? 60 : 0);
+    const nextW = translateWidth(charCount);
     if (next !== State.translateH || nextW !== State.translateW) {
       State.translateH = next;
       State.translateW = nextW;
@@ -482,6 +522,8 @@ export function buildTranslate(actions: TranslateActions): TranslateHost {
 
   async function replaceInApp() {
     if (!canAct()) return;
+    (document.activeElement as HTMLElement)?.blur?.();
+    void Bridge.focusWindow(false);
     toast(t("Replacing in the app…"));
     celebrate();
     await Bridge.replaceText(shown);

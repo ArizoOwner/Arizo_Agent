@@ -29,7 +29,7 @@ use std::time::{Duration, Instant};
 
 use serde::Deserialize;
 use serde_json::{json, Value};
-use tauri::menu::{CheckMenuItem, Menu, MenuItem, PredefinedMenuItem};
+use tauri::menu::{Menu, MenuItem, PredefinedMenuItem};
 use tauri::tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent};
 use tauri::{AppHandle, Emitter, Manager, PhysicalPosition, PhysicalSize, State, WebviewUrl, WebviewWindow, WebviewWindowBuilder};
 use tauri_plugin_autostart::{MacosLauncher, ManagerExt};
@@ -61,7 +61,7 @@ pub struct AppState {
     gate: Arc<PollGate>,
 }
 
-fn log(line: &str) {
+pub(crate) fn log(line: &str) {
     use std::io::Write;
     let dir = store::config_dir();
     let _ = std::fs::create_dir_all(&dir);
@@ -98,27 +98,35 @@ pub fn screen_pref(app: &AppHandle) -> String {
 /// click-through (island.rs), so showing the island is the page's doing.
 fn show_island(app: &AppHandle, text: &str) {
     let st = state(app);
-    if st.hidden.swap(false, Ordering::Relaxed) {
-        if let Some(win) = island(app) {
-            let _ = win.show();
-        }
+    st.hidden.store(false, Ordering::Relaxed);
+    if let Some(win) = island(app) {
+        let _ = win.unminimize();
+        let _ = win.show();
+        let _ = win.set_always_on_top(true);
     }
     st.gate.collapsed.store(false, Ordering::Relaxed);
     island::apply_geometry(app, &st.store.settings().screen, false);
     island::refresh_click_through(app, &st.gate);
     st.gate.set_active(true);
-    let _ = app.emit_to(ISLAND, "captured-text", text.to_string());
+    if text.is_empty() {
+        let _ = app.emit("tray", "open".to_string());
+    } else {
+        let _ = app.emit("captured-text", text.to_string());
+    }
 }
 
 fn hide_island(app: &AppHandle) {
-    let _ = app.emit_to(ISLAND, "tray", "close".to_string());
+    if let Some(win) = island(app) {
+        platform::set_activating(&win, false);
+    }
+    let _ = app.emit("tray", "close".to_string());
 }
 
 fn hide_bubble(app: &AppHandle) {
     if let Some(b) = bubble(app) {
         if b.is_visible().unwrap_or(false) {
             // The page stops its audio, its timers and any translation in flight.
-            let _ = app.emit_to(BUBBLE, "bubble-hide", ());
+            let _ = app.emit("bubble-hide", ());
             let _ = b.hide();
         }
     }
@@ -186,12 +194,16 @@ fn toggle_island_hidden(app: &AppHandle) {
         st.gate.set_active(false);
         hide_bubble(app);
         let _ = win.hide();
+        let _ = app.emit("tray", "close".to_string());
     } else {
         let collapsed = st.gate.collapsed.load(Ordering::Relaxed);
         island::apply_geometry(app, &st.store.settings().screen, collapsed);
+        let _ = win.unminimize();
         let _ = win.show();
+        let _ = win.set_always_on_top(true);
         island::refresh_click_through(app, &st.gate);
         st.gate.set_active(!collapsed);
+        let _ = app.emit("tray", "open".to_string());
     }
     refresh_tray(app);
 }
@@ -249,7 +261,17 @@ fn on_inline(app: &AppHandle) {
     }
     input::restore_target_window();
     thread::sleep(Duration::from_millis(40));
-    input::paste_text(&translated, Some(original), settings.restore_clipboard);
+    if input::paste_or_keep(&translated, Some(original), settings.restore_clipboard) == input::PasteOutcome::KeptOnClipboard {
+        notify_kept_on_clipboard(app, &lang);
+    }
+}
+
+/// The paste could not be delivered: say where the translation is, instead of failing in silence.
+fn notify_kept_on_clipboard(app: &AppHandle, lang: &str) {
+    let _ = app.emit(
+        "toast",
+        tr(lang, "جایگزینی نشد؛ ترجمه کپی شد، با Ctrl+V بچسبانید", "Could not replace here; the translation is copied, press Ctrl+V"),
+    );
 }
 
 // ── The floating bubble ───────────────────────────────────────────────────────
@@ -348,39 +370,53 @@ fn apply_mouse_monitor(app: &AppHandle, on: bool) {
 fn build_menu(app: &AppHandle) -> tauri::Result<Menu<tauri::Wry>> {
     let st = state(app);
     let s = st.store.settings();
-    let lang = s.app_language.as_str();
-    let open = MenuItem::with_id(
-        app,
-        "open",
-        format!("{} ({})", tr(lang, "باز کردن جزیره ترجمه", "Open the translator"), s.hotkey),
-        true,
-        None::<&str>,
-    )?;
-    let clip = MenuItem::with_id(app, "clipboard", tr(lang, "ترجمه متن کلیپ‌بورد", "Translate the clipboard"), true, None::<&str>)?;
-    let auto = CheckMenuItem::with_id(
-        app,
-        "autostart",
-        tr(lang, "اجرای خودکار با ویندوز", "Start with Windows"),
-        true,
-        s.launch_at_startup,
-        None::<&str>,
-    )?;
+    let is_fa = s.app_language == "fa";
     let hidden = st.hidden.load(Ordering::Relaxed);
-    let toggle = MenuItem::with_id(
+
+    let header = MenuItem::with_id(
         app,
-        "toggle",
-        format!(
-            "{} ({})",
-            if hidden { tr(lang, "نمایش جزیره", "Show the island") } else { tr(lang, "پنهان کردن کامل جزیره", "Hide the island completely") },
-            s.hide_hotkey
-        ),
-        true,
+        "header",
+        if is_fa { "✦ آریزو ترنسلیت | Arizo" } else { "✦ Arizo Translate" },
+        false,
         None::<&str>,
     )?;
-    let settings = MenuItem::with_id(app, "settings", tr(lang, "تنظیمات…", "Settings…"), true, None::<&str>)?;
-    let quit = MenuItem::with_id(app, "quit", tr(lang, "خروج", "Quit"), true, None::<&str>)?;
-    let (sep1, sep2) = (PredefinedMenuItem::separator(app)?, PredefinedMenuItem::separator(app)?);
-    Menu::with_items(app, &[&open, &clip, &toggle, &sep1, &settings, &auto, &sep2, &quit])
+
+    let open_text = if is_fa {
+        format!("🏝️  باز کردن جزیره\t{}", s.hotkey)
+    } else {
+        format!("🏝️  Open Island\t{}", s.hotkey)
+    };
+    let open = MenuItem::with_id(app, "open", open_text, true, None::<&str>)?;
+
+    let clip_text = if is_fa {
+        "📋  ترجمه متن کلیپ‌بورد"
+    } else {
+        "📋  Translate Clipboard"
+    };
+    let clip = MenuItem::with_id(app, "clipboard", clip_text, true, None::<&str>)?;
+
+    let toggle_text = if is_fa {
+        if hidden {
+            format!("👁️  نمایش جزیره\t{}", s.hide_hotkey)
+        } else {
+            format!("👁️  پنهان کردن جزیره\t{}", s.hide_hotkey)
+        }
+    } else {
+        if hidden {
+            format!("👁️  Show Island\t{}", s.hide_hotkey)
+        } else {
+            format!("👁️  Hide Island\t{}", s.hide_hotkey)
+        }
+    };
+    let toggle = MenuItem::with_id(app, "toggle", toggle_text, true, None::<&str>)?;
+
+    let quit_text = if is_fa { "✕  خروج" } else { "✕  Quit" };
+    let quit = MenuItem::with_id(app, "quit", quit_text, true, None::<&str>)?;
+
+    let sep_top = PredefinedMenuItem::separator(app)?;
+    let sep_bottom = PredefinedMenuItem::separator(app)?;
+
+    Menu::with_items(app, &[&header, &sep_top, &open, &clip, &toggle, &sep_bottom, &quit])
 }
 
 fn refresh_tray(app: &AppHandle) {
@@ -402,7 +438,14 @@ fn build_tray(app: &AppHandle) -> tauri::Result<()> {
             "clipboard" => {
                 input::clear_target_window();
                 let text: String = input::read_text().trim().chars().take(MAX_TEXT).collect();
-                show_island(app, &text);
+                if text.is_empty() {
+                    let lang = state(app).store.settings().app_language;
+                    let msg = if lang == "fa" { "کلیپ‌بورد خالی است" } else { "Clipboard is empty" };
+                    let _ = app.emit("toast", msg.to_string());
+                    show_island(app, "");
+                } else {
+                    show_island(app, &text);
+                }
             }
             "toggle" => toggle_island_hidden(app),
             "autostart" => {
@@ -415,8 +458,18 @@ fn build_tray(app: &AppHandle) -> tauri::Result<()> {
             }
             "settings" => {
                 input::clear_target_window();
-                show_island(app, "");
-                let _ = app.emit_to(ISLAND, "tray", "settings".to_string());
+                let st = state(app);
+                st.hidden.store(false, Ordering::Relaxed);
+                if let Some(win) = island(app) {
+                    let _ = win.unminimize();
+                    let _ = win.show();
+                    let _ = win.set_always_on_top(true);
+                }
+                st.gate.collapsed.store(false, Ordering::Relaxed);
+                island::apply_geometry(app, &st.store.settings().screen, false);
+                island::refresh_click_through(app, &st.gate);
+                st.gate.set_active(true);
+                let _ = app.emit("tray", "settings".to_string());
             }
             "quit" => app.exit(0),
             _ => {}
@@ -665,11 +718,14 @@ fn replace_text(app: AppHandle, st: State<'_, Arc<AppState>>, text: String) -> b
         return false;
     }
     hide_island(&app);
-    let restore = st.store.settings().restore_clipboard;
+    let settings = st.store.settings();
+    let (restore, lang) = (settings.restore_clipboard, settings.app_language.clone());
     thread::spawn(move || {
         // Let the previous window take the focus back before pasting.
-        thread::sleep(Duration::from_millis(150));
-        input::paste_text(&text, None, restore);
+        thread::sleep(Duration::from_millis(220));
+        if input::paste_or_keep(&text, None, restore) == input::PasteOutcome::KeptOnClipboard {
+            notify_kept_on_clipboard(&app, &lang);
+        }
     });
     true
 }
@@ -701,10 +757,13 @@ fn replace_bubble_text(app: AppHandle, st: State<'_, Arc<AppState>>, text: Strin
     if text.is_empty() {
         return false;
     }
-    let restore = st.store.settings().restore_clipboard;
+    let settings = st.store.settings();
+    let (restore, lang) = (settings.restore_clipboard, settings.app_language.clone());
     thread::spawn(move || {
         thread::sleep(Duration::from_millis(150));
-        input::paste_text(&text, None, restore);
+        if input::paste_or_keep(&text, None, restore) == input::PasteOutcome::KeptOnClipboard {
+            notify_kept_on_clipboard(&app, &lang);
+        }
     });
     true
 }

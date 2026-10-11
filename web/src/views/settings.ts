@@ -8,7 +8,14 @@ import { enhanceSelect } from "./select";
 import { applyTheme } from "../core/theme";
 import { Bridge, type Language as Lang } from "../core/bridge";
 import { recordKey, accelParts } from "../core/hotkey";
-import { PROVIDERS, applyPreset, providerForUrl, type ProviderId } from "../core/providers";
+import {
+  PROVIDERS,
+  applyPreset,
+  providerForUrl,
+  getAvailableModels,
+  saveCachedModels,
+  type ProviderId,
+} from "../core/providers";
 import { State, mergeSettings, type SettingsPatch, type Tone } from "../core/state";
 import { language, resolveLanguage, setLanguage, t, tl } from "../i18n/i18n";
 import { OUTFIT_SELECTIONS, OUTFIT_KEYS, parseOutfit, resolveOutfit, seasonalOutfit } from "../ari/wardrobe";
@@ -25,6 +32,9 @@ export function buildSettingsView(actions: ViewActions): ViewHost {
   let testResultOk: boolean | null = null;
   let isTesting = false;
   let isFetchingModels = false;
+  let customModelMode = false;
+  let modelStatusText = "";
+  let modelStatusOk: boolean | null = null;
 
   const tabs: { id: Category; labelKey: string; icon: string }[] = [
     { id: "general", labelKey: "General", icon: ICONS.gear },
@@ -373,26 +383,22 @@ export function buildSettingsView(actions: ViewActions): ViewHost {
       spellcheck: false,
     }) as HTMLInputElement;
 
-    const modelInput = h("input", {
-      type: "text",
-      class: "set-text-input ltr",
-      value: a.model,
-      placeholder: "gemini-3.8-flash",
-      spellcheck: false,
-    }) as HTMLInputElement;
-
     presetSelect.addEventListener("change", () => {
-      const next = applyPreset(presetSelect.value as ProviderId, { baseUrl: urlInput.value, model: modelInput.value });
+      const next = applyPreset(presetSelect.value as ProviderId, { baseUrl: urlInput.value, model: "" });
       urlInput.value = next.baseUrl;
-      modelInput.value = next.model;
-      void save({ aphra: { baseUrl: next.baseUrl, model: next.model } });
+      customModelMode = false;
+      modelStatusText = "";
+      modelStatusOk = null;
+      const providerModels = getAvailableModels(next.baseUrl);
+      const chosenModel = next.model || (providerModels[0]?.id ?? "");
+      void save({ aphra: { baseUrl: next.baseUrl, model: chosenModel } });
     });
 
     urlInput.addEventListener("change", () => {
+      customModelMode = false;
+      modelStatusText = "";
+      modelStatusOk = null;
       void save({ aphra: { baseUrl: urlInput.value.trim() } });
-    });
-    modelInput.addEventListener("change", () => {
-      void save({ aphra: { model: modelInput.value.trim() } });
     });
 
     content.append(
@@ -403,7 +409,10 @@ export function buildSettingsView(actions: ViewActions): ViewHost {
       settingRow(t("Base URL"), t("Endpoint address"), urlInput),
     );
 
-    // Fetch models button + model input
+    // Available models for this endpoint (cached or popular preset)
+    const availableModels = getAvailableModels(urlInput.value, a.model);
+    const hasModels = availableModels.length > 0;
+
     const fetchModelsBtn = h("button", {
       type: "button",
       class: "btn secondary set-btn-action",
@@ -411,29 +420,114 @@ export function buildSettingsView(actions: ViewActions): ViewHost {
       onclick: async () => {
         if (isFetchingModels) return;
         isFetchingModels = true;
-        fetchModelsBtn.textContent = t("Loading…");
+        modelStatusText = "";
+        modelStatusOk = null;
+        render();
         try {
-          const res = await Bridge.fetchModels({ baseUrl: urlInput.value.trim(), model: modelInput.value.trim() });
+          const res = await Bridge.fetchModels({ baseUrl: urlInput.value.trim(), model: a.model });
           if (res?.ok && res.models?.length) {
-            testResultText = t("✓ {n} models loaded", { n: res.models.length });
-            testResultOk = true;
+            saveCachedModels(urlInput.value.trim(), res.models);
+            modelStatusText = t("✓ {n} models loaded", { n: res.models.length });
+            modelStatusOk = true;
+            customModelMode = false;
+            if (!res.models.some((m) => m.id === a.model)) {
+              void save({ aphra: { model: res.models[0].id } });
+            }
           } else {
-            testResultText = (res && !res.ok ? res.error : "") || t("Failed to fetch models");
-            testResultOk = false;
+            modelStatusText = (res && !res.ok ? res.error : "") || t("Failed to fetch models");
+            modelStatusOk = false;
           }
         } catch (e: any) {
-          testResultText = e?.message || t("Error");
-          testResultOk = false;
+          modelStatusText = e?.message || t("Error");
+          modelStatusOk = false;
         } finally {
           isFetchingModels = false;
           render();
         }
       },
-    });
+    }) as HTMLButtonElement;
 
-    content.append(
-      settingRow(t("Model name"), t("LLM model name (e.g. gemini-3.8-flash)"), modelInput, fetchModelsBtn),
-    );
+    let modelControl: HTMLElement;
+
+    if (!customModelMode && hasModels) {
+      const modelSelect = enhanceSelect(h("select", { class: "set-select" }) as HTMLSelectElement);
+      for (const m of availableModels) {
+        modelSelect.append(h("option", { value: m.id, text: m.name }));
+      }
+      modelSelect.append(h("option", { value: "__custom__", text: `✎ ${t("Type custom model…")}` }));
+
+      if (availableModels.some((m) => m.id === a.model)) {
+        modelSelect.value = a.model;
+      } else {
+        modelSelect.value = availableModels[0]?.id ?? "";
+      }
+
+      modelSelect.addEventListener("change", () => {
+        if (modelSelect.value === "__custom__") {
+          customModelMode = true;
+          render();
+          return;
+        }
+        void save({ aphra: { model: modelSelect.value } });
+      });
+
+      const customBtn = h(
+        "button",
+        {
+          type: "button",
+          class: "set-icon-btn",
+          title: t("Type custom model…"),
+          onclick: () => {
+            customModelMode = true;
+            render();
+          },
+        },
+        svg(ICONS.pen, 13, { stroke: 2 }),
+      );
+
+      modelControl = h("div", { class: "set-model-wrap" }, modelSelect, customBtn, fetchModelsBtn);
+    } else {
+      const modelInput = h("input", {
+        type: "text",
+        class: "set-text-input ltr",
+        value: a.model,
+        placeholder: "gemini-2.5-flash",
+        spellcheck: false,
+      }) as HTMLInputElement;
+
+      modelInput.addEventListener("change", () => {
+        void save({ aphra: { model: modelInput.value.trim() } });
+      });
+
+      const listBtn = hasModels
+        ? h(
+            "button",
+            {
+              type: "button",
+              class: "set-icon-btn",
+              title: t("Choose from list"),
+              onclick: () => {
+                customModelMode = false;
+                render();
+              },
+            },
+            svg(ICONS.list, 13, { stroke: 2 }),
+          )
+        : null;
+
+      modelControl = h("div", { class: "set-model-wrap" }, modelInput, listBtn, fetchModelsBtn);
+    }
+
+    const modelRow = settingRow(t("Model name"), t("LLM model name (e.g. gemini-3.8-flash)"), modelControl);
+    if (modelStatusText) {
+      const badge = h("span", {
+        class: `set-model-badge ${modelStatusOk === true ? "ok" : modelStatusOk === false ? "err" : ""}`,
+        text: modelStatusText,
+      });
+      const textCol = modelRow.querySelector(".set-row-text");
+      if (textCol) textCol.append(badge);
+    }
+    content.append(modelRow);
 
     // API Key input with eye & save & remove
     let keyRevealed = false;
@@ -527,7 +621,7 @@ export function buildSettingsView(actions: ViewActions): ViewHost {
         testResultOk = null;
         render();
         try {
-          const res = await Bridge.testAi({ baseUrl: urlInput.value.trim(), model: modelInput.value.trim() });
+          const res = await Bridge.testAi({ baseUrl: urlInput.value.trim(), model: a.model.trim() });
           if (res?.ok) {
             testResultText = t("✓ Connected in {ms}ms ({model})", { ms: res.ms, model: res.model });
             testResultOk = true;

@@ -48,3 +48,38 @@ test("the two engine pills keep their stable IDs and colours", () => {
   assert.equal(Pills.pillState("aphra", "aphra"), "thinking");
   assert.equal(Pills.pillState("google", "aphra"), "idle");
 });
+
+test("preset models are returned for known providers", () => {
+  const geminiModels = P.getAvailableModels("https://generativelanguage.googleapis.com/v1beta/openai");
+  assert.ok(geminiModels.length > 0);
+  assert.ok(geminiModels.some((m) => m.id === "gemini-2.5-flash"));
+  assert.ok(geminiModels.some((m) => m.id === "gemini-2.0-flash"));
+
+  const groqModels = P.getAvailableModels("https://api.groq.com/openai/v1");
+  assert.ok(groqModels.some((m) => m.id === "llama-3.3-70b-versatile"));
+
+  const openrouterModels = P.getAvailableModels("https://openrouter.ai/api/v1");
+  assert.ok(openrouterModels.some((m) => m.id === "deepseek/deepseek-chat"));
+});
+
+test("custom or current model is included in available models", () => {
+  const list = P.getAvailableModels("https://generativelanguage.googleapis.com/v1beta/openai", "my-custom-model");
+  assert.ok(list.some((m) => m.id === "my-custom-model"));
+});
+
+test("saving and retrieving cached models works", () => {
+  const url = "https://custom-api.example.com/v1";
+  P.saveCachedModels(url, [
+    { id: "mod-1", displayName: "Model One" },
+    { id: "mod-2" },
+  ]);
+  const cached = P.getCachedModels(url);
+  assert.equal(cached?.length, 2);
+  assert.equal(cached?.[0].id, "mod-1");
+  assert.equal(cached?.[0].name, "Model One (mod-1)");
+  assert.equal(cached?.[1].name, "mod-2");
+
+  const available = P.getAvailableModels(url);
+  assert.equal(available.length, 2);
+  assert.equal(available[0].id, "mod-1");
+});

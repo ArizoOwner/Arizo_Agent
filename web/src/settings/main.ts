@@ -7,7 +7,15 @@ import "./settings.css";
 import "../views/select.css";
 import { Bridge, onEvent, type Language as Lang } from "../core/bridge";
 import { recordKey, accelParts } from "../core/hotkey";
-import { PROVIDERS, applyPreset, needsKey, providerForUrl, type ProviderId } from "../core/providers";
+import {
+  PROVIDERS,
+  applyPreset,
+  needsKey,
+  providerForUrl,
+  getAvailableModels,
+  saveCachedModels,
+  type ProviderId,
+} from "../core/providers";
 import { DEFAULT_SETTINGS, mergeSettings, type Settings, type SettingsPatch, type Tone } from "../core/state";
 import { h, clear, svg } from "../views/dom";
 import { ICONS } from "../views/icons";
@@ -15,7 +23,7 @@ import { enhanceSelect } from "../views/select";
 import { applyTheme as applyThemeTo, watchSystemTheme } from "../core/theme";
 import { LANGUAGES, isRtl, onLanguageChange, resolveLanguage, setLanguage, t } from "../i18n/i18n";
 
-const VERSION_FALLBACK = "3.0.0";
+const VERSION_FALLBACK = "3.0.1";
 const REPO_URL = "https://github.com/ArizoOwner/arizo-translate";
 
 let settings: Settings = { ...DEFAULT_SETTINGS };
@@ -218,11 +226,30 @@ function enginesSection(): HTMLElement {
   preset.value = providerForUrl(a.baseUrl);
 
   const baseUrl = h("input", { type: "text", class: "inline-input ltr", value: a.baseUrl, spellcheck: false, placeholder: "https://…/v1" }) as HTMLInputElement;
-  const modelList = enhanceSelect(h("select", { class: "inline-input", style: "display:none" }) as HTMLSelectElement);
+  const modelList = enhanceSelect(h("select", { class: "inline-input" }) as HTMLSelectElement);
   const model = h("input", { type: "text", class: "inline-input ltr", value: a.model, spellcheck: false, placeholder: t("Model name") }) as HTMLInputElement;
   const fetchBtn = h("button", { type: "button", text: t("Fetch models") });
   const testBtn = h("button", { type: "button", text: t("Test connection") });
   const result = h("div", { class: "notice", style: "display:none" });
+
+  function updateModelList() {
+    const list = getAvailableModels(baseUrl.value, model.value);
+    clear(modelList);
+    for (const m of list) {
+      modelList.append(h("option", { value: m.id, text: m.name }));
+    }
+    modelList.append(h("option", { value: "__custom__", text: `✎ ${t("Custom model…")}` }));
+    if (list.some((m) => m.id === model.value)) {
+      modelList.value = model.value;
+      model.style.display = "none";
+    } else {
+      modelList.value = "__custom__";
+      model.style.display = "";
+    }
+    modelList.style.display = list.length ? "" : "none";
+  }
+
+  updateModelList();
 
   const keyInput = h("input", {
     type: "password", class: "ltr", autocomplete: "off", spellcheck: false,
@@ -260,21 +287,28 @@ function enginesSection(): HTMLElement {
   }
 
   preset.addEventListener("change", () => {
-    const next = applyPreset(preset.value as ProviderId, { baseUrl: baseUrl.value, model: model.value });
+    const next = applyPreset(preset.value as ProviderId, { baseUrl: baseUrl.value, model: "" });
     baseUrl.value = next.baseUrl;
-    model.value = next.model;
-    clear(modelList);
-    modelList.style.display = "none";
+    const providerModels = getAvailableModels(next.baseUrl);
+    model.value = next.model || (providerModels[0]?.id ?? "");
+    updateModelList();
     void saveAi();
   });
   baseUrl.addEventListener("change", () => {
     preset.value = providerForUrl(baseUrl.value);
+    updateModelList();
     void saveAi();
   });
   model.addEventListener("change", () => void saveAi());
   modelList.addEventListener("change", () => {
-    model.value = modelList.value;
-    void saveAi();
+    if (modelList.value === "__custom__") {
+      model.style.display = "";
+      model.focus();
+    } else {
+      model.value = modelList.value;
+      model.style.display = "none";
+      void saveAi();
+    }
   });
 
   fetchBtn.addEventListener("click", async () => {
@@ -283,10 +317,12 @@ function enginesSection(): HTMLElement {
     try {
       const res = await Bridge.fetchModels(cfg());
       if (res.ok) {
-        clear(modelList);
-        for (const m of res.models) modelList.append(h("option", { value: m.id, text: m.displayName && m.displayName !== m.id ? `${m.displayName} (${m.id})` : m.id }));
-        modelList.style.display = res.models.length ? "" : "none";
-        if (res.models.some((m) => m.id === model.value)) modelList.value = model.value;
+        saveCachedModels(baseUrl.value, res.models);
+        if (res.models.length && !res.models.some((m) => m.id === model.value)) {
+          model.value = res.models[0].id;
+        }
+        updateModelList();
+        void saveAi();
         show(res.models.length ? "ok" : "warn", t("{n} models found", { n: res.models.length }));
       } else show("err", res.error);
     } catch (err) {
@@ -340,7 +376,7 @@ function enginesSection(): HTMLElement {
     h("div", { class: "hint", text: local ? t("A local server needs no key.") : t("Any service that speaks the OpenAI chat API. Your key is stored in the Windows Credential Manager.") }),
     row(t("Provider"), preset),
     row(t("Address"), baseUrl),
-    row(t("Model"), model, modelList, fetchBtn),
+    row(t("Model"), modelList, model, fetchBtn),
     row(t("API key"), h("div", { class: "key-field" }, keyInput, eye), keyBadge, removeKey),
     row(t("Default tone"), segmented(
       (["auto", "formal", "colloquial", "technical", "literary"] as Tone[]).map((v) => ({
