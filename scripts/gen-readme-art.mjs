@@ -87,6 +87,35 @@ const CSS = `
 const star = (x, y, s, delay) =>
   `<g transform="translate(${x} ${y}) scale(${s})"><path class="spark" style="animation-delay:${delay}s" d="M0-10 L2.6-2.6 10 0 2.6 2.6 0 10 -2.6 2.6 -10 0 -2.6-2.6Z" fill="#fff"/></g>`;
 
+// ─────────────────────────────────────────────── shared Spotify pieces
+const BEAT = 60 / 112; // 112 BPM, the same beat the app dances to
+
+/** A little white/green eighth note that floats up and fades (needs SPOT_CSS). */
+const note = (x, y, delay, dir, c, k = 1) => `<g transform="translate(${x} ${y}) scale(${k})"><g class="note" style="animation-delay:${delay}s;--dx:${dir * 46}px"><g transform="scale(${dir} 1)"><ellipse cx="-4" cy="9" rx="7.5" ry="5.4" transform="rotate(-24 -4 9)" fill="${c}"/><path d="M2 8V-12C3 -6 12 -6 10 3" fill="none" stroke="${c}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></g></g></g>`;
+
+const SPOT_CSS = `
+  .note{animation:note 3.2s ease-out infinite both;opacity:0}
+  @keyframes note{0%{opacity:0;transform:translate(0,0) scale(.6)}12%{opacity:1}100%{opacity:0;transform:translate(var(--dx),-86px) rotate(14deg) scale(1)}}
+  .bar{transform-box:fill-box;transform-origin:50% 100%;animation:bar ${BEAT.toFixed(3)}s ease-in-out infinite alternate}
+  @keyframes bar{0%{transform:scaleY(.3)}100%{transform:scaleY(1.7)}}
+  .prog{animation:prog 14s linear infinite}
+  @keyframes prog{0%{transform:translateX(-440px)}100%{transform:translateX(0)}}
+  .pulse{animation:pulse ${BEAT.toFixed(3)}s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:center}
+  @keyframes pulse{0%{transform:scale(1)}100%{transform:scale(1.06)}}`;
+
+/** Ari's eyes cut out of her drawing, so they can be swapped for the happy "^ ^" ones. */
+function splitEyes(id) {
+  const full = ari(id);
+  const start = full.indexOf('<g class="look">');
+  const afterSecondEye = full.indexOf("</g>", full.indexOf("</g>", start) + 4) + 4;
+  const close = full.indexOf("</g>", afterSecondEye) + 4; // the .look group itself
+  return { before: full.slice(0, start), looks: full.slice(start, close), after: full.slice(close) };
+}
+const happyEyes = () => {
+  const arc = (x) => `<path d="M${x - 16} 2 Q${x} -24 ${x + 16} 2" fill="none" stroke="#0e0c10" stroke-width="9" stroke-linecap="round"/>`;
+  return `<g class="look">${arc(-46)}${arc(46)}</g>`;
+};
+
 // ─────────────────────────────────────────────── hero
 function hero() {
   const W = 1200, H = 500;
@@ -113,9 +142,49 @@ function hero() {
     .map(([en, fa], i) => bubble(250, 150, en, 1, i * 3, false) + bubble(740, 150, fa, -1, i * 3, true))
     .join("");
 
+  // Phase two (9.5 s to 17.5 s of the 18 s loop): Ari dances to the beat while a song plays.
+  const LOOP = 18, T0 = 9.6, T1 = 17.3, STEP = BEAT / 2;
+  const times = [0, 9.5 / LOOP], ups = ["0 0", "0 0"], tilts = ["0", "0"];
+  for (let k = 0, t = T0; t <= T1; k++, t = T0 + k * STEP) {
+    times.push(t / LOOP);
+    ups.push(k % 2 === 0 ? "0 -16" : "0 0");
+    tilts.push(k % 4 < 2 ? "-4" : "4");
+  }
+  times.push(17.6 / LOOP, 1);
+  ups.push("0 0", "0 0");
+  tilts.push("0", "0");
+  const kt = times.map((t) => t.toFixed(4)).join(";");
+  const dance = `<animateTransform attributeName="transform" type="translate" dur="${LOOP}s" repeatCount="indefinite" keyTimes="${kt}" values="${ups.join(";")}" additive="sum"/>
+      <animateTransform attributeName="transform" type="rotate" dur="${LOOP}s" repeatCount="indefinite" keyTimes="${kt}" values="${tilts.join(";")}" additive="sum"/>`;
+  const eyes = splitEyes("a");
+  const ariTwoFaces = eyes.before + `<g class="eyes-a">${eyes.looks}</g><g class="eyes-b">${happyEyes()}</g>` + eyes.after;
+  const gate = (inner) => `<g opacity="0"><animate attributeName="opacity" dur="${LOOP}s" repeatCount="indefinite" keyTimes="0;.5;.535;.945;.98;1" values="0;0;1;1;0;0"/>${inner}</g>`;
+  const bars = Array.from({ length: 5 }, (_, i) => `<rect class="bar" style="animation-delay:${(i * 0.13).toFixed(2)}s" x="${268 + i * 10}" y="72" width="5" height="22" rx="2.5" fill="#1DB954"/>`).join("");
+  const chip = (y, color, label) => `<g transform="translate(236 ${y})"><rect width="224" height="42" rx="21" fill="#0f1a14" stroke="${color}" stroke-opacity=".7"/><circle cx="24" cy="21" r="6" fill="${color}"><animate attributeName="opacity" values="1;.35;1" dur="${BEAT.toFixed(3)}s" repeatCount="indefinite"/></circle><text x="42" y="27" font-size="15" font-weight="600" fill="#fff">${label}</text></g>`;
+  const spotifyScene = gate(`
+    ${chip(152, "#1DB954", "On this PC · no setup")}
+    ${chip(206, VIOLET, "Your account · any device")}
+    <g transform="translate(745 122)">
+      <rect width="340" height="166" rx="22" fill="#0f1a14" stroke="#1DB954" stroke-opacity=".45"/>
+      <g transform="translate(16 16) scale(.78)"><rect class="pulse" width="108" height="108" rx="16" fill="#16241c"/>
+        <path d="M38 78V36l36-7v42" fill="none" stroke="#1DB954" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+        <ellipse cx="30" cy="78" rx="9" ry="7" fill="#1DB954"/><ellipse cx="66" cy="71" rx="9" ry="7" fill="#1DB954"/></g>
+      <text x="112" y="38" font-size="16" font-weight="700" fill="#fff">Little music for your day</text>
+      <text x="112" y="58" font-size="13" fill="#9aa0b8">Arizo demo · This PC</text>
+      <g fill="#cfd3e6"><path d="M112 76h3v16h-3zM130 76v16l-12-8z"/><circle cx="160" cy="84" r="15" fill="#1DB954"/><path d="M154 77h4v14h-4zM162 77h4v14h-4z" fill="#06170c"/><path d="M188 76v16l12-8zM202 76h3v16h-3z"/></g>
+      ${bars}
+      <clipPath id="hprog"><rect x="16" y="118" width="308" height="5" rx="2.5"/></clipPath>
+      <rect x="16" y="118" width="308" height="5" rx="2.5" fill="#ffffff1c"/>
+      <g clip-path="url(#hprog)"><g transform="scale(.7 1) translate(0 0)"><rect class="prog" x="22.8" y="118" width="440" height="5" rx="2.5" fill="url(#hsp)"/></g></g>
+      <text x="16" y="150" font-size="11" fill="#7f86a3" font-family="monospace">1:34</text>
+      <text x="324" y="150" font-size="11" fill="#7f86a3" font-family="monospace" text-anchor="end">4:02</text>
+    </g>
+    ${note(470, 176, 0, -1, "#fff", 1.5)}${note(732, 168, 1.1, 1, "#fff", 1.5)}${note(486, 126, 2.1, -1, "#6ee7a0", 1.3)}${note(716, 122, 0.6, 1, "#6ee7a0", 1.3)}`);
+
   const body = `
 <defs>
   ${ariDefs("a")}
+  <linearGradient id="hsp" x1="0" x2="1"><stop offset="0" stop-color="#1DB954"/><stop offset="1" stop-color="#6ee7a0"/></linearGradient>
   <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a0a12"/><stop offset="1" stop-color="#15101f"/></linearGradient>
   <linearGradient id="title" gradientUnits="userSpaceOnUse" x1="300" y1="0" x2="900" y2="0" spreadMethod="reflect">
     <stop offset="0" stop-color="#60a5fa"/><stop offset=".5" stop-color="#f5f3ff"/><stop offset="1" stop-color="${VIOLET}"/>
@@ -125,7 +194,14 @@ function hero() {
   <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="10"/></filter>
   <clipPath id="clip"><rect width="${W}" height="${H}" rx="30"/></clipPath>
 </defs>
-<style>${CSS}</style>
+<style>${CSS}${SPOT_CSS}
+  .pair{animation:pair2 18s infinite both}
+  @keyframes pair2{0%{opacity:0;transform:scale(.7) translateY(10px)}2%{opacity:1;transform:scale(1.04) translateY(0)}3%{transform:scale(1)}14.5%{opacity:1;transform:scale(1)}16.5%{opacity:0;transform:scale(.9) translateY(-8px)}100%{opacity:0}}
+  .eyes-a{animation:eyesA 18s infinite}
+  @keyframes eyesA{0%,50%{opacity:1}53.5%,94.5%{opacity:0}98%,100%{opacity:1}}
+  .eyes-b{opacity:0;animation:eyesB 18s infinite}
+  @keyframes eyesB{0%,50%{opacity:0}53.5%,94.5%{opacity:1}98%,100%{opacity:0}}
+</style>
 <g clip-path="url(#clip)">
   <rect width="${W}" height="${H}" fill="url(#bg)"/>
   <circle r="230" fill="${BLUE}" opacity=".5" filter="url(#glow)"><animate attributeName="cx" values="140;300;140" dur="11s" repeatCount="indefinite"/><animate attributeName="cy" values="470;380;470" dur="11s" repeatCount="indefinite"/></circle>
@@ -136,13 +212,19 @@ function hero() {
   <!-- the island -->
   <g>
     <rect y="22" height="34" rx="17" fill="#000" stroke="#ffffff22">
-      ${anim("x", 8, [[0, 480], [0.18, 480], [0.26, 410], [0.7, 410], [0.78, 480], [1, 480]])}
-      ${anim("width", 8, [[0, 240], [0.18, 240], [0.26, 380], [0.7, 380], [0.78, 240], [1, 240]])}
+      ${anim("x", 18, [[0, 480], [0.08, 480], [0.1156, 410], [0.311, 410], [0.3467, 480], [0.5278, 480], [0.561, 410], [0.944, 410], [0.978, 480], [1, 480]])}
+      ${anim("width", 18, [[0, 240], [0.08, 240], [0.1156, 380], [0.311, 380], [0.3467, 240], [0.5278, 240], [0.561, 380], [0.944, 380], [0.978, 240], [1, 240]])}
     </rect>
     <circle cx="512" cy="39" r="5" fill="${BLUE}"><animate attributeName="opacity" values="1;.4;1" dur="2s" repeatCount="indefinite"/></circle>
     <circle cx="532" cy="39" r="5" fill="${VIOLET}"><animate attributeName="opacity" values=".4;1;.4" dur="2s" repeatCount="indefinite"/></circle>
+    <g opacity="0"><animate attributeName="opacity" dur="18s" repeatCount="indefinite" keyTimes="0;.5278;.561;.944;.978;1" values="0;0;1;1;0;0"/>
+      <rect x="410" y="22" width="380" height="34" rx="17" fill="#000"/>
+      <circle cx="436" cy="39" r="6" fill="#1DB954"><animate attributeName="opacity" values="1;.35;1" dur="${BEAT.toFixed(3)}s" repeatCount="indefinite"/></circle>
+      <text x="600" y="44" text-anchor="middle" font-size="13" font-weight="600" fill="#6ee7a0">Now playing · Spotify</text>
+      <g class="bars-mini">${[0, 1, 2, 3].map((i) => `<rect class="bar" style="animation-delay:${(i * 0.12).toFixed(2)}s" x="${744 + i * 8}" y="31" width="4" height="16" rx="2" fill="#1DB954"/>`).join("")}</g>
+    </g>
     <text x="600" y="44" text-anchor="middle" font-size="13" fill="#9aa0ad" opacity="0">Alt+Shift+D
-      ${anim("opacity", 8, [[0, 0], [0.26, 0], [0.32, 1], [0.66, 1], [0.72, 0], [1, 0]])}
+      ${anim("opacity", 18, [[0, 0], [0.1156, 0], [0.1422, 1], [0.2933, 1], [0.32, 0], [1, 0]])}
     </text>
   </g>
 
@@ -151,8 +233,12 @@ function hero() {
     <animate attributeName="rx" values="120;102;120" dur="5s" repeatCount="indefinite"/>
     <animate attributeName="opacity" values=".55;.35;.55" dur="5s" repeatCount="indefinite"/>
   </ellipse>
-  <g transform="translate(600 218)"><g class="float">${ari("a")}</g></g>
+  <g transform="translate(600 218)"><g class="float"><g>
+      ${dance}
+      ${ariTwoFaces}
+    </g></g></g>
   ${bubbles}
+  ${spotifyScene}
 
   <!-- titles -->
   <text x="600" y="410" text-anchor="middle" font-size="58" font-weight="800" fill="url(#title)" letter-spacing="1">Arizo-Agent</text>
@@ -160,7 +246,7 @@ function hero() {
   <text x="600" y="480" text-anchor="middle" font-size="20" fill="#9a8fd8" direction="rtl" style="font-family:${FA}">ترجمه، اسپاتیفای و یک همراه کوچک برای ویندوز</text>
 </g>
 <rect width="${W}" height="${H}" rx="30" fill="none" stroke="#ffffff14"/>`;
-  save("hero.svg", svg(W, H, body, 'aria-label="Arizo-Agent: Ari the mascot greeting in English and Persian"'));
+  save("hero.svg", svg(W, H, body, 'aria-label="Arizo-Agent: Ari the mascot translates in English and Persian, then dances while Spotify plays"'));
 }
 
 // ─────────────────────────────────────────────── demo
@@ -294,17 +380,12 @@ ${names}${dotsRow}
 // ─────────────────────────────────────────────── spotify
 /** Ari with the happy "^ ^" eyes she has while dancing. */
 function happyAri(id) {
-  const arc = (x) => `<path d="M${x - 16} 2 Q${x} -24 ${x + 16} 2" fill="none" stroke="#0e0c10" stroke-width="9" stroke-linecap="round"/>`;
-  const full = ari(id);
-  const start = full.indexOf('<g class="look">');
-  const end = full.indexOf("</g>", full.indexOf("</g>", start) + 4) + 4; // after the second eye group
-  const close = full.indexOf("</g>", end) + 4; // the .look group itself
-  return full.slice(0, start) + `<g class="look">${arc(-46)}${arc(46)}</g>` + full.slice(close);
+  const { before, after } = splitEyes(id);
+  return before + happyEyes() + after;
 }
 
 function spotify() {
-  const W = 900, H = 330, BPM_S = 60 / 112; // one bounce per beat
-  const note = (x, y, delay, dir, c) => `<g transform="translate(${x} ${y})"><g class="note" style="animation-delay:${delay}s;--dx:${dir * 46}px"><g transform="scale(${dir})"><ellipse cx="-4" cy="9" rx="7.5" ry="5.4" transform="rotate(-24 -4 9)" fill="${c}"/><path d="M2 8V-12C3 -6 12 -6 10 3" fill="none" stroke="${c}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></g></g></g>`;
+  const W = 900, H = 330, BPM_S = BEAT; // one bounce per beat
   const bars = Array.from({ length: 5 }, (_, i) => `<rect class="bar" style="animation-delay:${(i * 0.13).toFixed(2)}s" x="${690 + i * 12}" y="284" width="6" height="22" rx="2.5" fill="#1DB954"/>`).join("");
   const body = `
 <defs>${ariDefs("s")}
@@ -316,14 +397,7 @@ function spotify() {
 <style>${CSS}
   .dance{transform-box:fill-box;transform-origin:50% 100%;animation:dance ${(BPM_S * 2).toFixed(3)}s ease-in-out infinite}
   @keyframes dance{0%,100%{transform:translate(0,0) rotate(-4deg) scale(1.02,.96)}25%{transform:translate(0,-16px) rotate(0) scale(.98,1.04)}50%{transform:translate(0,0) rotate(4deg) scale(1.02,.96)}75%{transform:translate(0,-16px) rotate(0) scale(.98,1.04)}}
-  .note{animation:note 3.2s ease-out infinite both;opacity:0}
-  @keyframes note{0%{opacity:0;transform:translate(0,0) scale(.6)}12%{opacity:1}100%{opacity:0;transform:translate(var(--dx),-86px) rotate(14deg) scale(1)}}
-  .bar{transform-box:fill-box;transform-origin:50% 100%;animation:bar ${(BPM_S).toFixed(3)}s ease-in-out infinite alternate}
-  @keyframes bar{0%{transform:scaleY(.3)}100%{transform:scaleY(1.7)}}
-  .prog{animation:prog 14s linear infinite}
-  @keyframes prog{0%{transform:translateX(-440px)}100%{transform:translateX(0)}}
-  .pulse{animation:pulse ${BPM_S.toFixed(3)}s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:center}
-  @keyframes pulse{0%{transform:scale(1)}100%{transform:scale(1.06)}}
+${SPOT_CSS}
 </style>
 <rect width="${W}" height="${H}" rx="28" fill="url(#sbg)"/>
 <circle cx="170" cy="250" r="120" fill="#1DB954" opacity=".3" filter="url(#sg)"/>
