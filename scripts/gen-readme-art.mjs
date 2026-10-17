@@ -6,6 +6,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { footballArt } from "./readme-football-art.mjs";
+import { layoutArt } from "./readme-layout-art.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const outDir = join(root, "assets", "readme");
@@ -494,5 +495,6 @@ function footer() {
 }
 
 hero(); demo(); outfits(); spotify(); marquee(); divider(); footer();
-footballArt({ save, svg, ariDefs, CSS, BODY, SANS, FA, VIOLET });
+const fb = footballArt({ save, svg, ariDefs, CSS, BODY, SANS, FA, VIOLET });
+layoutArt({ save, svg, ariDefs, ari, happyAri, star, note, CSS, SPOT_CSS, BODY, SANS, FA, VIOLET, BLUE, BEAT, anim, rnd, ...fb });
 console.log(`README art written to ${outDir}`);

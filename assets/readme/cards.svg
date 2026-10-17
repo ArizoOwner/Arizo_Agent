@@ -1,0 +1,138 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 540" width="1200" height="540" role="img" aria-label="Everything Arizo-Agent does">
+
+<defs><linearGradient id="cbg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a0a12"/><stop offset="1" stop-color="#12101f"/></linearGradient></defs>
+<style>
+  text{font-family:'Segoe UI','Inter',system-ui,-apple-system,Arial,sans-serif}
+  .float{animation:float 5s ease-in-out infinite}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+  .breathe{transform-box:fill-box;transform-origin:50% 100%;animation:breathe 4s ease-in-out infinite}
+  @keyframes breathe{0%,100%{transform:scale(1,1)}50%{transform:scale(1.025,.972)}}
+  .eye{transform-box:fill-box;transform-origin:center;animation:blink 5s infinite}
+  @keyframes blink{0%,91%,100%{transform:scaleY(1)}94%{transform:scaleY(.08)}}
+  .look{animation:look 9s ease-in-out infinite}
+  @keyframes look{0%,100%{transform:translate(0,0)}15%{transform:translate(-14px,3px)}35%{transform:translate(12px,-3px)}55%{transform:translate(0,6px)}75%{transform:translate(8px,2px)}}
+  .spark{transform-box:fill-box;transform-origin:center;animation:spark 3s ease-in-out infinite}
+  @keyframes spark{0%,100%{transform:scale(.2) rotate(0);opacity:0}50%{transform:scale(1) rotate(45deg);opacity:1}}
+  .drift{animation:drift 7s ease-in-out infinite}
+  @keyframes drift{0%,100%{transform:translate(0,0)}50%{transform:translate(0,-14px)}}
+  .twinkle{animation:twinkle 4s ease-in-out infinite}
+  @keyframes twinkle{0%,100%{opacity:.15}50%{opacity:.9}}
+  .pair{transform-box:fill-box;transform-origin:center;animation:pair 9s infinite both;opacity:0}
+  @keyframes pair{0%{opacity:0;transform:scale(.7) translateY(10px)}4%{opacity:1;transform:scale(1.04) translateY(0)}6%{transform:scale(1)}29%{opacity:1;transform:scale(1)}33%{opacity:0;transform:scale(.9) translateY(-8px)}100%{opacity:0}}
+
+  .tile{opacity:0;animation:tile 12s ease-out infinite both}
+  @keyframes tile{0%{opacity:0;transform:translateY(16px) scale(.96)}6%,92%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:1}}
+  .gl{transform-box:fill-box;transform-origin:center;animation:gl 4s ease-in-out infinite}
+  @keyframes gl{0%,100%{transform:scale(1) rotate(0)}50%{transform:scale(1.14) rotate(-6deg)}}
+</style>
+<rect width="1200" height="540" rx="30" fill="url(#cbg)" stroke="#ffffff14"/>
+
+  <g transform="translate(36 36)"><g class="tile" style="animation-delay:0.00s">
+    <rect width="264" height="150" rx="22" fill="#12121c" stroke="#3b82f6" stroke-opacity=".35"/>
+    <rect width="264" height="150" rx="22" fill="#3b82f6" opacity=".06"/>
+    <circle cx="44" cy="46" r="26" fill="#3b82f6" opacity=".16"/>
+    <g class="gl" style="animation-delay:0.00s"><text x="44" y="56" text-anchor="middle" font-size="27" style="font-family:'Segoe UI Emoji','Apple Color Emoji',sans-serif">⚡</text></g>
+    <text x="84" y="44" font-size="15" font-weight="800" fill="#fff">Translate in place</text>
+    <text x="84" y="64" font-size="13" fill="#3b82f6" style="font-family:Vazirmatn,Tahoma,'Segoe UI',sans-serif">ترجمه در محل</text>
+    <text x="20" y="96" font-size="12.5" fill="#aab0c8">Alt+Shift+D swaps your text for its</text><text x="20" y="114" font-size="12.5" fill="#aab0c8">translation in any app</text>
+  </g></g>
+  <g transform="translate(324 36)"><g class="tile" style="animation-delay:0.12s">
+    <rect width="264" height="150" rx="22" fill="#12121c" stroke="#f472b6" stroke-opacity=".35"/>
+    <rect width="264" height="150" rx="22" fill="#f472b6" opacity=".06"/>
+    <circle cx="44" cy="46" r="26" fill="#f472b6" opacity=".16"/>
+    <g class="gl" style="animation-delay:0.27s"><text x="44" y="56" text-anchor="middle" font-size="27" style="font-family:'Segoe UI Emoji','Apple Color Emoji',sans-serif">🎯</text></g>
+    <text x="84" y="44" font-size="15" font-weight="800" fill="#fff">Quick bubble</text>
+    <text x="84" y="64" font-size="13" fill="#f472b6" style="font-family:Vazirmatn,Tahoma,'Segoe UI',sans-serif">حباب سریع</text>
+    <text x="20" y="96" font-size="12.5" fill="#aab0c8">Select text anywhere — a button</text><text x="20" y="114" font-size="12.5" fill="#aab0c8">appears by the cursor</text>
+  </g></g>
+  <g transform="translate(612 36)"><g class="tile" style="animation-delay:0.24s">
+    <rect width="264" height="150" rx="22" fill="#12121c" stroke="#a78bfa" stroke-opacity=".35"/>
+    <rect width="264" height="150" rx="22" fill="#a78bfa" opacity=".06"/>
+    <circle cx="44" cy="46" r="26" fill="#a78bfa" opacity=".16"/>
+    <g class="gl" style="animation-delay:0.54s"><text x="44" y="56" text-anchor="middle" font-size="27" style="font-family:'Segoe UI Emoji','Apple Color Emoji',sans-serif">🧠</text></g>
+    <text x="84" y="44" font-size="15" font-weight="800" fill="#fff">Smart language handling</text>
+    <text x="84" y="64" font-size="13" fill="#a78bfa" style="font-family:Vazirmatn,Tahoma,'Segoe UI',sans-serif">تشخیص هوشمند</text>
+    <text x="20" y="96" font-size="12.5" fill="#aab0c8">Auto direction, Persian-aware</text><text x="20" y="114" font-size="12.5" fill="#aab0c8">detection, idiom polish</text>
+  </g></g>
+  <g transform="translate(900 36)"><g class="tile" style="animation-delay:0.36s">
+    <rect width="264" height="150" rx="22" fill="#12121c" stroke="#38bdf8" stroke-opacity=".35"/>
+    <rect width="264" height="150" rx="22" fill="#38bdf8" opacity=".06"/>
+    <circle cx="44" cy="46" r="26" fill="#38bdf8" opacity=".16"/>
+    <g class="gl" style="animation-delay:0.81s"><text x="44" y="56" text-anchor="middle" font-size="27" style="font-family:'Segoe UI Emoji','Apple Color Emoji',sans-serif">🔁</text></g>
+    <text x="84" y="44" font-size="15" font-weight="800" fill="#fff">Never empty-handed</text>
+    <text x="84" y="64" font-size="13" fill="#38bdf8" style="font-family:Vazirmatn,Tahoma,'Segoe UI',sans-serif">همیشه جواب می‌دهد</text>
+    <text x="20" y="96" font-size="12.5" fill="#aab0c8">If Smart fails, Fast answers — and</text><text x="20" y="114" font-size="12.5" fill="#aab0c8">tells you why</text>
+  </g></g>
+  <g transform="translate(36 210)"><g class="tile" style="animation-delay:0.48s">
+    <rect width="264" height="150" rx="22" fill="#12121c" stroke="#1DB954" stroke-opacity=".35"/>
+    <rect width="264" height="150" rx="22" fill="#1DB954" opacity=".06"/>
+    <circle cx="44" cy="46" r="26" fill="#1DB954" opacity=".16"/>
+    <g class="gl" style="animation-delay:1.08s"><text x="44" y="56" text-anchor="middle" font-size="27" style="font-family:'Segoe UI Emoji','Apple Color Emoji',sans-serif">🎵</text></g>
+    <text x="84" y="44" font-size="15" font-weight="800" fill="#fff">Spotify player</text>
+    <text x="84" y="64" font-size="13" fill="#1DB954" style="font-family:Vazirmatn,Tahoma,'Segoe UI',sans-serif">پخش‌کننده</text>
+    <text x="20" y="96" font-size="12.5" fill="#aab0c8">On this PC with no setup, or your</text><text x="20" y="114" font-size="12.5" fill="#aab0c8">account on any device</text>
+  </g></g>
+  <g transform="translate(324 210)"><g class="tile" style="animation-delay:0.60s">
+    <rect width="264" height="150" rx="22" fill="#12121c" stroke="#2dd4bf" stroke-opacity=".35"/>
+    <rect width="264" height="150" rx="22" fill="#2dd4bf" opacity=".06"/>
+    <circle cx="44" cy="46" r="26" fill="#2dd4bf" opacity=".16"/>
+    <g class="gl" style="animation-delay:1.35s"><text x="44" y="56" text-anchor="middle" font-size="27" style="font-family:'Segoe UI Emoji','Apple Color Emoji',sans-serif">⚽</text></g>
+    <text x="84" y="44" font-size="15" font-weight="800" fill="#fff">Live football</text>
+    <text x="84" y="64" font-size="13" fill="#2dd4bf" style="font-family:Vazirmatn,Tahoma,'Segoe UI',sans-serif">فوتبال زنده</text>
+    <text x="20" y="96" font-size="12.5" fill="#aab0c8">Score every 3 s, a show for every</text><text x="20" y="114" font-size="12.5" fill="#aab0c8">moment of the match</text>
+  </g></g>
+  <g transform="translate(612 210)"><g class="tile" style="animation-delay:0.72s">
+    <rect width="264" height="150" rx="22" fill="#12121c" stroke="#fbbf24" stroke-opacity=".35"/>
+    <rect width="264" height="150" rx="22" fill="#fbbf24" opacity=".06"/>
+    <circle cx="44" cy="46" r="26" fill="#fbbf24" opacity=".16"/>
+    <g class="gl" style="animation-delay:1.62s"><text x="44" y="56" text-anchor="middle" font-size="27" style="font-family:'Segoe UI Emoji','Apple Color Emoji',sans-serif">👕</text></g>
+    <text x="84" y="44" font-size="15" font-weight="800" fill="#fff">Your team's kit</text>
+    <text x="84" y="64" font-size="13" fill="#fbbf24" style="font-family:Vazirmatn,Tahoma,'Segoe UI',sans-serif">پیراهن تیم شما</text>
+    <text x="20" y="96" font-size="12.5" fill="#aab0c8">Ari wears the real shirt, drawn in</text><text x="20" y="114" font-size="12.5" fill="#aab0c8">3D with his head</text>
+  </g></g>
+  <g transform="translate(900 210)"><g class="tile" style="animation-delay:0.84s">
+    <rect width="264" height="150" rx="22" fill="#12121c" stroke="#fb923c" stroke-opacity=".35"/>
+    <rect width="264" height="150" rx="22" fill="#fb923c" opacity=".06"/>
+    <circle cx="44" cy="46" r="26" fill="#fb923c" opacity=".16"/>
+    <g class="gl" style="animation-delay:1.89s"><text x="44" y="56" text-anchor="middle" font-size="27" style="font-family:'Segoe UI Emoji','Apple Color Emoji',sans-serif">👗</text></g>
+    <text x="84" y="44" font-size="15" font-weight="800" fill="#fff">Wardrobe &amp; seasons</text>
+    <text x="84" y="64" font-size="13" fill="#fb923c" style="font-family:Vazirmatn,Tahoma,'Segoe UI',sans-serif">کمد لباس</text>
+    <text x="20" y="96" font-size="12.5" fill="#aab0c8">Hats and accessories — and the</text><text x="20" y="114" font-size="12.5" fill="#aab0c8">seasons dress him alone</text>
+  </g></g>
+  <g transform="translate(36 384)"><g class="tile" style="animation-delay:0.96s">
+    <rect width="264" height="150" rx="22" fill="#12121c" stroke="#a3e635" stroke-opacity=".35"/>
+    <rect width="264" height="150" rx="22" fill="#a3e635" opacity=".06"/>
+    <circle cx="44" cy="46" r="26" fill="#a3e635" opacity=".16"/>
+    <g class="gl" style="animation-delay:2.16s"><text x="44" y="56" text-anchor="middle" font-size="27" style="font-family:'Segoe UI Emoji','Apple Color Emoji',sans-serif">🗣️</text></g>
+    <text x="84" y="44" font-size="15" font-weight="800" fill="#fff">Speech</text>
+    <text x="84" y="64" font-size="13" fill="#a3e635" style="font-family:Vazirmatn,Tahoma,'Segoe UI',sans-serif">گفتار</text>
+    <text x="20" y="96" font-size="12.5" fill="#aab0c8">Reads the translation aloud —</text><text x="20" y="114" font-size="12.5" fill="#aab0c8">including Persian</text>
+  </g></g>
+  <g transform="translate(324 384)"><g class="tile" style="animation-delay:1.08s">
+    <rect width="264" height="150" rx="22" fill="#12121c" stroke="#f0abfc" stroke-opacity=".35"/>
+    <rect width="264" height="150" rx="22" fill="#f0abfc" opacity=".06"/>
+    <circle cx="44" cy="46" r="26" fill="#f0abfc" opacity=".16"/>
+    <g class="gl" style="animation-delay:2.43s"><text x="44" y="56" text-anchor="middle" font-size="27" style="font-family:'Segoe UI Emoji','Apple Color Emoji',sans-serif">📋</text></g>
+    <text x="84" y="44" font-size="15" font-weight="800" fill="#fff">History &amp; clipboard</text>
+    <text x="84" y="64" font-size="13" fill="#f0abfc" style="font-family:Vazirmatn,Tahoma,'Segoe UI',sans-serif">تاریخچه</text>
+    <text x="20" y="96" font-size="12.5" fill="#aab0c8">Star, search, bilingual copy, PDF</text><text x="20" y="114" font-size="12.5" fill="#aab0c8">line-break cleaner</text>
+  </g></g>
+  <g transform="translate(612 384)"><g class="tile" style="animation-delay:1.20s">
+    <rect width="264" height="150" rx="22" fill="#12121c" stroke="#67e8f9" stroke-opacity=".35"/>
+    <rect width="264" height="150" rx="22" fill="#67e8f9" opacity=".06"/>
+    <circle cx="44" cy="46" r="26" fill="#67e8f9" opacity=".16"/>
+    <g class="gl" style="animation-delay:2.70s"><text x="44" y="56" text-anchor="middle" font-size="27" style="font-family:'Segoe UI Emoji','Apple Color Emoji',sans-serif">🔊</text></g>
+    <text x="84" y="44" font-size="15" font-weight="800" fill="#fff">30 original sounds</text>
+    <text x="84" y="64" font-size="13" fill="#67e8f9" style="font-family:Vazirmatn,Tahoma,'Segoe UI',sans-serif">۳۰ صدای اصلی</text>
+    <text x="20" y="96" font-size="12.5" fill="#aab0c8">Synthesized from code for every</text><text x="20" y="114" font-size="12.5" fill="#aab0c8">gesture</text>
+  </g></g>
+  <g transform="translate(900 384)"><g class="tile" style="animation-delay:1.32s">
+    <rect width="264" height="150" rx="22" fill="#12121c" stroke="#22c55e" stroke-opacity=".35"/>
+    <rect width="264" height="150" rx="22" fill="#22c55e" opacity=".06"/>
+    <circle cx="44" cy="46" r="26" fill="#22c55e" opacity=".16"/>
+    <g class="gl" style="animation-delay:2.97s"><text x="44" y="56" text-anchor="middle" font-size="27" style="font-family:'Segoe UI Emoji','Apple Color Emoji',sans-serif">🔒</text></g>
+    <text x="84" y="44" font-size="15" font-weight="800" fill="#fff">Private &amp; light</text>
+    <text x="84" y="64" font-size="13" fill="#22c55e" style="font-family:Vazirmatn,Tahoma,'Segoe UI',sans-serif">خصوصی و سبک</text>
+    <text x="20" y="96" font-size="12.5" fill="#aab0c8">No telemetry; Rust + WebView2, no</text><text x="20" y="114" font-size="12.5" fill="#aab0c8">bundled Chromium</text>
+  </g></g>
+</svg>

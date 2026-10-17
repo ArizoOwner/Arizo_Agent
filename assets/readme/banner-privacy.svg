@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" width="1200" height="120" role="img" aria-label="Private by design">
+
+<defs>
+  <linearGradient id="bgprivacy" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#22c55e" stop-opacity=".28"/><stop offset=".6" stop-color="#0d0d16"/><stop offset="1" stop-color="#2dd4bf" stop-opacity=".25"/></linearGradient>
+  <linearGradient id="lnprivacy" x1="0" x2="1"><stop offset="0" stop-color="#22c55e" stop-opacity="0"/><stop offset=".4" stop-color="#22c55e"/><stop offset=".6" stop-color="#2dd4bf"/><stop offset="1" stop-color="#2dd4bf" stop-opacity="0"/></linearGradient>
+  <filter id="glprivacy" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3"/></filter>
+</defs>
+<style>
+  text{font-family:'Segoe UI','Inter',system-ui,-apple-system,Arial,sans-serif}
+  .float{animation:float 5s ease-in-out infinite}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+  .breathe{transform-box:fill-box;transform-origin:50% 100%;animation:breathe 4s ease-in-out infinite}
+  @keyframes breathe{0%,100%{transform:scale(1,1)}50%{transform:scale(1.025,.972)}}
+  .eye{transform-box:fill-box;transform-origin:center;animation:blink 5s infinite}
+  @keyframes blink{0%,91%,100%{transform:scaleY(1)}94%{transform:scaleY(.08)}}
+  .look{animation:look 9s ease-in-out infinite}
+  @keyframes look{0%,100%{transform:translate(0,0)}15%{transform:translate(-14px,3px)}35%{transform:translate(12px,-3px)}55%{transform:translate(0,6px)}75%{transform:translate(8px,2px)}}
+  .spark{transform-box:fill-box;transform-origin:center;animation:spark 3s ease-in-out infinite}
+  @keyframes spark{0%,100%{transform:scale(.2) rotate(0);opacity:0}50%{transform:scale(1) rotate(45deg);opacity:1}}
+  .drift{animation:drift 7s ease-in-out infinite}
+  @keyframes drift{0%,100%{transform:translate(0,0)}50%{transform:translate(0,-14px)}}
+  .twinkle{animation:twinkle 4s ease-in-out infinite}
+  @keyframes twinkle{0%,100%{opacity:.15}50%{opacity:.9}}
+  .pair{transform-box:fill-box;transform-origin:center;animation:pair 9s infinite both;opacity:0}
+  @keyframes pair{0%{opacity:0;transform:scale(.7) translateY(10px)}4%{opacity:1;transform:scale(1.04) translateY(0)}6%{transform:scale(1)}29%{opacity:1;transform:scale(1)}33%{opacity:0;transform:scale(.9) translateY(-8px)}100%{opacity:0}}
+
+  .sweep{animation:sweep 6s ease-in-out infinite}
+  @keyframes sweep{0%{transform:translateX(-120px)}100%{transform:translateX(1320px)}}
+  .icon{transform-box:fill-box;transform-origin:center;animation:icon 3.2s ease-in-out infinite}
+  @keyframes icon{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-6px) rotate(4deg)}}
+</style>
+<rect width="1200" height="120" rx="26" fill="#0d0d16"/><rect width="1200" height="120" rx="26" fill="url(#bgprivacy)" stroke="#ffffff16"/>
+<circle class="twinkle" style="animation-delay:0.97s" cx="876" cy="93" r="1.1" fill="#fff"/><circle class="twinkle" style="animation-delay:0.19s" cx="702" cy="29" r="1.2" fill="#fff"/><circle class="twinkle" style="animation-delay:2.59s" cx="601" cy="7" r="1.8" fill="#fff"/><circle class="twinkle" style="animation-delay:0.97s" cx="137" cy="79" r="2.3" fill="#fff"/><circle class="twinkle" style="animation-delay:0.63s" cx="666" cy="19" r="2.0" fill="#fff"/><circle class="twinkle" style="animation-delay:2.33s" cx="656" cy="15" r="1.3" fill="#fff"/><circle class="twinkle" style="animation-delay:3.56s" cx="401" cy="69" r="2.1" fill="#fff"/><circle class="twinkle" style="animation-delay:1.64s" cx="13" cy="89" r="1.5" fill="#fff"/><circle class="twinkle" style="animation-delay:3.14s" cx="95" cy="42" r="1.3" fill="#fff"/><circle class="twinkle" style="animation-delay:1.26s" cx="389" cy="42" r="2.2" fill="#fff"/><circle class="twinkle" style="animation-delay:3.78s" cx="383" cy="66" r="1.9" fill="#fff"/><circle class="twinkle" style="animation-delay:2.98s" cx="180" cy="54" r="1.2" fill="#fff"/><circle class="twinkle" style="animation-delay:0.24s" cx="220" cy="26" r="2.2" fill="#fff"/><circle class="twinkle" style="animation-delay:2.83s" cx="1146" cy="87" r="1.0" fill="#fff"/><circle class="twinkle" style="animation-delay:3.45s" cx="618" cy="111" r="2.0" fill="#fff"/><circle class="twinkle" style="animation-delay:2.06s" cx="946" cy="17" r="2.2" fill="#fff"/><circle class="twinkle" style="animation-delay:2.65s" cx="968" cy="109" r="1.5" fill="#fff"/><circle class="twinkle" style="animation-delay:2.40s" cx="1039" cy="69" r="0.9" fill="#fff"/>
+<g transform="translate(78 60)"><circle r="38" fill="#22c55e" opacity=".16"/><circle r="38" fill="none" stroke="#22c55e" stroke-opacity=".6" stroke-width="2"/>
+  <g class="icon"><text y="13" text-anchor="middle" font-size="38" style="font-family:'Segoe UI Emoji','Apple Color Emoji',sans-serif">🔒</text></g></g>
+<text x="142" y="62" font-size="38" font-weight="800" fill="#fff">Private by design</text>
+<text x="142" y="92" font-size="16" fill="#aab0c8">No telemetry. Your key stays in the Windows Credential Manager</text>
+<text x="1140" y="62" text-anchor="end" font-size="34" font-weight="800" fill="#fff" style="font-family:Vazirmatn,Tahoma,'Segoe UI',sans-serif">حریم خصوصی</text>
+<rect x="60" y="112" width="1080" height="2.5" rx="1.2" fill="url(#lnprivacy)" opacity=".8"/>
+<g clip-path="inset(0)"><circle class="sweep" cx="0" cy="113" r="6" fill="#fff" filter="url(#glprivacy)"/></g>
+</svg>

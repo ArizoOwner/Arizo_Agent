@@ -1,0 +1,140 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 560" width="1200" height="560" role="img" aria-label="Arizo-Agent: Ari shows translation, the two engines, the quick bubble, Spotify, live football, team kits and the wardrobe">
+
+<defs>
+  
+  <linearGradient id="hdb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fbfbfd"/><stop offset="1" stop-color="#c4c8d3"/></linearGradient>
+  <radialGradient id="hde" cx="0.5" cy="0.5" r="0.62"><stop offset="0.62" stop-color="#8e94a8" stop-opacity="0"/><stop offset="1" stop-color="#8e94a8" stop-opacity="0.5"/></radialGradient>
+  <radialGradient id="hdh" cx="0.36" cy="0.3" r="0.45"><stop offset="0" stop-color="#fff" stop-opacity="0.85"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+  <filter id="hdblur" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="9"/></filter>
+  <linearGradient id="hbg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#090912"/><stop offset=".55" stop-color="#101424"/><stop offset="1" stop-color="#1a1030"/></linearGradient>
+  <linearGradient id="htitle" gradientUnits="userSpaceOnUse" x1="300" y1="0" x2="900" y2="0" spreadMethod="reflect">
+    <stop offset="0" stop-color="#60a5fa"/><stop offset=".5" stop-color="#f5f3ff"/><stop offset="1" stop-color="#a78bfa"/>
+    <animateTransform attributeName="gradientTransform" type="translate" from="-600 0" to="600 0" dur="7s" repeatCount="indefinite"/>
+  </linearGradient>
+  <filter id="hglow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="60"/></filter>
+  <filter id="hsh" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="10"/></filter>
+  <clipPath id="hclip"><rect width="1200" height="560" rx="32"/></clipPath>
+</defs>
+<style>
+  text{font-family:'Segoe UI','Inter',system-ui,-apple-system,Arial,sans-serif}
+  .float{animation:float 5s ease-in-out infinite}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+  .breathe{transform-box:fill-box;transform-origin:50% 100%;animation:breathe 4s ease-in-out infinite}
+  @keyframes breathe{0%,100%{transform:scale(1,1)}50%{transform:scale(1.025,.972)}}
+  .eye{transform-box:fill-box;transform-origin:center;animation:blink 5s infinite}
+  @keyframes blink{0%,91%,100%{transform:scaleY(1)}94%{transform:scaleY(.08)}}
+  .look{animation:look 9s ease-in-out infinite}
+  @keyframes look{0%,100%{transform:translate(0,0)}15%{transform:translate(-14px,3px)}35%{transform:translate(12px,-3px)}55%{transform:translate(0,6px)}75%{transform:translate(8px,2px)}}
+  .spark{transform-box:fill-box;transform-origin:center;animation:spark 3s ease-in-out infinite}
+  @keyframes spark{0%,100%{transform:scale(.2) rotate(0);opacity:0}50%{transform:scale(1) rotate(45deg);opacity:1}}
+  .drift{animation:drift 7s ease-in-out infinite}
+  @keyframes drift{0%,100%{transform:translate(0,0)}50%{transform:translate(0,-14px)}}
+  .twinkle{animation:twinkle 4s ease-in-out infinite}
+  @keyframes twinkle{0%,100%{opacity:.15}50%{opacity:.9}}
+  .pair{transform-box:fill-box;transform-origin:center;animation:pair 9s infinite both;opacity:0}
+  @keyframes pair{0%{opacity:0;transform:scale(.7) translateY(10px)}4%{opacity:1;transform:scale(1.04) translateY(0)}6%{transform:scale(1)}29%{opacity:1;transform:scale(1)}33%{opacity:0;transform:scale(.9) translateY(-8px)}100%{opacity:0}}
+
+  @keyframes sh0{0%,1.200%{opacity:0;transform:translateY(10px) scale(.97)}3.500%,10.786%{opacity:1;transform:translateY(0) scale(1)}13.086%,100%{opacity:0;transform:translateY(-8px) scale(.98)}}.sh0{opacity:0;animation:sh0 30s infinite both}
+  @keyframes sh1{0%,15.486%{opacity:0;transform:translateY(10px) scale(.97)}17.786%,25.071%{opacity:1;transform:translateY(0) scale(1)}27.371%,100%{opacity:0;transform:translateY(-8px) scale(.98)}}.sh1{opacity:0;animation:sh1 30s infinite both}
+  @keyframes sh2{0%,29.771%{opacity:0;transform:translateY(10px) scale(.97)}32.071%,39.357%{opacity:1;transform:translateY(0) scale(1)}41.657%,100%{opacity:0;transform:translateY(-8px) scale(.98)}}.sh2{opacity:0;animation:sh2 30s infinite both}
+  @keyframes sh3{0%,44.057%{opacity:0;transform:translateY(10px) scale(.97)}46.357%,53.643%{opacity:1;transform:translateY(0) scale(1)}55.943%,100%{opacity:0;transform:translateY(-8px) scale(.98)}}.sh3{opacity:0;animation:sh3 30s infinite both}
+  @keyframes sh4{0%,58.343%{opacity:0;transform:translateY(10px) scale(.97)}60.643%,67.929%{opacity:1;transform:translateY(0) scale(1)}70.229%,100%{opacity:0;transform:translateY(-8px) scale(.98)}}.sh4{opacity:0;animation:sh4 30s infinite both}
+  @keyframes sh5{0%,72.629%{opacity:0;transform:translateY(10px) scale(.97)}74.929%,82.214%{opacity:1;transform:translateY(0) scale(1)}84.514%,100%{opacity:0;transform:translateY(-8px) scale(.98)}}.sh5{opacity:0;animation:sh5 30s infinite both}
+  @keyframes sh6{0%,86.914%{opacity:0;transform:translateY(10px) scale(.97)}89.214%,96.500%{opacity:1;transform:translateY(0) scale(1)}98.800%,100%{opacity:0;transform:translateY(-8px) scale(.98)}}.sh6{opacity:0;animation:sh6 30s infinite both}
+  .ring{transform-box:fill-box;transform-origin:center;animation:ring 4s ease-out infinite}
+  @keyframes ring{0%{transform:scale(.7);opacity:.55}100%{transform:scale(1.5);opacity:0}}
+</style>
+<g clip-path="url(#hclip)">
+  <rect width="1200" height="560" fill="url(#hbg)"/>
+  <circle r="260" fill="#3b82f6" opacity=".42" filter="url(#hglow)"><animate attributeName="cx" values="120;320;120" dur="12s" repeatCount="indefinite"/><animate attributeName="cy" values="500;400;500" dur="12s" repeatCount="indefinite"/></circle>
+  <circle r="240" fill="#a78bfa" opacity=".4" filter="url(#hglow)"><animate attributeName="cx" values="1100;880;1100" dur="14s" repeatCount="indefinite"/><animate attributeName="cy" values="60;180;60" dur="14s" repeatCount="indefinite"/></circle>
+  <circle r="200" fill="#1DB954" opacity=".18" filter="url(#hglow)"><animate attributeName="cx" values="640;520;640" dur="16s" repeatCount="indefinite"/><animate attributeName="cy" values="560;520;560" dur="16s" repeatCount="indefinite"/></circle>
+  <circle class="twinkle" style="animation-delay:0.95s" cx="661" cy="489" r="1.9" fill="#fff"/><circle class="twinkle" style="animation-delay:1.53s" cx="1038" cy="357" r="1.3" fill="#fff"/><circle class="twinkle" style="animation-delay:0.14s" cx="905" cy="88" r="2.0" fill="#fff"/><circle class="twinkle" style="animation-delay:2.18s" cx="889" cy="387" r="2.2" fill="#fff"/><circle class="twinkle" style="animation-delay:0.67s" cx="429" cy="157" r="1.2" fill="#fff"/><circle class="twinkle" style="animation-delay:2.39s" cx="276" cy="230" r="1.4" fill="#fff"/><circle class="twinkle" style="animation-delay:1.46s" cx="709" cy="438" r="2.2" fill="#fff"/><circle class="twinkle" style="animation-delay:3.53s" cx="1183" cy="59" r="1.5" fill="#fff"/><circle class="twinkle" style="animation-delay:1.04s" cx="235" cy="103" r="1.3" fill="#fff"/><circle class="twinkle" style="animation-delay:0.72s" cx="766" cy="376" r="0.7" fill="#fff"/><circle class="twinkle" style="animation-delay:1.69s" cx="905" cy="154" r="1.5" fill="#fff"/><circle class="twinkle" style="animation-delay:3.58s" cx="194" cy="160" r="1.8" fill="#fff"/><circle class="twinkle" style="animation-delay:0.75s" cx="696" cy="401" r="1.9" fill="#fff"/><circle class="twinkle" style="animation-delay:0.21s" cx="953" cy="234" r="2.1" fill="#fff"/><circle class="twinkle" style="animation-delay:1.26s" cx="211" cy="536" r="1.4" fill="#fff"/><circle class="twinkle" style="animation-delay:0.41s" cx="630" cy="82" r="2.2" fill="#fff"/><circle class="twinkle" style="animation-delay:1.77s" cx="300" cy="260" r="1.5" fill="#fff"/><circle class="twinkle" style="animation-delay:2.18s" cx="174" cy="451" r="1.4" fill="#fff"/><circle class="twinkle" style="animation-delay:1.51s" cx="355" cy="148" r="1.7" fill="#fff"/><circle class="twinkle" style="animation-delay:1.38s" cx="1028" cy="514" r="1.3" fill="#fff"/><circle class="twinkle" style="animation-delay:0.64s" cx="883" cy="443" r="1.2" fill="#fff"/><circle class="twinkle" style="animation-delay:0.80s" cx="535" cy="262" r="2.0" fill="#fff"/><circle class="twinkle" style="animation-delay:3.96s" cx="751" cy="33" r="0.7" fill="#fff"/><circle class="twinkle" style="animation-delay:2.31s" cx="27" cy="259" r="2.2" fill="#fff"/><circle class="twinkle" style="animation-delay:3.69s" cx="1107" cy="76" r="1.4" fill="#fff"/><circle class="twinkle" style="animation-delay:2.38s" cx="380" cy="461" r="2.0" fill="#fff"/><circle class="twinkle" style="animation-delay:1.58s" cx="374" cy="527" r="1.8" fill="#fff"/><circle class="twinkle" style="animation-delay:2.77s" cx="649" cy="326" r="0.7" fill="#fff"/><circle class="twinkle" style="animation-delay:2.29s" cx="727" cy="190" r="1.9" fill="#fff"/><circle class="twinkle" style="animation-delay:0.55s" cx="974" cy="218" r="0.8" fill="#fff"/><circle class="twinkle" style="animation-delay:1.98s" cx="834" cy="316" r="2.1" fill="#fff"/><circle class="twinkle" style="animation-delay:1.30s" cx="167" cy="188" r="0.8" fill="#fff"/><circle class="twinkle" style="animation-delay:0.14s" cx="77" cy="529" r="2.2" fill="#fff"/><circle class="twinkle" style="animation-delay:3.58s" cx="1169" cy="52" r="2.1" fill="#fff"/><circle class="twinkle" style="animation-delay:2.72s" cx="1050" cy="529" r="0.7" fill="#fff"/><circle class="twinkle" style="animation-delay:2.69s" cx="385" cy="196" r="1.3" fill="#fff"/><circle class="twinkle" style="animation-delay:0.47s" cx="733" cy="291" r="1.0" fill="#fff"/><circle class="twinkle" style="animation-delay:1.61s" cx="489" cy="328" r="1.8" fill="#fff"/><circle class="twinkle" style="animation-delay:2.53s" cx="331" cy="436" r="2.1" fill="#fff"/><circle class="twinkle" style="animation-delay:1.24s" cx="1111" cy="73" r="0.9" fill="#fff"/><circle class="twinkle" style="animation-delay:1.30s" cx="199" cy="540" r="2.0" fill="#fff"/><circle class="twinkle" style="animation-delay:1.88s" cx="996" cy="312" r="2.0" fill="#fff"/><circle class="twinkle" style="animation-delay:0.55s" cx="241" cy="418" r="1.6" fill="#fff"/><circle class="twinkle" style="animation-delay:3.96s" cx="833" cy="210" r="1.4" fill="#fff"/><circle class="twinkle" style="animation-delay:2.74s" cx="975" cy="461" r="2.0" fill="#fff"/><circle class="twinkle" style="animation-delay:4.00s" cx="769" cy="24" r="1.6" fill="#fff"/>
+  <g transform="translate(250 230) scale(1.1)"><path class="spark" style="animation-delay:0s" d="M0-10 L2.6-2.6 10 0 2.6 2.6 0 10 -2.6 2.6 -10 0 -2.6-2.6Z" fill="#fff"/></g><g transform="translate(960 270) scale(1.3)"><path class="spark" style="animation-delay:1.1s" d="M0-10 L2.6-2.6 10 0 2.6 2.6 0 10 -2.6 2.6 -10 0 -2.6-2.6Z" fill="#fff"/></g><g transform="translate(380 110) scale(0.8)"><path class="spark" style="animation-delay:2s" d="M0-10 L2.6-2.6 10 0 2.6 2.6 0 10 -2.6 2.6 -10 0 -2.6-2.6Z" fill="#fff"/></g><g transform="translate(830 100) scale(1)"><path class="spark" style="animation-delay:0.6s" d="M0-10 L2.6-2.6 10 0 2.6 2.6 0 10 -2.6 2.6 -10 0 -2.6-2.6Z" fill="#fff"/></g>
+
+  <!-- the island -->
+  
+    <g class="sh0">
+      <rect x="368" y="26" width="464" height="46" rx="23" fill="#000" stroke="#3b82f6" stroke-opacity=".6"/>
+      <circle cx="396" cy="49" r="13" fill="#3b82f6" opacity=".22"/>
+      <text x="396" y="55" text-anchor="middle" font-size="15" font-weight="800" fill="#3b82f6">T</text>
+      <text x="422" y="45" font-size="14.5" font-weight="700" fill="#fff">Translate anywhere</text>
+      <text x="422" y="62" font-size="11.5" fill="#9aa0b8">Alt+Shift+D replaces your text in place</text>
+      <text x="818" y="54" text-anchor="end" font-size="14" font-weight="600" fill="#3b82f6" style="font-family:Vazirmatn,Tahoma,'Segoe UI',sans-serif">ترجمه در هر جا</text>
+    </g>
+    <g class="sh1">
+      <rect x="368" y="26" width="464" height="46" rx="23" fill="#000" stroke="#a78bfa" stroke-opacity=".6"/>
+      <circle cx="396" cy="49" r="13" fill="#a78bfa" opacity=".22"/>
+      <text x="396" y="55" text-anchor="middle" font-size="15" font-weight="800" fill="#a78bfa">✦</text>
+      <text x="422" y="45" font-size="14.5" font-weight="700" fill="#fff">Fast &amp; Smart engines</text>
+      <text x="422" y="62" font-size="11.5" fill="#9aa0b8">Free Google · AI with tone &amp; idioms</text>
+      <text x="818" y="54" text-anchor="end" font-size="14" font-weight="600" fill="#a78bfa" style="font-family:Vazirmatn,Tahoma,'Segoe UI',sans-serif">دو موتور ترجمه</text>
+    </g>
+    <g class="sh2">
+      <rect x="368" y="26" width="464" height="46" rx="23" fill="#000" stroke="#f472b6" stroke-opacity=".6"/>
+      <circle cx="396" cy="49" r="13" fill="#f472b6" opacity=".22"/>
+      <text x="396" y="55" text-anchor="middle" font-size="15" font-weight="800" fill="#f472b6">◎</text>
+      <text x="422" y="45" font-size="14.5" font-weight="700" fill="#fff">Quick bubble</text>
+      <text x="422" y="62" font-size="11.5" fill="#9aa0b8">Select text anywhere, one click</text>
+      <text x="818" y="54" text-anchor="end" font-size="14" font-weight="600" fill="#f472b6" style="font-family:Vazirmatn,Tahoma,'Segoe UI',sans-serif">حباب ترجمه‌ی سریع</text>
+    </g>
+    <g class="sh3">
+      <rect x="368" y="26" width="464" height="46" rx="23" fill="#000" stroke="#1DB954" stroke-opacity=".6"/>
+      <circle cx="396" cy="49" r="13" fill="#1DB954" opacity=".22"/>
+      <text x="396" y="55" text-anchor="middle" font-size="15" font-weight="800" fill="#1DB954">♪</text>
+      <text x="422" y="45" font-size="14.5" font-weight="700" fill="#fff">Spotify player</text>
+      <text x="422" y="62" font-size="11.5" fill="#9aa0b8">Cover, controls, Ari dances to the beat</text>
+      <text x="818" y="54" text-anchor="end" font-size="14" font-weight="600" fill="#1DB954" style="font-family:Vazirmatn,Tahoma,'Segoe UI',sans-serif">پخش‌کننده‌ی اسپاتیفای</text>
+    </g>
+    <g class="sh4">
+      <rect x="368" y="26" width="464" height="46" rx="23" fill="#000" stroke="#2dd4bf" stroke-opacity=".6"/>
+      <circle cx="396" cy="49" r="13" fill="#2dd4bf" opacity=".22"/>
+      <text x="396" y="55" text-anchor="middle" font-size="15" font-weight="800" fill="#2dd4bf">⚽</text>
+      <text x="422" y="45" font-size="14.5" font-weight="700" fill="#fff">Live football</text>
+      <text x="422" y="62" font-size="11.5" fill="#9aa0b8">A show for every goal, card and whistle</text>
+      <text x="818" y="54" text-anchor="end" font-size="14" font-weight="600" fill="#2dd4bf" style="font-family:Vazirmatn,Tahoma,'Segoe UI',sans-serif">فوتبال زنده</text>
+    </g>
+    <g class="sh5">
+      <rect x="368" y="26" width="464" height="46" rx="23" fill="#000" stroke="#fbbf24" stroke-opacity=".6"/>
+      <circle cx="396" cy="49" r="13" fill="#fbbf24" opacity=".22"/>
+      <text x="396" y="55" text-anchor="middle" font-size="15" font-weight="800" fill="#fbbf24">👕</text>
+      <text x="422" y="45" font-size="14.5" font-weight="700" fill="#fff">Team kits</text>
+      <text x="422" y="62" font-size="11.5" fill="#9aa0b8">Ari wears your team's real shirt</text>
+      <text x="818" y="54" text-anchor="end" font-size="14" font-weight="600" fill="#fbbf24" style="font-family:Vazirmatn,Tahoma,'Segoe UI',sans-serif">پیراهن تیم‌ها</text>
+    </g>
+    <g class="sh6">
+      <rect x="368" y="26" width="464" height="46" rx="23" fill="#000" stroke="#fb923c" stroke-opacity=".6"/>
+      <circle cx="396" cy="49" r="13" fill="#fb923c" opacity=".22"/>
+      <text x="396" y="55" text-anchor="middle" font-size="15" font-weight="800" fill="#fb923c">🎩</text>
+      <text x="422" y="45" font-size="14.5" font-weight="700" fill="#fff">Wardrobe &amp; seasons</text>
+      <text x="422" y="62" font-size="11.5" fill="#9aa0b8">Hats, glasses, crowns — and the seasons</text>
+      <text x="818" y="54" text-anchor="end" font-size="14" font-weight="600" fill="#fb923c" style="font-family:Vazirmatn,Tahoma,'Segoe UI',sans-serif">کمد لباس و فصل‌ها</text>
+    </g>
+  <circle cx="534" cy="96" r="3.6" fill="#ffffff26"><animate attributeName="fill" calcMode="discrete" dur="30s" repeatCount="indefinite" keyTimes="0;0.0000;0.1429" values="#ffffff26;#3b82f6;#ffffff26"/></circle><circle cx="556" cy="96" r="3.6" fill="#ffffff26"><animate attributeName="fill" calcMode="discrete" dur="30s" repeatCount="indefinite" keyTimes="0;0.1429;0.2857" values="#ffffff26;#a78bfa;#ffffff26"/></circle><circle cx="578" cy="96" r="3.6" fill="#ffffff26"><animate attributeName="fill" calcMode="discrete" dur="30s" repeatCount="indefinite" keyTimes="0;0.2857;0.4286" values="#ffffff26;#f472b6;#ffffff26"/></circle><circle cx="600" cy="96" r="3.6" fill="#ffffff26"><animate attributeName="fill" calcMode="discrete" dur="30s" repeatCount="indefinite" keyTimes="0;0.4286;0.5714" values="#ffffff26;#1DB954;#ffffff26"/></circle><circle cx="622" cy="96" r="3.6" fill="#ffffff26"><animate attributeName="fill" calcMode="discrete" dur="30s" repeatCount="indefinite" keyTimes="0;0.5714;0.7143" values="#ffffff26;#2dd4bf;#ffffff26"/></circle><circle cx="644" cy="96" r="3.6" fill="#ffffff26"><animate attributeName="fill" calcMode="discrete" dur="30s" repeatCount="indefinite" keyTimes="0;0.7143;0.8571" values="#ffffff26;#fbbf24;#ffffff26"/></circle><circle cx="666" cy="96" r="3.6" fill="#ffffff26"><animate attributeName="fill" calcMode="discrete" dur="30s" repeatCount="indefinite" keyTimes="0;0.8571;1.0000" values="#ffffff26;#fb923c;#ffffff26"/></circle>
+  <g transform="translate(190 250)"><g class="drift" style="animation-delay:0s"><circle r="26" fill="#3b82f6" opacity=".14"/><circle r="26" fill="none" stroke="#3b82f6" stroke-opacity=".5"/><text y="9" text-anchor="middle" font-size="24" style="font-family:'Segoe UI Emoji','Apple Color Emoji',sans-serif">⚡</text></g></g><g transform="translate(1010 230)"><g class="drift" style="animation-delay:1.2s"><circle r="26" fill="#a78bfa" opacity=".14"/><circle r="26" fill="none" stroke="#a78bfa" stroke-opacity=".5"/><text y="9" text-anchor="middle" font-size="24" style="font-family:'Segoe UI Emoji','Apple Color Emoji',sans-serif">✦</text></g></g><g transform="translate(250 140)"><g class="drift" style="animation-delay:2.1s"><circle r="26" fill="#1DB954" opacity=".14"/><circle r="26" fill="none" stroke="#1DB954" stroke-opacity=".5"/><text y="9" text-anchor="middle" font-size="24" style="font-family:'Segoe UI Emoji','Apple Color Emoji',sans-serif">♪</text></g></g><g transform="translate(960 140)"><g class="drift" style="animation-delay:0.7s"><circle r="26" fill="#2dd4bf" opacity=".14"/><circle r="26" fill="none" stroke="#2dd4bf" stroke-opacity=".5"/><text y="9" text-anchor="middle" font-size="24" style="font-family:'Segoe UI Emoji','Apple Color Emoji',sans-serif">⚽</text></g></g><g transform="translate(150 360)"><g class="drift" style="animation-delay:1.7s"><circle r="26" fill="#fbbf24" opacity=".14"/><circle r="26" fill="none" stroke="#fbbf24" stroke-opacity=".5"/><text y="9" text-anchor="middle" font-size="24" style="font-family:'Segoe UI Emoji','Apple Color Emoji',sans-serif">👕</text></g></g><g transform="translate(1060 360)"><g class="drift" style="animation-delay:2.6s"><circle r="26" fill="#fb923c" opacity=".14"/><circle r="26" fill="none" stroke="#fb923c" stroke-opacity=".5"/><text y="9" text-anchor="middle" font-size="24" style="font-family:'Segoe UI Emoji','Apple Color Emoji',sans-serif">🎩</text></g></g>
+
+  <!-- Ari -->
+  <ellipse cx="600" cy="352" rx="120" ry="14" fill="#000" opacity=".55" filter="url(#hsh)"><animate attributeName="rx" values="120;100;120" dur="5s" repeatCount="indefinite"/></ellipse>
+  <circle class="ring" cx="600" cy="236" r="150" fill="none" stroke="#a78bfa" stroke-opacity=".5"/>
+  <g transform="translate(600 238) scale(.92)"><g class="float">
+    
+  <g class="breathe">
+    <path d="M120.0 0.0L119.8 18.8L119.4 28.5L118.6 36.4L117.5 43.2L116.1 49.3L114.4 54.8L112.3 59.8L110.0 64.4L107.3 68.6L104.3 72.5L100.9 76.1L97.3 79.4L93.2 82.4L88.8 85.2L84.0 87.6L78.8 89.8L73.2 91.7L67.0 93.4L60.3 94.8L52.9 96.0L44.6 96.9L34.9 97.5L23.0 97.9L0.0 98.0L-23.0 97.9L-34.9 97.5L-44.6 96.9L-52.9 96.0L-60.3 94.8L-67.0 93.4L-73.2 91.7L-78.8 89.8L-84.0 87.6L-88.8 85.2L-93.2 82.4L-97.3 79.4L-100.9 76.1L-104.3 72.5L-107.3 68.6L-110.0 64.4L-112.3 59.8L-114.4 54.8L-116.1 49.3L-117.5 43.2L-118.6 36.4L-119.4 28.5L-119.8 18.8L-120.0 0.0L-119.8 -18.8L-119.4 -28.5L-118.6 -36.4L-117.5 -43.2L-116.1 -49.3L-114.4 -54.8L-112.3 -59.8L-110.0 -64.4L-107.3 -68.6L-104.3 -72.5L-100.9 -76.1L-97.3 -79.4L-93.2 -82.4L-88.8 -85.2L-84.0 -87.6L-78.8 -89.8L-73.2 -91.7L-67.0 -93.4L-60.3 -94.8L-52.9 -96.0L-44.6 -96.9L-34.9 -97.5L-23.0 -97.9L-0.0 -98.0L23.0 -97.9L34.9 -97.5L44.6 -96.9L52.9 -96.0L60.3 -94.8L67.0 -93.4L73.2 -91.7L78.8 -89.8L84.0 -87.6L88.8 -85.2L93.2 -82.4L97.3 -79.4L100.9 -76.1L104.3 -72.5L107.3 -68.6L110.0 -64.4L112.3 -59.8L114.4 -54.8L116.1 -49.3L117.5 -43.2L118.6 -36.4L119.4 -28.5L119.8 -18.8Z" fill="url(#hdb)"/>
+    <path d="M120.0 0.0L119.8 18.8L119.4 28.5L118.6 36.4L117.5 43.2L116.1 49.3L114.4 54.8L112.3 59.8L110.0 64.4L107.3 68.6L104.3 72.5L100.9 76.1L97.3 79.4L93.2 82.4L88.8 85.2L84.0 87.6L78.8 89.8L73.2 91.7L67.0 93.4L60.3 94.8L52.9 96.0L44.6 96.9L34.9 97.5L23.0 97.9L0.0 98.0L-23.0 97.9L-34.9 97.5L-44.6 96.9L-52.9 96.0L-60.3 94.8L-67.0 93.4L-73.2 91.7L-78.8 89.8L-84.0 87.6L-88.8 85.2L-93.2 82.4L-97.3 79.4L-100.9 76.1L-104.3 72.5L-107.3 68.6L-110.0 64.4L-112.3 59.8L-114.4 54.8L-116.1 49.3L-117.5 43.2L-118.6 36.4L-119.4 28.5L-119.8 18.8L-120.0 0.0L-119.8 -18.8L-119.4 -28.5L-118.6 -36.4L-117.5 -43.2L-116.1 -49.3L-114.4 -54.8L-112.3 -59.8L-110.0 -64.4L-107.3 -68.6L-104.3 -72.5L-100.9 -76.1L-97.3 -79.4L-93.2 -82.4L-88.8 -85.2L-84.0 -87.6L-78.8 -89.8L-73.2 -91.7L-67.0 -93.4L-60.3 -94.8L-52.9 -96.0L-44.6 -96.9L-34.9 -97.5L-23.0 -97.9L-0.0 -98.0L23.0 -97.9L34.9 -97.5L44.6 -96.9L52.9 -96.0L60.3 -94.8L67.0 -93.4L73.2 -91.7L78.8 -89.8L84.0 -87.6L88.8 -85.2L93.2 -82.4L97.3 -79.4L100.9 -76.1L104.3 -72.5L107.3 -68.6L110.0 -64.4L112.3 -59.8L114.4 -54.8L116.1 -49.3L117.5 -43.2L118.6 -36.4L119.4 -28.5L119.8 -18.8Z" fill="url(#hde)"/>
+    <path d="M120.0 0.0L119.8 18.8L119.4 28.5L118.6 36.4L117.5 43.2L116.1 49.3L114.4 54.8L112.3 59.8L110.0 64.4L107.3 68.6L104.3 72.5L100.9 76.1L97.3 79.4L93.2 82.4L88.8 85.2L84.0 87.6L78.8 89.8L73.2 91.7L67.0 93.4L60.3 94.8L52.9 96.0L44.6 96.9L34.9 97.5L23.0 97.9L0.0 98.0L-23.0 97.9L-34.9 97.5L-44.6 96.9L-52.9 96.0L-60.3 94.8L-67.0 93.4L-73.2 91.7L-78.8 89.8L-84.0 87.6L-88.8 85.2L-93.2 82.4L-97.3 79.4L-100.9 76.1L-104.3 72.5L-107.3 68.6L-110.0 64.4L-112.3 59.8L-114.4 54.8L-116.1 49.3L-117.5 43.2L-118.6 36.4L-119.4 28.5L-119.8 18.8L-120.0 0.0L-119.8 -18.8L-119.4 -28.5L-118.6 -36.4L-117.5 -43.2L-116.1 -49.3L-114.4 -54.8L-112.3 -59.8L-110.0 -64.4L-107.3 -68.6L-104.3 -72.5L-100.9 -76.1L-97.3 -79.4L-93.2 -82.4L-88.8 -85.2L-84.0 -87.6L-78.8 -89.8L-73.2 -91.7L-67.0 -93.4L-60.3 -94.8L-52.9 -96.0L-44.6 -96.9L-34.9 -97.5L-23.0 -97.9L-0.0 -98.0L23.0 -97.9L34.9 -97.5L44.6 -96.9L52.9 -96.0L60.3 -94.8L67.0 -93.4L73.2 -91.7L78.8 -89.8L84.0 -87.6L88.8 -85.2L93.2 -82.4L97.3 -79.4L100.9 -76.1L104.3 -72.5L107.3 -68.6L110.0 -64.4L112.3 -59.8L114.4 -54.8L116.1 -49.3L117.5 -43.2L118.6 -36.4L119.4 -28.5L119.8 -18.8Z" fill="url(#hdh)"/>
+    
+    <ellipse cx="-74" cy="22" rx="17" ry="9" fill="#ff8fa6" opacity="0.38" filter="url(#hdblur)" style="filter:blur(4px)"/>
+    <ellipse cx="74" cy="22" rx="17" ry="9" fill="#ff8fa6" opacity="0.38" style="filter:blur(4px)"/>
+    <g class="look"><g class="eye"><ellipse cx="-46" cy="-4" rx="11" ry="17" fill="#0e0c10"/><circle cx="-42.5" cy="-10" r="3.6" fill="#fff"/></g><g class="eye"><ellipse cx="46" cy="-4" rx="11" ry="17" fill="#0e0c10"/><circle cx="49.5" cy="-10" r="3.6" fill="#fff"/></g></g>
+    
+  </g>
+    <g class="sh0" style="animation-name:sh0"><g transform="translate(0 -4)"><text x="0" y="-130" text-anchor="middle" font-size="26" font-weight="800" fill="#3b82f6">Hello → سلام</text></g></g><g class="sh1" style="animation-name:sh1"><g transform="translate(0 -92)"><path d="M-50 12 L-62 -10 -30 0 0 -34 30 0 62 -10 50 12Z" fill="#f5b53d" stroke="#b7791f" stroke-width="3" stroke-linejoin="round"/><circle cx="0" cy="-34" r="6" fill="#a78bfa"/></g></g><g class="sh2" style="animation-name:sh2"><g transform="translate(0 -4)"><rect x="-82" y="-24" width="66" height="44" rx="16" fill="#0b0b10" stroke="#475569" stroke-width="3"/><rect x="16" y="-24" width="66" height="44" rx="16" fill="#0b0b10" stroke="#475569" stroke-width="3"/><path d="M-16 -8 H16" stroke="#475569" stroke-width="5"/></g></g><g class="sh3" style="animation-name:sh3"><g transform="translate(0 -88)"><path d="M-70 14 C-70 -50 70 -50 70 14" fill="none" stroke="#e5e7eb" stroke-width="10" stroke-linecap="round"/><rect x="-92" y="-10" width="30" height="48" rx="12" fill="#1f2937" stroke="#1DB954" stroke-width="4"/><rect x="62" y="-10" width="30" height="48" rx="12" fill="#1f2937" stroke="#1DB954" stroke-width="4"/></g></g><g class="sh4" style="animation-name:sh4"><g transform="translate(60 70)"><circle r="22" fill="#fff"/><path d="M0-12 9-4 6 8H-6L-9-4Z" fill="#1f2937"/></g></g><g class="sh5" style="animation-name:sh5"><g transform="translate(0 -88)"><path d="M-86 -52 Q0 -86 86 -52 L84 -40 Q0 -72 -84 -40Z" fill="#A50044" stroke="#EDBB00" stroke-width="2"/></g></g><g class="sh6" style="animation-name:sh6"><g transform="translate(0 -86)"><ellipse cx="0" cy="6" rx="112" ry="19" fill="#5b21b6"/><path d="M-62 4 C-40 -20 -22 -70 6 -128 C12 -90 38 -40 62 4Z" fill="#7c3aed"/><path d="M-62 4 Q0 20 62 4 L58 -10 Q0 4 -58 -10Z" fill="#f97316"/></g></g>
+  </g></g>
+
+  <!-- titles -->
+  <text x="600" y="446" text-anchor="middle" font-size="62" font-weight="800" fill="url(#htitle)" letter-spacing="1">Arizo-Agent</text>
+  <text x="600" y="486" text-anchor="middle" font-size="22" fill="#c9cde0">A tiny friend at the top of your Windows screen</text>
+  <text x="600" y="520" text-anchor="middle" font-size="20" fill="#9a8fd8" direction="rtl" style="font-family:Vazirmatn,Tahoma,'Segoe UI',sans-serif">یک دوست کوچک در بالای صفحه‌ی ویندوز شما</text>
+</g>
+<rect width="1200" height="560" rx="32" fill="none" stroke="#ffffff14"/>
+</svg>

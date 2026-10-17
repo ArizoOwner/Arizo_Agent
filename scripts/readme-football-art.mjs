@@ -148,4 +148,5 @@ ${party}
 
   football();
   kits();
+  return { kitAri, shade, FB_CSS };
 }
