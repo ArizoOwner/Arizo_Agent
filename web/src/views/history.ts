@@ -16,6 +16,10 @@ export interface HistoryActions {
   /** "Translate again": back to the translate view with this text. */
   retranslate(item: HistoryItem): void;
   blip(): void;
+  /** History lives inside the translate view: this folds it away again. */
+  close(): void;
+  /** Whether the translate view is showing the history right now. */
+  isOpen(): boolean;
 }
 
 function ago(iso: string): string {
@@ -54,9 +58,16 @@ export function buildHistory(actions: HistoryActions): ViewHost {
       toast(t("History cleared"));
     },
   });
-  const head = h("div", { class: "hist-head" }, tabs, searchInput, clearAll);
+  const backBtn = h(
+    "button",
+    { class: "src-action-btn hist-back", type: "button", title: tl("Back to translate"), "aria-label": tl("Back to translate"), onclick: () => actions.close() },
+    svg(ICONS.chevronLeft, 12, { stroke: 2.2 }),
+    h("span", { text: tl("Translate") }),
+  );
+  const head = h("div", { class: "hist-head" }, backBtn, tabs, searchInput, clearAll);
   const list = h("div", { class: "hist-list" });
-  const el = h("div", { class: "view history" }, card(null, h("div", { class: "hist-body" }, head, list)));
+  // Not a view of its own: it is the pane the translate view slides over itself.
+  const el = h("div", { class: "history-pane" }, card(null, h("div", { class: "hist-body" }, head, list)));
 
   function setFilter(next: HistoryFilter) {
     actions.blip();
@@ -136,7 +147,7 @@ export function buildHistory(actions: HistoryActions): ViewHost {
     el,
     sync() {
       // Reloaded each time the view opens: translations are added from other windows too.
-      if (State.mode === "expanded" && State.view === "history") {
+      if (State.mode === "expanded" && actions.isOpen()) {
         if (!loaded) void load();
         else render();
       } else {

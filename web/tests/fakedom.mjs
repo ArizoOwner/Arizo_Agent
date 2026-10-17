@@ -70,6 +70,9 @@ class FakeElement {
   getAttribute(k) {
     return this.attributes.get(k) ?? null;
   }
+  removeAttribute(k) {
+    this.attributes.delete(k);
+  }
   addEventListener(type, fn) {
     this.listeners.set(type, [...(this.listeners.get(type) ?? []), fn]);
   }

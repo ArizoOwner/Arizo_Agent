@@ -530,8 +530,8 @@ async fn call_openai(
 
     let mut req = client
         .post(format!("{base_url}/chat/completions"))
-        .header("HTTP-Referer", "https://github.com/ArizoOwner/arizo-translate")
-        .header("X-Title", "Arizo Translate")
+        .header("HTTP-Referer", "https://github.com/ArizoOwner/Arizo_Agent")
+        .header("X-Title", "Arizo-Agent")
         .json(&body)
         .timeout(REQUEST_TIMEOUT);
     if !cfg.api_key.trim().is_empty() {

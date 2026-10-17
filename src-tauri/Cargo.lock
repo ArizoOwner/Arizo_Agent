@@ -68,16 +68,18 @@ dependencies = [
 ]
 
 [[package]]
-name = "arizo-translate"
-version = "3.0.1"
+name = "arizo-agent"
+version = "3.1.0"
 dependencies = [
  "arboard",
  "base64 0.22.1",
+ "getrandom 0.4.3",
  "keyring",
  "regex",
  "reqwest 0.12.28",
  "serde",
  "serde_json",
+ "sha2",
  "tauri",
  "tauri-build",
  "tauri-plugin-autostart",
@@ -85,6 +87,7 @@ dependencies = [
  "tauri-plugin-single-instance",
  "tokio",
  "windows 0.61.3",
+ "windows-future 0.2.1",
 ]
 
 [[package]]

@@ -7,7 +7,7 @@ import type { IslandViewName } from "./layout";
 import { State } from "./state";
 import { setLanguage } from "../i18n/i18n";
 
-const VIEWS: readonly IslandViewName[] = ["translate", "history", "settings", "note", "wardrobe"];
+const VIEWS: readonly IslandViewName[] = ["translate", "settings", "note", "wardrobe", "spotify"];
 
 export function installDevHooks(island: Island) {
   const q = new URLSearchParams(location.search);

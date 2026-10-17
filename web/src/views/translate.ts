@@ -17,7 +17,8 @@ import {
   autoTarget, cleanPdfText, detectLanguageClient, ellipsize, formatDuration, hasPdfLineBreaks,
   langLabel,
 } from "../core/text";
-import { translateHeight, translateWidth } from "../core/layout";
+import { HISTORY_PANE_H, translateHeight, translateWidth } from "../core/layout";
+import { buildHistory } from "./history";
 import { N_, language, t, tl } from "../i18n/i18n";
 import type { ViewHost } from "./views";
 
@@ -119,7 +120,13 @@ export function buildTranslate(actions: TranslateActions): TranslateHost {
     svg(ICONS.doc, 11),
     h("span", { text: tl("Fix PDF lines") }),
   );
-  const srcBar = h("div", { class: "src-bar" }, counter, h("div", { class: "grow" }), cleanChip, pasteBtn, clearBtn);
+  const historyBtn = h(
+    "button",
+    { class: "src-action-btn history-btn", type: "button", title: tl("History"), "aria-label": tl("History"), onclick: () => { actions.blip(); setHistory(true); } },
+    svg(ICONS.clock, 12, { stroke: 2.2 }),
+    h("span", { text: tl("History") }),
+  );
+  const srcBar = h("div", { class: "src-bar" }, counter, h("div", { class: "grow" }), cleanChip, historyBtn, pasteBtn, clearBtn);
   const srcBody = h("div", { class: "src-body" }, langRow, input, srcBar);
   const left = card(null, srcBody);
 
@@ -187,10 +194,33 @@ export function buildTranslate(actions: TranslateActions): TranslateHost {
   const resBody = h("div", { class: "res-body" }, topRow, resScroll, meta, footer);
   const right = card(null, resBody);
 
+  // ── History: a pane over both cards, opened from the source card ───────────
+  let historyOpen = false;
+  const history = buildHistory({
+    blip: () => actions.blip(),
+    isOpen: () => historyOpen,
+    close: () => setHistory(false),
+    retranslate: (item) => {
+      setHistory(false);
+      host.setText(item.query, item.targetLang);
+    },
+  });
+
   const el = h("div", { class: "view translate" },
     h("div", { class: "left" }, left),
     h("div", { class: "right" }, right),
+    history.el,
   );
+
+  function setHistory(open: boolean) {
+    if (historyOpen === open) return;
+    historyOpen = open;
+    history.el.classList.toggle("open", open);
+    history.sync();
+    if (open) history.focus?.();
+    else input.focus();
+    fit();
+  }
 
   // ── Behaviour ──────────────────────────────────────────────────────────────
 
@@ -288,7 +318,8 @@ export function buildTranslate(actions: TranslateActions): TranslateHost {
     const resNeed = contentHeight(resScroll) + chromeHeight(resBody, resScroll);
     // translateHeight() adds what the island has around the cards (header, margins).
     const needed = Math.max(srcNeed, resNeed);
-    const next = translateHeight(needed);
+    // The history pane covers both cards and wants its own room.
+    const next = Math.max(translateHeight(needed), historyOpen ? HISTORY_PANE_H : 0);
     // The width follows the longer of what is typed and what came back. With
     // nothing typed the old result is gone, so the island returns to its base width.
     const typed = input.value.trim().length;
@@ -613,7 +644,7 @@ export function buildTranslate(actions: TranslateActions): TranslateHost {
   // ── Keyboard ───────────────────────────────────────────────────────────────
 
   window.addEventListener("keydown", (e) => {
-    if (State.mode !== "expanded" || State.view !== "translate" || e.defaultPrevented) return;
+    if (State.mode !== "expanded" || State.view !== "translate" || e.defaultPrevented || historyOpen) return;
     const tag = document.activeElement?.tagName ?? "";
     const typing = FIELD_TAGS.has(tag);
     const mod = e.ctrlKey || e.metaKey;
@@ -668,6 +699,9 @@ export function buildTranslate(actions: TranslateActions): TranslateHost {
       fit();
     },
     sync() {
+      // A folded island forgets the pane: it opens on the translator again.
+      if (State.mode !== "expanded" && historyOpen) setHistory(false);
+      history.sync();
       if (!pillsBuilt) buildPillBots();
       if (lastLang !== language()) {
         lastLang = language();
@@ -679,6 +713,7 @@ export function buildTranslate(actions: TranslateActions): TranslateHost {
       updateLive();
     },
     focus() {
+      if (historyOpen) return;
       if (skipNextFocus) {
         skipNextFocus = false;
         return;
@@ -687,6 +722,7 @@ export function buildTranslate(actions: TranslateActions): TranslateHost {
     },
     typing: isTyping,
     setCaptured(text: string) {
+      if (historyOpen) setHistory(false);
       const clean = (text || "").trim();
       if (clean) {
         setInput(clean);
@@ -700,6 +736,7 @@ export function buildTranslate(actions: TranslateActions): TranslateHost {
       }
     },
     setText(text: string, target?: string) {
+      if (historyOpen) setHistory(false);
       if (target) {
         targetLang = target;
         targetSelect.value = target;

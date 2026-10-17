@@ -97,10 +97,11 @@ export function buildSettingsView(actions: ViewActions): ViewHost {
   // ── Helper controls ─────────────────────────────────────────────────────────
 
   function toggle(on: boolean, onChange: (v: boolean) => void): HTMLElement {
-    const sw = h("button", { class: on ? "switch on" : "switch", type: "button" });
+    const sw = h("button", { class: on ? "switch on" : "switch", type: "button", role: "switch", "aria-checked": String(on) });
     sw.addEventListener("click", () => {
       const next = !sw.classList.contains("on");
       sw.classList.toggle("on", next);
+      sw.setAttribute("aria-checked", String(next));
       onChange(next);
     });
     return sw;
@@ -214,6 +215,14 @@ export function buildSettingsView(actions: ViewActions): ViewHost {
         t("Restore the clipboard after replacing"),
         t("Restore previous clipboard content after in-place translation"),
         toggle(s.restoreClipboard, (val) => void save({ restoreClipboard: val })),
+      ),
+    );
+
+    content.append(
+      settingRow(
+        t("Spotify player"),
+        t("See and control your Spotify playback from the island"),
+        toggle(s.spotifyEnabled, (val) => void save({ spotifyEnabled: val })),
       ),
     );
 

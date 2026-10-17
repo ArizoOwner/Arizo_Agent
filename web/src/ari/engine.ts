@@ -56,7 +56,7 @@ interface BotStateCfg {
 }
 
 interface Particle {
-  type: "heart" | "star" | "spark" | "sweat" | "z";
+  type: "heart" | "star" | "spark" | "sweat" | "z" | "note";
   x: number; y: number; vx: number; vy: number;
   age: number; life: number; rot: number; size: number;
 }
@@ -165,6 +165,28 @@ function starPath(x: CanvasRenderingContext2D, ro: number, ri: number) {
 
 const FONT = `system-ui, "Segoe UI Variable Text", "Segoe UI", sans-serif`;
 
+/** The same 112 BPM dance as the Spotify mini in Coucou 0.4.0. */
+export function stepDanceLevel(level: number, dancing: boolean, dt: number): number {
+  const target = dancing ? 1 : 0;
+  const step = Math.max(0, Number.isFinite(dt) ? dt : 0);
+  if (level < target) return Math.min(target, level + step / 0.3);
+  if (level > target) return Math.max(target, level - step / 0.5);
+  return level;
+}
+
+export function danceTransform(seconds: number, level: number, R: number) {
+  const beat = (seconds * 112) / 60;
+  const hop = Math.abs(Math.sin(Math.PI * beat));
+  const land = Math.pow(1 - hop, 6);
+  return {
+    dx: 0.08 * R * Math.sin(Math.PI * beat) * level,
+    dy: -0.2 * R * hop * level,
+    rotate: 0.1 * Math.sin(Math.PI * beat) * level,
+    sx: 1 + 0.045 * land * level,
+    sy: 1 - 0.06 * land * level,
+  };
+}
+
 // ── Engine ────────────────────────────────────────────────────────────────────
 
 export class BotEngine {
@@ -199,6 +221,9 @@ export class BotEngine {
   /** Extra canvas height above the body so hearts can fly out without clipping. */
   particleOverhang = 0;
 
+  isDancing = false;
+  dancingLevel = 0;
+
   // Mouth spring (fraction of R)
   slotH = 0; slotHTarget = 0; slotHVel = 0; isChewing = false;
 
@@ -221,6 +246,8 @@ export class BotEngine {
   private tweens = new Map<PropKey, Tween>();
   private locks = new Set<PropKey>();
   private particles: Particle[] = [];
+  private noteSide = 1;
+  private nextNote = 0;
 
   lookX = 0;
   lookY = 0;
@@ -449,6 +476,17 @@ export class BotEngine {
 
   emit(type: Particle["type"], count: number) {
     for (let i = 0; i < count; i++) {
+      if (type === "note") {
+        // Beside the body, drifting up and outwards, one side at a time.
+        const side = (this.noteSide = -this.noteSide);
+        this.particles.push({
+          type, x: side * (0.86 + Math.random() * 0.1), y: -0.05 - Math.random() * 0.3,
+          vx: side * (0.06 + Math.random() * 0.06), vy: -(0.3 + Math.random() * 0.12),
+          age: -i * 0.14, life: 1.7 + Math.random() * 0.4,
+          rot: side * (0.12 + Math.random() * 0.14), size: 0.2 + Math.random() * 0.04,
+        });
+        continue;
+      }
       const isZ = type === "z";
       this.particles.push({
         type,
@@ -512,7 +550,7 @@ export class BotEngine {
       this.tweens.size > 0 ||
       this.particles.length > 0 ||
       this.cfg.bounces || this.cfg.scans || this.cfg.breathes || this.cfg.zz || this.cfg.sweat ||
-      this.isMini ||
+      this.isMini || this.isDancing || this.dancingLevel > 0.001 ||
       Math.abs(this.tgYaw - this.yaw) > 0.002 ||
       Math.abs(this.tgPitch - this.pitch) > 0.002 ||
       Math.abs(this.tgTilt - this.tilt) > 0.002 ||
@@ -642,8 +680,14 @@ export class BotEngine {
       if (!this.isMini && this.cfg.sweat && Math.random() < 0.5) this.emit("sweat", 1);
     }
 
+    // Music notes float up beside the body while it dances to a song.
+    if (this.isDancing && this.dancingLevel > 0.3 && n >= this.nextNote) {
+      this.emit("note", 1);
+      this.nextNote = n + 0.55 + Math.random() * 0.25;
+    }
+
     for (const p of this.particles) p.age += dt;
-    this.particles = this.particles.filter((p) => p.age < p.life);
+    this.particles =this.particles.filter((p) => p.age < p.life);
 
     // Mouth slot spring — ω₀ = 2π/0.25, ζ = 0.6
     const omega = (2 * Math.PI) / 0.25;
@@ -671,7 +715,24 @@ export class BotEngine {
     this.prevOy = this.oy;
     this.prevRoll = this.roll;
 
+    this.dancingLevel = stepDanceLevel(this.dancingLevel, this.isDancing, dt);
     this.lastTime = n;
+  }
+
+  setDancing(dancing: boolean) {
+    this.isDancing = dancing;
+  }
+
+  applyDance(x: CanvasRenderingContext2D, W: number, H: number) {
+    if (this.dancingLevel <= 0.001) return;
+    const R = W * 0.3;
+    const px = W / 2 + this.ox * R;
+    const py = H / 2 + this.particleOverhang / 2 + this.oy * R + R * 0.06 + R * 0.88;
+    const d = danceTransform(now(), this.dancingLevel, R);
+    x.translate(px + d.dx, py + d.dy);
+    x.rotate(d.rotate);
+    x.scale(d.sx, d.sy);
+    x.translate(-px, -py);
   }
 
   private doMiniBehaviorLoop() {
@@ -859,6 +920,9 @@ export class BotEngine {
 
   private drawEyes(x: CanvasRenderingContext2D, body: Path2D, R: number, rx: number, ry: number) {
     let shape: EyeShape = this.eyeOverride ?? this.cfg.eye;
+    if (this.isDancing && this.dancingLevel > 0.15 && !this.isMini && (this.state === "idle" || this.state === "finished")) {
+      shape = "happy";
+    }
     if (this.morph > 0.5) {
       if (this.isChewing) shape = "happy";
       else if (this.slotHTarget > 0.05 || this.slotH > 0.1) shape = "cup";
@@ -1219,6 +1283,10 @@ export class BotEngine {
           x.quadraticCurveTo(-sz * 0.8, sz * 0.2, 0, -sz);
           x.fill();
           break;
+        case "note":
+          x.rotate(p.rot);
+          notePath(x, sz);
+          break;
         case "z":
           x.fillStyle = "rgb(209,219,235)";
           x.font = `700 ${sz * 1.9}px ${FONT}`;
@@ -1230,6 +1298,41 @@ export class BotEngine {
       x.restore();
     }
   }
+}
+
+/** Notes are white on the dark island and near-black on the light one. */
+function noteInk(): { fill: string; glow: string } {
+  const light = typeof document !== "undefined" && document.documentElement.dataset.theme === "light";
+  return light ? { fill: "#17171c", glow: "rgba(255,255,255,0.55)" } : { fill: "#ffffff", glow: "rgba(0,0,0,0.35)" };
+}
+
+/** An eighth note: a tilted oval head, a thin stem and a flowing flag. */
+function notePath(x: CanvasRenderingContext2D, s: number) {
+  const ink = noteInk();
+  x.save();
+  x.shadowColor = ink.glow;
+  x.shadowBlur = Math.max(1, s * 0.4);
+  x.fillStyle = ink.fill;
+  x.strokeStyle = ink.fill;
+  x.lineCap = "round";
+  x.lineJoin = "round";
+  // Head
+  x.beginPath();
+  x.ellipse(-s * 0.3, s * 0.7, s * 0.52, s * 0.38, -0.42, 0, Math.PI * 2);
+  x.fill();
+  // Stem
+  x.lineWidth = Math.max(0.8, s * 0.2);
+  x.beginPath();
+  x.moveTo(s * 0.17, s * 0.6);
+  x.lineTo(s * 0.17, -s * 1.0);
+  x.stroke();
+  // Flag
+  x.lineWidth = Math.max(0.8, s * 0.22);
+  x.beginPath();
+  x.moveTo(s * 0.17, -s * 1.0);
+  x.bezierCurveTo(s * 0.2, -s * 0.5, s * 0.85, -s * 0.5, s * 0.72, s * 0.12);
+  x.stroke();
+  x.restore();
 }
 
 /** Ray → rounded-rect boundary intersection, for the mailbox morph. */

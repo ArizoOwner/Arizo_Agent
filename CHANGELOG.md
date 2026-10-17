@@ -1,5 +1,41 @@
 # Changelog
 
+## 3.1.0 — Arizo-Agent
+
+- **New name.** Arizo Translate is now **Arizo-Agent**. App, tray, installer,
+  executable, package metadata and project links use the new name. Settings,
+  history, API credentials and the startup entry keep their stable identities.
+- **Spotify: this PC or your account.** With no setup, the island shows and controls the
+  Spotify desktop app through the Windows media controls (cover, title, timeline, play/pause,
+  previous/next, seek, shuffle, repeat, Spotify's own volume). Optionally connect your account
+  to follow and control playback on any other device too; when both play, the account wins
+  unless only this PC is playing. Notes (♪) float beside the dancing character while music
+  plays. Account details: connect once with OAuth (PKCE, no client secret):
+  create a free app in the Spotify developer dashboard, paste its Client ID, approve access
+  in the browser. The island then shows and controls what plays on any of your devices —
+  cover, title, artist, timeline, play/pause, previous/next, seek, shuffle, repeat, volume.
+  Controls need Premium; a free account can watch. The refresh token lives in the Windows
+  Credential Manager and **Disconnect** removes it. Failed commands show Spotify's own reason.
+- **One mini character per feature.** Translate, Spotify and Settings have
+  colour-coded miniatures in the header using the Coucou 0.4.0 canvas renderer.
+  Spotify's green miniature and Ari dance during eligible playback using the
+  same 112 BPM bounce, with smooth fade-in and fade-out.
+- **Tidier header.** History now opens from inside Translate (button next to Paste,
+  with a back button); the wardrobe lives in Settings and opens from a right-click on Ari.
+- **Fixes found while testing.** The account setup replaces the local player instead of
+  overlapping it; every control that has no body (next, previous, play/pause…) sends
+  `Content-Length: 0`, which fixes Spotify's HTTP 411; play/pause stays enabled whichever
+  of pause/resume Spotify forbids at that moment; Premium is read from the account's plan.
+- **README art.** A new animated Spotify scene (Ari dancing to a 112 BPM beat with
+  floating notes) in the English and Persian READMEs.
+- **Reliable lifecycle.** One poller that runs only while the integration is on and an
+  account is connected or Spotify runs on this PC (4 s while playing, slower when paused or idle), honours rate limits
+  (Retry-After), keeps the last state on a network hiccup, and stops cleanly on exit.
+- **Persian and English.** Player controls, empty states, accessibility labels
+  and errors are translated; the layout supports both directions and themes.
+- **Checks.** Added focused Spotify clock, artwork, dance, UI-command outcome
+  and backend conversion tests, plus old-settings compatibility coverage.
+
 ## 3.0.1
 
 - **Models dropdown.** In Settings → AI Engine the model is now picked from a list: the

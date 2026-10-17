@@ -2,10 +2,33 @@
    (.card, .btn, .pill, .chip, .kbd, .icon-btn, .seg, .shimmer) in style.css. */
 
 .view.translate,
-.view.history,
 .view.settings-integrated {
   display: flex;
   gap: 10px;
+}
+
+/* History: a pane laid over both translator cards, opened from the source card. */
+.view.translate {
+  position: absolute;
+}
+
+.history-pane {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: none;
+}
+
+.history-pane.open {
+  display: flex;
+}
+
+.history-pane > .card {
+  flex: 1 1 auto;
+}
+
+.hist-back {
+  flex: 0 0 auto;
 }
 
 .translate > .left {
@@ -18,7 +41,6 @@
   min-width: 350px;
 }
 
-.history > .card,
 .settings-integrated > .card {
   flex: 1 1 auto;
 }

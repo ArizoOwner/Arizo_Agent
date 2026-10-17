@@ -22,7 +22,7 @@ test("the settings keys are exactly the contract's", () => {
   assert.deepEqual(Object.keys(S.DEFAULT_SETTINGS).sort(), [
     "ariOutfit", "aphra", "appLanguage", "autoCloseInterval", "autoCopy", "defaultEngine", "historyLimit",
     "hotkey", "hideHotkey", "hideOnBlur", "inlineHotkey", "language", "launchAtStartup", "nativeLang", "restoreClipboard",
-    "saveHistory", "screen", "secondLang", "showFloatingBubble", "soundEnabled", "soundVolume", "theme",
+    "saveHistory", "screen", "secondLang", "showFloatingBubble", "soundEnabled", "soundVolume", "spotifyClientId", "spotifyEnabled", "theme",
   ].sort());
   assert.deepEqual(Object.keys(S.DEFAULT_SETTINGS.aphra).sort(), ["baseUrl", "hasApiKey", "model", "showBreakdown", "tone"]);
 });

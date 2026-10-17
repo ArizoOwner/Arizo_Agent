@@ -1,4 +1,4 @@
-// Generates beautiful, custom NSIS installer artwork for Arizo Translate:
+// Generates beautiful, custom NSIS installer artwork for Arizo-Agent:
 // 1. nsis-sidebar.bmp (164 x 314 px 24-bit BMP) for Welcome & Finish wizard pages
 // 2. nsis-header.bmp (150 x 57 px 24-bit BMP) for inner wizard pages
 // 3. installer.ico & uninstaller.ico with multi-resolution PNG frames

@@ -10,9 +10,10 @@ import {
 import { onEmote } from "../core/mood";
 import { Sound } from "../core/sound";
 import { State } from "../core/state";
+import { Spotify, SPOTIFY_GREEN, SPOTIFY_ID, islandDances, musicPlaying } from "../core/spotify";
 import { BotEngine } from "../ari/engine";
 import { GREETING_H, GREETING_W, Greeting } from "../ari/greeting";
-import { createMiniBot, pruneMiniBots, syncMiniBotStates, tickMiniBots } from "../ari/minibots";
+import { createMiniBot, pruneMiniBots, syncMiniBotStates, tickMiniBots, type MiniTask } from "../ari/minibots";
 import { SeasonCache, parseOutfit } from "../ari/wardrobe";
 import { buildHeader, buildViews, type ViewActions, type ViewHost } from "../views/views";
 import type { TranslateHost } from "../views/translate";
@@ -702,10 +703,16 @@ export class Island {
     const outfit = State.wardrobePreview ?? this.seasons.get(parseOutfit(State.settings.ariOutfit));
     this.engine.setOutfit(outfit, !inWardrobe);
 
+    this.engine.setDancing(islandDances({
+      music: musicPlaying(Spotify.state), state: State.effectiveState, mode: State.mode, view: State.view,
+    }));
     this.engine.update(dt);
     ctx.setTransform(dpr, 0, 0, dpr, BOT_SIDE * dpr, 0);
     ctx.clearRect(-BOT_SIDE, 0, wCss, hCss);
+    ctx.save();
+    this.engine.applyDance(ctx, w, hCss);
     this.engine.draw(ctx, w, hCss);
+    ctx.restore();
   }
 
   /** tanh of the distance to the bot, so the eyes follow the cursor. */
@@ -765,7 +772,7 @@ export class Island {
     // island may take keyboard focus (the field itself asks, on focus).
     if (this.lastSyncedView !== State.view) {
       this.lastSyncedView = State.view;
-      if (State.view === "translate" || State.view === "history") {
+      if (State.view === "translate" || State.view === "spotify") {
         window.setTimeout(() => {
           if (State.view === this.lastSyncedView) this.views.get(State.view)?.focus?.();
         }, 120);
@@ -774,23 +781,30 @@ export class Island {
       }
     }
 
-    // Compact capsule: the two engine mini Aris and the last translation, tiny.
+    // The compact grid keeps the engine minis and adds Spotify while enabled.
+    const tasks: MiniTask[] = [...State.tasks];
+    if (State.settings.spotifyEnabled) {
+      tasks.push({ id: SPOTIFY_ID, name: "Spotify", color: SPOTIFY_GREEN, state: "idle" });
+    }
     const showGrid = State.mode === "compact";
     this.miniGrid.style.opacity = showGrid ? "1" : "0";
     this.capsuleText.style.opacity = showGrid ? "1" : "0";
     if (showGrid) {
-      const key = State.tasks.map((x) => `${x.id}:${x.color}`).join("|");
+      const key = tasks.map((x) => `${x.id}:${x.color}`).join("|");
       if (this.miniGrid.dataset.key !== key) {
         this.miniGrid.dataset.key = key;
         this.miniGrid.replaceChildren();
-        for (const task of State.tasks) this.miniGrid.append(createMiniBot(task, 13));
+        for (const task of tasks) {
+          this.miniGrid.append(createMiniBot(task, 13,
+            task.id === SPOTIFY_ID ? () => musicPlaying(Spotify.state) : undefined));
+        }
         pruneMiniBots();
       }
       this.paintClock();
       this.scheduleClock();
     }
 
-    syncMiniBotStates(State.tasks);
+    syncMiniBotStates(tasks);
     this.engine.setState(State.effectiveState);
   }
 

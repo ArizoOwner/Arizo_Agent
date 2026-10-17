@@ -3,10 +3,12 @@
 import "./style.css";
 import "./translate.css";
 import "./views/select.css";
+import "./views/spotify.css";
 import { Bridge, IS_MOCK, IS_TAURI, onEvent } from "./core/bridge";
 import { Sound } from "./core/sound";
 import { State, mergeSettings, type Settings } from "./core/state";
 import { parseEngine } from "./core/pills";
+import { IDLE_SPOTIFY, Spotify, type SpotifyState } from "./core/spotify";
 import { toast } from "./core/toast";
 import { Island } from "./island/island";
 import { onLanguageChange, resolveLanguage, setLanguage } from "./i18n/i18n";
@@ -60,6 +62,14 @@ async function main() {
   // The settings window writes preferences; apply them here without a restart.
   await onEvent<Settings>("settings-changed", (s) => {
     State.settings = mergeSettings(State.settings, s);
+    if (!State.settings.spotifyEnabled) {
+      Spotify.state = { ...IDLE_SPOTIFY };
+      Spotify.artwork = null;
+    } else {
+      void Bridge.spotifyRefresh().then((state) => {
+        if (state && State.settings.spotifyEnabled) { Spotify.state = state; State.notify(); }
+      });
+    }
     applyLanguage();
     applyTheme();
     island.applySettings();
@@ -71,6 +81,16 @@ async function main() {
   await onEvent<string>("toast", (m) => toast(m, 4500));
   await onEvent<{ requestId: number; text: string }>("translate-partial", (p) =>
     island.translate.partial(p.requestId, p.text));
+
+  await onEvent<SpotifyState>("spotify", (state) => {
+    Spotify.state = State.settings.spotifyEnabled ? state : { ...IDLE_SPOTIFY };
+    if (!Spotify.state.track) Spotify.artwork = null;
+    State.notify();
+  });
+  void Bridge.spotifyRefresh().then((spotify) => {
+    if (spotify && State.settings.spotifyEnabled) Spotify.state = spotify;
+    State.notify();
+  });
 
   island.launch();
 

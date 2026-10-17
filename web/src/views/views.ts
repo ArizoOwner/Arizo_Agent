@@ -7,9 +7,11 @@ import { card } from "./parts";
 import { State } from "../core/state";
 import type { IslandViewName } from "../core/layout";
 import { buildTranslate, type TranslateHost } from "./translate";
-import { buildHistory } from "./history";
 import { buildWardrobe } from "./wardrobe";
 import { buildSettingsView } from "./settings";
+import { buildSpotify } from "./spotify";
+import { createMiniBot, type MiniTask } from "../ari/minibots";
+import { Spotify, SPOTIFY_GREEN, SPOTIFY_ID, musicPlaying } from "../core/spotify";
 import type { HistoryItem } from "../core/history-logic";
 import type { Outfit, OutfitSelection } from "../ari/wardrobe";
 import { tl } from "../i18n/i18n";
@@ -44,11 +46,19 @@ export interface ViewHost {
 // ── Header ────────────────────────────────────────────────────────────────────
 
 export function buildHeader(actions: ViewActions): ViewHost {
-  const tabTranslate = h("button", { class: "tab", title: tl("Translate"), onclick: () => go("translate") }, svg(ICONS.house, 14));
-  const tabHistory = h("button", { class: "tab", title: tl("History"), onclick: () => go("history") }, svg(ICONS.clock, 14, { stroke: 2.2 }));
-  const tabWardrobe = h("button", { class: "tab", title: tl("Wardrobe"), onclick: () => go("wardrobe") }, svg(ICONS.spark, 14));
+  function feature(view: IslandViewName, label: string, color: string, eye: MiniTask["miniEye"] = "pill") {
+    const task: MiniTask = { id: view === "spotify" ? SPOTIFY_ID : `feature_${view}`, name: label, color, state: "idle", miniEye: eye };
+    return h("button", {
+      class: "tab feature-tab", type: "button", title: tl(label), "aria-label": tl(label),
+      "data-view": view, onclick: () => go(view),
+    }, createMiniBot(task, 18, view === "spotify" ? () => musicPlaying(Spotify.state) : undefined),
+    h("span", { class: "feature-label", text: tl(label) }));
+  }
 
-  const gearBtn = h("button", { class: "tab-action", title: tl("Settings"), onclick: () => go("settings") }, svg(ICONS.gear, 15));
+  const tabTranslate = feature("translate", "Translate", "#4285F4");
+  const tabSpotify = feature("spotify", "Spotify", SPOTIFY_GREEN);
+  const gearBtn = h("button", { class: "tab-action feature-settings", type: "button", title: tl("Settings"), "aria-label": tl("Settings"), onclick: () => go("settings") },
+    createMiniBot({ id: "feature_settings", name: "Settings", color: "#C0C4CC", state: "idle", miniEye: "line" }, 18));
   const soundBtn = h("button", { class: "tab-action", title: tl("Mute"), onclick: () => actions.toggleSound() }, svg(ICONS.speakerOn, 15));
 
   function go(v: IslandViewName) {
@@ -59,7 +69,7 @@ export function buildHeader(actions: ViewActions): ViewHost {
   const el = h(
     "div",
     { id: "header" },
-    h("div", { class: "tabs" }, tabTranslate, tabHistory, tabWardrobe),
+    h("div", { class: "tabs", "aria-label": tl("Features") }, tabTranslate, tabSpotify),
     h("div", { class: "header-actions" }, gearBtn, soundBtn),
   );
 
@@ -68,11 +78,13 @@ export function buildHeader(actions: ViewActions): ViewHost {
     sync() {
       const v = State.view;
       tabTranslate.classList.toggle("on", v === "translate");
-      tabHistory.classList.toggle("on", v === "history");
-      tabWardrobe.classList.toggle("on", v === "wardrobe");
+      tabSpotify.classList.toggle("on", v === "spotify");
+      tabSpotify.style.display = State.settings.spotifyEnabled || v === "spotify" ? "" : "none";
+      for (const button of [tabTranslate, tabSpotify]) {
+        button.setAttribute("aria-pressed", String(button.dataset.view === v));
+      }
       gearBtn.classList.toggle("on", v === "settings");
-      clear(gearBtn);
-      gearBtn.append(svg(v === "settings" ? ICONS.gearFill : ICONS.gear, 15));
+      gearBtn.setAttribute("aria-pressed", String(v === "settings"));
       clear(soundBtn);
       soundBtn.append(svg(State.settings.soundEnabled ? ICONS.speakerOn : ICONS.speakerOff, 15));
     },
@@ -108,9 +120,9 @@ export function buildViews(actions: ViewActions, closeIsland: () => void): Built
     blip: () => actions.blip(),
   });
   map.set("translate", translate);
-  map.set("history", buildHistory({ retranslate: (item) => actions.retranslate(item), blip: () => actions.blip() }));
   map.set("note", buildNote());
   map.set("settings", buildSettingsView(actions));
   map.set("wardrobe", buildWardrobe(actions));
+  map.set("spotify", buildSpotify());
   return { map, translate };
 }

@@ -67,6 +67,10 @@ pub struct Settings {
     pub screen: String,
     pub sound_enabled: bool,
     pub sound_volume: f64,
+    /// Observe Spotify's local Windows media session (no account or API key).
+    pub spotify_enabled: bool,
+    /// Public OAuth client id of the user's own Spotify developer app (PKCE: no secret).
+    pub spotify_client_id: String,
     /// Seconds before an open island folds back to its compact size.
     pub auto_close_interval: f64,
     /// Ari's outfit: "auto", "none" or an outfit id.
@@ -97,6 +101,8 @@ impl Default for Settings {
             screen: "primary".into(),
             sound_enabled: true,
             sound_volume: 0.5,
+            spotify_enabled: true,
+            spotify_client_id: String::new(),
             auto_close_interval: 15.0,
             ari_outfit: "auto".into(),
             language: String::new(),
@@ -182,6 +188,12 @@ pub fn merge(base: &Settings, incoming: &Value) -> Settings {
         screen: non_empty(pick_str(incoming.get("screen"), &base.screen, 200), &base.screen),
         sound_enabled: pick_bool(incoming.get("soundEnabled"), base.sound_enabled),
         sound_volume: pick_num(incoming.get("soundVolume"), base.sound_volume, 0.0, 1.0),
+        spotify_enabled: pick_bool(incoming.get("spotifyEnabled"), base.spotify_enabled),
+        // Empty is a real value (not connected yet); anything else must look like a client id.
+        spotify_client_id: {
+            let id = pick_str(incoming.get("spotifyClientId"), &base.spotify_client_id, 64);
+            if id.chars().all(|c| c.is_ascii_alphanumeric()) { id } else { base.spotify_client_id.clone() }
+        },
         auto_close_interval: pick_num(incoming.get("autoCloseInterval"), base.auto_close_interval, 0.0, 3600.0),
         ari_outfit: non_empty(pick_str(incoming.get("ariOutfit"), &base.ari_outfit, 40), &base.ari_outfit),
         // Empty is a real value here: it means "follow the system".
@@ -232,6 +244,7 @@ pub fn clear_api_key() -> Result<(), String> {
 
 pub fn config_dir() -> PathBuf {
     let base = std::env::var_os("APPDATA").map(PathBuf::from).unwrap_or_else(|| PathBuf::from("."));
+    // Keep the 3.x location and credential service stable across the product rename.
     base.join("Arizo Translate")
 }
 
@@ -490,6 +503,22 @@ mod tests {
         let m = merge(&base, &json!({ "aphra": { "tone": "literary" } }));
         assert_eq!(m.aphra.model, "custom");
         assert_eq!(m.aphra.tone, "literary");
+    }
+
+    #[test]
+    fn spotify_setting_is_typed_and_old_preferences_keep_the_default() {
+        let old: Settings = serde_json::from_value(json!({ "theme": "light", "hotkey": "Ctrl+Alt+D" })).unwrap();
+        assert!(old.spotify_enabled);
+        assert_eq!(old.hotkey, "Ctrl+Alt+D");
+        assert!(!merge(&old, &json!({ "spotifyEnabled": false })).spotify_enabled);
+        assert!(merge(&old, &json!({ "spotifyEnabled": "false" })).spotify_enabled);
+        assert_eq!(serde_json::to_value(old.clone()).unwrap()["spotifyEnabled"], true);
+        assert_eq!(old.spotify_client_id, "");
+        assert_eq!(merge(&old, &json!({ "spotifyClientId": " 0123abcDEF " })).spotify_client_id, "0123abcDEF");
+        let set = merge(&old, &json!({ "spotifyClientId": "abc123" }));
+        assert_eq!(merge(&set, &json!({ "spotifyClientId": "bad id!?" })).spotify_client_id, "abc123");
+        assert_eq!(merge(&set, &json!({ "spotifyClientId": "" })).spotify_client_id, "");
+        assert_eq!(KEY_SERVICE, "com.arizo.translate", "renaming must not orphan stored API keys");
     }
 
     #[test]

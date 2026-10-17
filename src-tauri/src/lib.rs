@@ -1,4 +1,4 @@
-// Arizo Translate — app wiring and the commands the island calls.
+// Arizo-Agent — app wiring and the commands the island calls.
 //
 // Three windows:
 //   island    the translator: a transparent, always-on-top window whose island is
@@ -16,6 +16,9 @@ mod island;
 mod langs;
 mod model;
 mod platform;
+mod spotify;
+mod spotify_account;
+mod spotify_local;
 mod store;
 mod textutil;
 mod translator;
@@ -32,7 +35,7 @@ use serde_json::{json, Value};
 use tauri::menu::{Menu, MenuItem, PredefinedMenuItem};
 use tauri::tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent};
 use tauri::{AppHandle, Emitter, Manager, PhysicalPosition, PhysicalSize, State, WebviewUrl, WebviewWindow, WebviewWindowBuilder};
-use tauri_plugin_autostart::{MacosLauncher, ManagerExt};
+use tauri_plugin_autostart::ManagerExt;
 use tauri_plugin_global_shortcut::{GlobalShortcutExt, Shortcut, ShortcutState};
 
 use aphra::AiConfig;
@@ -376,7 +379,7 @@ fn build_menu(app: &AppHandle) -> tauri::Result<Menu<tauri::Wry>> {
     let header = MenuItem::with_id(
         app,
         "header",
-        if is_fa { "✦ آریزو ترنسلیت | Arizo" } else { "✦ Arizo Translate" },
+        if is_fa { "✦ آریزو ایجنت | Arizo-Agent" } else { "✦ Arizo-Agent" },
         false,
         None::<&str>,
     )?;
@@ -427,7 +430,7 @@ fn refresh_tray(app: &AppHandle) {
 
 fn build_tray(app: &AppHandle) -> tauri::Result<()> {
     let mut builder = TrayIconBuilder::with_id("main")
-        .tooltip("Arizo Translate")
+        .tooltip("Arizo-Agent")
         .menu(&build_menu(app)?)
         .show_menu_on_left_click(false)
         .on_menu_event(|app, event| match event.id.as_ref() {
@@ -554,6 +557,7 @@ fn save_settings(
     if saved.show_floating_bubble != before.show_floating_bubble && !saved.show_floating_bubble {
         hide_bubble(&app);
     }
+    spotify::sync(&app, saved.spotify_enabled, &saved.spotify_client_id);
     refresh_tray(&app);
     let public = st.store.public_settings();
     let _ = app.emit("settings-changed", public.clone());
@@ -972,7 +976,7 @@ pub fn run() {
             // A second launch simply brings the island up.
             show_island(app, "");
         }))
-        .plugin(tauri_plugin_autostart::init(MacosLauncher::LaunchAgent, Some(vec!["--hidden"])))
+        .plugin(tauri_plugin_autostart::Builder::new().app_name("arizo-translate").args(["--hidden"]).build())
         .plugin(
             tauri_plugin_global_shortcut::Builder::new()
                 .with_handler(|app, shortcut, event| {
@@ -1030,14 +1034,25 @@ pub fn run() {
             open_settings_window,
             hide_bubble_window,
             set_bubble_size,
+            spotify::spotify_refresh,
+            spotify::spotify_control,
+            spotify::spotify_open,
+            spotify::spotify_installed,
+            spotify::spotify_connect,
+            spotify::spotify_cancel_connect,
+            spotify::spotify_disconnect,
+            spotify::spotify_redirect_uri,
         ])
         .setup(move |app| {
             let handle = app.handle().clone();
             let st = state(&handle);
-            log("--- Arizo Translate started ---");
+            log("--- Arizo-Agent started ---");
 
             build_tray(&handle)?;
             create_bubble_window(&handle);
+            spotify::sync(&handle, settings.spotify_enabled, &settings.spotify_client_id);
+            // Reuse the legacy startup entry, updating its executable after an upgrade.
+            apply_autostart(&handle, settings.launch_at_startup);
 
             if let Some(win) = island(&handle) {
                 platform::make_non_activating(&win);
@@ -1069,10 +1084,11 @@ pub fn run() {
             Ok(())
         })
         .build(tauri::generate_context!())
-        .expect("error while building Arizo Translate")
+        .expect("error while building Arizo-Agent")
         .run(|app, event| {
             if let tauri::RunEvent::Exit = event {
                 input::stop_mouse_monitor();
+                spotify::sync(app, false, "");
                 let _ = app.global_shortcut().unregister_all();
             }
         });

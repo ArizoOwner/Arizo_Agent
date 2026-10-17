@@ -1,7 +1,7 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
-  "description": "What Arizo Translate's windows are allowed to do. Everything that touches the OS goes through the app's own commands.",
+  "description": "What Arizo-Agent's windows are allowed to do. Everything that touches the OS goes through the app's own commands.",
   "windows": ["island", "settings", "bubble"],
   "permissions": ["core:default", "autostart:default"]
 }

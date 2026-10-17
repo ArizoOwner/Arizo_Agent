@@ -40,6 +40,9 @@ export interface Settings {
   screen: string;
   soundEnabled: boolean;
   soundVolume: number;
+  spotifyEnabled: boolean;
+  /** The public client id of the user's Spotify developer app (no secret is ever stored). */
+  spotifyClientId: string;
   autoCloseInterval: number;
   /** Ari's outfit: "auto" (dresses for the season), "none" or an outfit id. */
   ariOutfit: string;
@@ -75,6 +78,8 @@ export const DEFAULT_SETTINGS: Settings = {
   screen: "primary",
   soundEnabled: true,
   soundVolume: 0.5,
+  spotifyEnabled: true,
+  spotifyClientId: "",
   autoCloseInterval: 15,
   ariOutfit: DEFAULT_OUTFIT,
   language: "",

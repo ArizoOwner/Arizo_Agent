@@ -1,4 +1,4 @@
-// What differs from one OS to the next, behind one set of names. Arizo Translate
+// What differs from one OS to the next, behind one set of names. Arizo-Agent
 // targets Windows 10/11, so this is the Windows half of Coucou's `platform`
 // module: Win32 for the island window and the cursor.
 

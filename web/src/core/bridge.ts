@@ -7,6 +7,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import type { Settings, SettingsPatch } from "./state";
 import type { HistoryItem } from "./history-logic";
+import type { SpotifyState } from "./spotify";
 import { mockInvoke, mockListen } from "./mock";
 
 export const IS_TAURI =
@@ -174,6 +175,19 @@ export const Bridge = {
   testAi: (cfg: AiConfig) => callOrThrow<TestAiResult>("test_ai", { cfg }),
   fetchModels: (cfg: AiConfig) => callOrThrow<FetchModelsResult>("fetch_models", { cfg }),
 
+  // ── Local Spotify player ──────────────────────────────────────────────────
+  spotifyRefresh: () => call<SpotifyState>("spotify_refresh"),
+  /** Rejects with the backend's short error code (see ERROR_TEXT in core/spotify.ts). */
+  spotifyControl: (action: string, value?: number) => callOrThrow<boolean>("spotify_control", { action, value }),
+  spotifyOpen: () => call<boolean>("spotify_open"),
+  spotifyInstalled: () => call<boolean>("spotify_installed"),
+  /** Opens the browser for the account approval; resolves when it is done. Rejects with a code. */
+  spotifyConnect: () => callOrThrow<boolean>("spotify_connect"),
+  spotifyCancelConnect: () => call<void>("spotify_cancel_connect"),
+  spotifyDisconnect: () => call<boolean>("spotify_disconnect"),
+  /** The address to register in the Spotify developer dashboard. */
+  spotifyRedirectUri: () => call<string>("spotify_redirect_uri"),
+
   // ── History ───────────────────────────────────────────────────────────────
   getHistory: () => call<HistoryItem[]>("get_history"),
   clearHistory: () => call<void>("clear_history"),
@@ -203,6 +217,7 @@ export type BridgeEvent =
   | { name: "tray"; payload: "open" | "settings" }
   | { name: "screen-changed"; payload: null }
   | { name: "settings-changed"; payload: Settings }
+  | { name: "spotify"; payload: SpotifyState }
   | { name: "captured-text"; payload: string }
   | { name: "toast"; payload: string }
   | { name: "translate-partial"; payload: { requestId: number; text: string } }

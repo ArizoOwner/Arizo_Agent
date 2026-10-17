@@ -29,11 +29,11 @@ const built = installers
   .sort((a, b) => statSync(b).mtimeMs - statSync(a).mtimeMs)[0];
 
 mkdirSync(releaseDir, { recursive: true });
-const setup = join(releaseDir, `Arizo-Translate-Setup-${version}.exe`);
-const portable = join(releaseDir, `Arizo-Translate-${version}-Portable.exe`);
+const setup = join(releaseDir, `Arizo-Agent-Setup-${version}.exe`);
+const portable = join(releaseDir, `Arizo-Agent-${version}-Portable.exe`);
 copyFileSync(built, setup);
 // The app is one self-contained executable: it runs without installing.
-copyFileSync(join(root, "src-tauri", "target", "release", "arizo-translate.exe"), portable);
+copyFileSync(join(root, "src-tauri", "target", "release", "arizo-agent.exe"), portable);
 
 const sha = (file) =>
   new Promise((ok, fail) => {

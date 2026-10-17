@@ -23,8 +23,8 @@ import { enhanceSelect } from "../views/select";
 import { applyTheme as applyThemeTo, watchSystemTheme } from "../core/theme";
 import { LANGUAGES, isRtl, onLanguageChange, resolveLanguage, setLanguage, t } from "../i18n/i18n";
 
-const VERSION_FALLBACK = "3.0.1";
-const REPO_URL = "https://github.com/ArizoOwner/arizo-translate";
+const VERSION_FALLBACK = "3.1.0";
+const REPO_URL = "https://github.com/ArizoOwner/Arizo_Agent";
 
 let settings: Settings = { ...DEFAULT_SETTINGS };
 let version = VERSION_FALLBACK;
@@ -117,6 +117,8 @@ function generalSection(): HTMLElement {
       (v) => { void save({ theme: v }); applyTheme(); },
     )),
     row(t("Launch at startup"), toggle(settings.launchAtStartup, (v) => void save({ launchAtStartup: v }))),
+    row(t("Spotify player"), toggle(settings.spotifyEnabled, (v) => void save({ spotifyEnabled: v })),
+      h("span", { class: "hint", text: t("See and control your Spotify playback from the island") })),
     row(t("Hide when I click elsewhere"), toggle(settings.hideOnBlur, (v) => void save({ hideOnBlur: v }))),
     row(t("Copy the translation automatically"), toggle(settings.autoCopy, (v) => void save({ autoCopy: v }))),
     row(t("Restore the clipboard after replacing"), toggle(settings.restoreClipboard, (v) => void save({ restoreClipboard: v }))),
@@ -413,7 +415,7 @@ function applyLanguage() {
 
 function applyDirection() {
   document.documentElement.dir = isRtl() ? "rtl" : "ltr";
-  document.title = t("Arizo Translate — Settings");
+  document.title = t("Arizo-Agent — Settings");
 }
 
 function applyTheme() {
@@ -424,7 +426,7 @@ function render() {
   const scroll = document.scrollingElement?.scrollTop ?? 0;
   clear(root);
   root.append(
-    h("h1", {}, h("span", { text: t("Arizo Translate") }), h("span", { class: "version", text: version })),
+    h("h1", {}, h("span", { text: t("Arizo-Agent") }), h("span", { class: "version", text: version })),
     generalSection(),
     languagesSection(),
     shortcutsSection(),

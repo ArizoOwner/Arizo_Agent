@@ -155,12 +155,12 @@ function hero() {
   ${bubbles}
 
   <!-- titles -->
-  <text x="600" y="410" text-anchor="middle" font-size="58" font-weight="800" fill="url(#title)" letter-spacing="1">Arizo Translate</text>
-  <text x="600" y="446" text-anchor="middle" font-size="21" fill="#c9cde0">A Dynamic Island translator for Windows 10 &amp; 11</text>
-  <text x="600" y="480" text-anchor="middle" font-size="20" fill="#9a8fd8" direction="rtl" style="font-family:${FA}">مترجم داینامیک آیلند برای ویندوز</text>
+  <text x="600" y="410" text-anchor="middle" font-size="58" font-weight="800" fill="url(#title)" letter-spacing="1">Arizo-Agent</text>
+  <text x="600" y="446" text-anchor="middle" font-size="21" fill="#c9cde0">Translation, Spotify &amp; a tiny companion for Windows</text>
+  <text x="600" y="480" text-anchor="middle" font-size="20" fill="#9a8fd8" direction="rtl" style="font-family:${FA}">ترجمه، اسپاتیفای و یک همراه کوچک برای ویندوز</text>
 </g>
 <rect width="${W}" height="${H}" rx="30" fill="none" stroke="#ffffff14"/>`;
-  save("hero.svg", svg(W, H, body, 'aria-label="Arizo Translate: Ari the mascot greeting in English and Persian"'));
+  save("hero.svg", svg(W, H, body, 'aria-label="Arizo-Agent: Ari the mascot greeting in English and Persian"'));
 }
 
 // ─────────────────────────────────────────────── demo
@@ -291,10 +291,74 @@ ${names}${dotsRow}
   save("outfits.svg", svg(W, H, body, 'aria-label="Ari trying on hats and accessories from the wardrobe"'));
 }
 
+// ─────────────────────────────────────────────── spotify
+/** Ari with the happy "^ ^" eyes she has while dancing. */
+function happyAri(id) {
+  const arc = (x) => `<path d="M${x - 16} 2 Q${x} -24 ${x + 16} 2" fill="none" stroke="#0e0c10" stroke-width="9" stroke-linecap="round"/>`;
+  const full = ari(id);
+  const start = full.indexOf('<g class="look">');
+  const end = full.indexOf("</g>", full.indexOf("</g>", start) + 4) + 4; // after the second eye group
+  const close = full.indexOf("</g>", end) + 4; // the .look group itself
+  return full.slice(0, start) + `<g class="look">${arc(-46)}${arc(46)}</g>` + full.slice(close);
+}
+
+function spotify() {
+  const W = 900, H = 330, BPM_S = 60 / 112; // one bounce per beat
+  const note = (x, y, delay, dir, c) => `<g transform="translate(${x} ${y})"><g class="note" style="animation-delay:${delay}s;--dx:${dir * 46}px"><g transform="scale(${dir})"><ellipse cx="-4" cy="9" rx="7.5" ry="5.4" transform="rotate(-24 -4 9)" fill="${c}"/><path d="M2 8V-12C3 -6 12 -6 10 3" fill="none" stroke="${c}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></g></g></g>`;
+  const bars = Array.from({ length: 5 }, (_, i) => `<rect class="bar" style="animation-delay:${(i * 0.13).toFixed(2)}s" x="${690 + i * 12}" y="284" width="6" height="22" rx="2.5" fill="#1DB954"/>`).join("");
+  const body = `
+<defs>${ariDefs("s")}
+  <linearGradient id="sbg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0b0b13"/><stop offset="1" stop-color="#0f1a14"/></linearGradient>
+  <linearGradient id="sprog" x1="0" x2="1"><stop offset="0" stop-color="#1DB954"/><stop offset="1" stop-color="#6ee7a0"/></linearGradient>
+  <filter id="sg" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="40"/></filter>
+  <clipPath id="sprogclip"><rect x="318" y="226" width="440" height="6" rx="3"/></clipPath>
+</defs>
+<style>${CSS}
+  .dance{transform-box:fill-box;transform-origin:50% 100%;animation:dance ${(BPM_S * 2).toFixed(3)}s ease-in-out infinite}
+  @keyframes dance{0%,100%{transform:translate(0,0) rotate(-4deg) scale(1.02,.96)}25%{transform:translate(0,-16px) rotate(0) scale(.98,1.04)}50%{transform:translate(0,0) rotate(4deg) scale(1.02,.96)}75%{transform:translate(0,-16px) rotate(0) scale(.98,1.04)}}
+  .note{animation:note 3.2s ease-out infinite both;opacity:0}
+  @keyframes note{0%{opacity:0;transform:translate(0,0) scale(.6)}12%{opacity:1}100%{opacity:0;transform:translate(var(--dx),-86px) rotate(14deg) scale(1)}}
+  .bar{transform-box:fill-box;transform-origin:50% 100%;animation:bar ${(BPM_S).toFixed(3)}s ease-in-out infinite alternate}
+  @keyframes bar{0%{transform:scaleY(.3)}100%{transform:scaleY(1.7)}}
+  .prog{animation:prog 14s linear infinite}
+  @keyframes prog{0%{transform:translateX(-440px)}100%{transform:translateX(0)}}
+  .pulse{animation:pulse ${BPM_S.toFixed(3)}s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:center}
+  @keyframes pulse{0%{transform:scale(1)}100%{transform:scale(1.06)}}
+</style>
+<rect width="${W}" height="${H}" rx="28" fill="url(#sbg)"/>
+<circle cx="170" cy="250" r="120" fill="#1DB954" opacity=".3" filter="url(#sg)"/>
+<circle cx="780" cy="40" r="110" fill="${VIOLET}" opacity=".25" filter="url(#sg)"/>
+${star(70, 70, 1, 0)}${star(840, 250, .9, 1.2)}${star(520, 40, .7, .6)}
+<ellipse cx="170" cy="258" rx="74" ry="9" fill="#000" opacity=".5" style="filter:blur(7px)"/>
+<g transform="translate(170 178) scale(.46)"><g class="dance">${happyAri("s")}</g></g>
+${note(96, 140, 0, -1, "#fff")}${note(246, 132, 1.1, 1, "#fff")}${note(120, 112, 2.1, -1, "#6ee7a0")}${note(222, 116, 0.6, 1, "#6ee7a0")}
+<g transform="translate(318 66)">
+  <rect class="pulse" width="108" height="108" rx="16" fill="#16241c"/>
+  <path d="M38 78V36l36-7v42" fill="none" stroke="#1DB954" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <ellipse cx="30" cy="78" rx="9" ry="7" fill="#1DB954"/><ellipse cx="66" cy="71" rx="9" ry="7" fill="#1DB954"/>
+</g>
+<text x="448" y="104" font-size="26" font-weight="700" fill="#fff" style="font-family:${SANS}">Little music for your day</text>
+<text x="448" y="134" font-size="17" fill="#9aa0b8">Arizo demo · This PC</text>
+<g transform="translate(448 160)" fill="#cfd3e6">
+  <path d="M0 8h3l9-8v22l-9-8H0z" opacity="0"/>
+  <path d="M0 4h4v16H0zM18 4v16L6 12z" transform="translate(40 0)"/>
+  <circle cx="92" cy="12" r="22" fill="#1DB954"/><path d="M84 2h5v20h-5zM95 2h5v20h-5z" fill="#06170c"/>
+  <path d="M158 4v16l12-8zM172 4h4v16h-4z"/>
+</g>
+<text x="318" y="216" font-size="12" fill="#7f86a3" font-family="monospace">1:34</text>
+<text x="758" y="216" font-size="12" fill="#7f86a3" font-family="monospace" text-anchor="end">4:02</text>
+<rect x="318" y="226" width="440" height="6" rx="3" fill="#ffffff1c"/>
+<g clip-path="url(#sprogclip)"><rect class="prog" x="318" y="226" width="440" height="6" rx="3" fill="url(#sprog)"/></g>
+<g>${bars}</g>
+<text x="318" y="290" font-size="14" fill="#7f86a3">This PC  ·  or connect your account for every device</text>
+<rect width="${W}" height="${H}" rx="28" fill="none" stroke="#ffffff14"/>`;
+  save("spotify.svg", svg(W, H, body, 'aria-label="Ari dancing with music notes while a song plays"'));
+}
+
 // ─────────────────────────────────────────────── marquee
 function marquee() {
   const W = 1200, H = 52, GAP = 236;
-  const items = ["⚡ Fast engine", "✦ Smart AI engine", "🏝️ Dynamic Island", "Alt+Shift+D in place", "🎯 Quick bubble", "فارسی ⇄ English", "🗣️ Speech for every language", "🔒 No telemetry", "🪶 3.7 MB installer"];
+  const items = ["⚡ Fast engine", "✦ Smart AI engine", "🎵 Spotify player", "🏝️ Dynamic Island", "Alt+Shift+D in place", "🎯 Quick bubble", "فارسی ⇄ English", "🗣️ Speech", "🔒 No telemetry", "✨ Animated miniatures"];
   const row = (off) => items.map((t, i) => `<text x="${off + i * GAP + 20}" y="32" font-size="18" fill="#d6d9ec" ${/[؀-ۿ]/.test(t) ? `style="font-family:${FA}"` : ""}>${t}</text><circle cx="${off + i * GAP + GAP - 20}" cy="26" r="3" fill="${VIOLET}"/>`).join("");
   const total = items.length * GAP;
   const body = `
@@ -354,5 +418,5 @@ function footer() {
   save("footer.svg", svg(W, H, body, 'aria-label="Made by ArizoOwner"'));
 }
 
-hero(); demo(); outfits(); marquee(); divider(); footer();
+hero(); demo(); outfits(); spotify(); marquee(); divider(); footer();
 console.log(`README art written to ${outDir}`);

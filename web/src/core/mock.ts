@@ -4,6 +4,7 @@
 
 import { DEFAULT_SETTINGS, mergeSettings, type Settings, type SettingsPatch } from "./state";
 import type { HistoryItem } from "./history-logic";
+import { IDLE_SPOTIFY, withPlaying, type SpotifyState } from "./spotify";
 import { autoTarget, detectLanguageClient } from "./text";
 
 type Handler = (payload: unknown) => void;
@@ -32,6 +33,13 @@ const LANGS = [
 
 let settings: Settings = mergeSettings(DEFAULT_SETTINGS, { appLanguage: "en" });
 let apiKeySet = false;
+let spotify: SpotifyState = { ...IDLE_SPOTIFY, enabled: settings.spotifyEnabled };
+
+/** Browser-only sample player; never talks to the real Spotify app. */
+export function mockSpotify(state: Partial<SpotifyState>) {
+  spotify = { ...spotify, ...state, enabled: settings.spotifyEnabled };
+  mockEmit("spotify", spotify);
+}
 
 const ago = (min: number) => new Date(Date.now() - min * 60_000).toISOString();
 let history: HistoryItem[] = [
@@ -101,7 +109,7 @@ export async function mockInvoke(cmd: string, args: Record<string, unknown> = {}
   switch (cmd) {
     case "boot":
       return {
-        settings, version: "3.0.1", cursorPoll: false,
+        settings, version: "3.1.0", cursorPoll: false,
         screen: { x: 0, y: 0, width: 1920, height: 1080, scale: 1 },
       };
     case "get_settings":
@@ -111,8 +119,49 @@ export async function mockInvoke(cmd: string, args: Record<string, unknown> = {}
       if (typeof args.apiKey === "string" && args.apiKey) apiKeySet = true;
       if (args.clearApiKey === true) apiKeySet = false;
       settings = { ...settings, aphra: { ...settings.aphra, hasApiKey: apiKeySet } };
+      if (!settings.spotifyEnabled) spotify = { ...IDLE_SPOTIFY };
+      else spotify = { ...spotify, enabled: true };
       mockEmit("settings-changed", settings);
+      mockEmit("spotify", spotify);
       return { ok: true, hotkeyOk: true, inlineHotkeyOk: true, hideHotkeyOk: true, settings };
+    }
+    case "spotify_refresh":
+      return spotify;
+    case "spotify_installed":
+      return spotify.installed;
+    case 'spotify_redirect_uri':
+      return 'http://127.0.0.1:43821/callback';
+    case 'spotify_connect': {
+      const id = settings.spotifyClientId;
+      if (!/^[A-Za-z0-9]{20,64}$/.test(id)) throw new Error('bad_client_id');
+      spotify = { ...spotify, configured: true, connected: true, premium: true, accountName: 'Demo account', enabled: settings.spotifyEnabled };
+      mockEmit('spotify', spotify);
+      return true;
+    }
+    case 'spotify_cancel_connect':
+      return null;
+    case 'spotify_disconnect':
+      spotify = { ...IDLE_SPOTIFY, enabled: settings.spotifyEnabled, configured: !!settings.spotifyClientId };
+      mockEmit('spotify', spotify);
+      return true;
+    case "spotify_open":
+      return true;
+    case "spotify_control": {
+      const local = spotify.source === 'local';
+      if (!settings.spotifyEnabled || (!spotify.connected && !local)) throw new Error('not_connected');
+      if (!spotify.running || !spotify.track || (!local && !spotify.premium)) throw new Error(local || spotify.premium ? 'no_device' : 'premium_required');
+      const action = args.action as keyof SpotifyState["capabilities"];
+      if (!spotify.capabilities[action]) throw new Error('bad_action');
+      const value = Number(args.value);
+      if (["seek", "volume", "shuffle", "repeat"].includes(action) && !Number.isFinite(value)) return false;
+      if (action === "playPause") spotify = withPlaying(spotify, !spotify.playing, Date.now());
+      else if (action === "seek") spotify = { ...spotify, position: Math.max(0, Math.min(value, spotify.track.duration)), positionAt: Date.now() };
+      else if (action === "volume") spotify = { ...spotify, volume: Math.round(Math.max(0, Math.min(100, value))) };
+      else if (action === "shuffle") spotify = { ...spotify, shuffle: value !== 0 };
+      else if (action === "repeat") spotify = { ...spotify, repeat: value !== 0 };
+      else spotify = { ...spotify, position: 0, positionAt: Date.now() };
+      mockEmit("spotify", spotify);
+      return true;
     }
     case "get_languages":
       return LANGS.map(([code, name, native, rtl]) => ({ code, name, native, rtl }));

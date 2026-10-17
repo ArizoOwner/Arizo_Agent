@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="assets/readme/hero.svg" width="100%" alt="Arizo Translate — Ari, the mascot, greets in English and Persian">
+<img src="assets/readme/hero.svg" width="100%" alt="Arizo-Agent — Ari, the mascot, greets in English and Persian">
 
 <img src="assets/readme/marquee.svg" width="100%" alt="">
 
@@ -8,14 +8,14 @@
 
 A Dynamic Island for translation. Ari, a little mascot, watches your cursor; a shortcut swaps the text you just typed for its translation, right where you typed it. Persian ⇄ English out of the box, 100+ languages underneath.
 
-[![Version](https://img.shields.io/badge/version-3.0.1-8b5cf6?logo=github)](https://github.com/ArizoOwner/Arizo_Agent/releases)
+[![Version](https://img.shields.io/badge/version-3.1.0-8b5cf6?logo=github)](https://github.com/ArizoOwner/Arizo_Agent/releases)
 ![Windows 10/11](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4?logo=windows&logoColor=white)
 ![Tauri 2](https://img.shields.io/badge/Tauri-2-FFC131?logo=tauri&logoColor=black)
 ![Rust](https://img.shields.io/badge/Rust-backend-000000?logo=rust)
 ![TypeScript](https://img.shields.io/badge/TypeScript-front%20end-3178C6?logo=typescript&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-95%20passing-22c55e)
+![Tests](https://img.shields.io/badge/tests-114%20passing-22c55e)
 ![No telemetry](https://img.shields.io/badge/telemetry-none-22c55e)
-![Size](https://img.shields.io/badge/installer-3.7%20MB-0A84FF)
+![Native Windows](https://img.shields.io/badge/build-native%20Windows-0A84FF)
 ![Code: MIT](https://img.shields.io/badge/code-MIT-green)
 [![GitHub stars](https://img.shields.io/github/stars/ArizoOwner/Arizo_Agent?style=social)](https://github.com/ArizoOwner/Arizo_Agent/stargazers)
 
@@ -31,7 +31,7 @@ A Dynamic Island for translation. Ari, a little mascot, watches your cursor; a s
 
 ## Why
 
-Switching between a browser tab, a translation site and the window you're working in breaks your focus. **Arizo Translate stays out of the way.** It sits at the top of the screen, never steals focus from the app you're in, and answers a keystroke or a text selection.
+Switching between a browser tab, a translation site and the window you're working in breaks your focus. **Arizo-Agent stays out of the way.** It sits at the top of the screen, never steals focus from the app you're in, and answers a keystroke or a text selection.
 
 Meet **Ari**: a soft little squircle with two dark eyes that breathes, blinks, follows your cursor from anywhere on the screen, thinks while a translation is on its way, and celebrates when you copy one.
 
@@ -42,19 +42,29 @@ Meet **Ari**: a soft little squircle with two dark eyes that breathes, blinks, f
 - 🎯 **Quick-translate bubble** — select text anywhere by dragging: a small button appears next to the cursor. Click it to translate, then copy, listen, or replace the selection. Plain clicks, double clicks, the desktop and the taskbar never trigger it, and your clipboard isn't touched until you click.
 - 🧠 **Smart language handling** — auto direction (your first language → your second, anything else → your first; swap with `Ctrl+S`), Persian-aware detection even for sentences full of English technical words, and an idiom polish that swaps literal renderings for the natural equivalent (« سنگ تمام گذاشت » → *spared no effort*, *piece of cake* → « مثل آب خوردن »).
 - 🔁 **Two engines, never empty-handed** — a free **Fast** engine and a language-model **Smart** one. If Smart fails (no key, no network, quota) the translation is made with Fast and you're told why.
+- 🎵 **Spotify in the island** — two ways to listen, and you can use both. **On this PC, with no setup:** the island reads the Spotify desktop app through the Windows media controls and shows the cover, title, artist and timeline, with play/pause, previous/next, seek, shuffle, repeat and Spotify's own volume. **With your account:** connect once (OAuth with PKCE — you paste the Client ID of a free developer app you create and approve access in the browser; there is no client secret) to follow and control playback on your phone or any other device too. Account controls need Spotify Premium; a free account can watch. If both are playing, the account wins unless only this PC is. While a song plays, Ari dances to the beat (112 BPM) with little ♪ notes floating beside — white on the dark island, black on the light one.
+- ✨ **A mini companion for every feature** — Translate, Spotify and Settings each have their own animated, colour-coded miniature in the header. The green one dances with the music.
 - 🗣️ **Speech for every language** — including Persian, which Windows has no voice for.
-- 📋 **Bilingual copy, PDF line-break cleaner, searchable history** — copy source + translation together, undo the broken lines from a pasted PDF, star and search what you translated. History from 2.x is imported on first launch.
-- 👗 **Dress Ari up** — a wardrobe of hats and accessories (witch hat, party hat, crown, sunglasses, bunny ears…) that also changes with the seasons on its own.
+- 📋 **Bilingual copy, PDF line-break cleaner, searchable history** — copy source + translation together, undo the broken lines from a pasted PDF, and open **History** from inside Translate to star, search and re-translate what you did before. History from 2.x is imported on first launch.
+- 👗 **Dress Ari up** — a wardrobe of hats and accessories (witch hat, party hat, crown, sunglasses, bunny ears…) that also changes with the seasons on its own. Open it from **Settings**, or right-click Ari.
 - 🔊 **29 original sounds** — a soft, synthesized sound for every gesture, all generated from code (`npm run sounds`). Mute or set the volume in Settings.
 - 🌓 **Looks the part** — dark, light, or follow Windows. Persian (right-to-left, Vazirmatn) or English interface, switched live in **Settings** (`Ctrl+,`).
 - 🔒 **Private by design** — no telemetry, your API key lives in the Windows Credential Manager and never reaches the page.
-- 🪶 **Tiny** — a 3.7 MB installer and a 7.5 MB portable exe. Rust and the system WebView2 instead of a bundled Chromium.
+- 🪶 **Lightweight** — Rust and the system WebView2 instead of a bundled Chromium. Download the installer or the single-file portable executable from Releases.
 
 ## Ari's wardrobe
 
 <div align="center">
 
 <img src="assets/readme/outfits.svg" width="760" alt="Ari trying on hats and accessories">
+
+</div>
+
+## Spotify
+
+<div align="center">
+
+<img src="assets/readme/spotify.svg" width="760" alt="Ari dancing with music notes while a song plays in the Spotify player">
 
 </div>
 
@@ -101,8 +111,8 @@ Download from the [Releases](https://github.com/ArizoOwner/Arizo_Agent/releases)
 
 | File | What it is |
 | :--- | :--- |
-| `Arizo-Translate-Setup-3.0.1.exe` | Installer for the current user — no administrator rights |
-| `Arizo-Translate-3.0.1-Portable.exe` | One executable, runs without installing |
+| `Arizo-Agent-Setup-3.1.0.exe` | Installer for the current user — no administrator rights |
+| `Arizo-Agent-3.1.0-Portable.exe` | One executable, runs without installing |
 | `SHA256SUMS.txt` | Checksums of both |
 
 The installer is **not code-signed**, so Windows SmartScreen shows a warning the first time: click **More info → Run anyway**. The app is open source — read it, or build it yourself.
@@ -114,7 +124,8 @@ The app lives in the notification area. Closing the island only hides it; quit f
 - **No telemetry.** Nothing is sent anywhere you didn't ask for.
 - The text you translate goes to the engine you chose: Google (and MyMemory as its fallback) for Fast, your provider for Smart. Speech goes to Google's text-to-speech.
 - **Your API key** is kept in the Windows Credential Manager. It is never written to a file and never handed to the page — the interface can only ask whether one exists.
-- Settings and history stay on your PC, in `%APPDATA%\Arizo Translate`.
+- Settings and history stay on your PC, in `%APPDATA%\Arizo Translate`. This legacy folder, the credential service and the bundle identifier are intentionally preserved in Arizo-Agent 3.1.0, so upgrades keep your data and API key.
+- Spotify: on this PC the island only reads the media session Windows already shows for the Spotify app and sends it the usual play/pause/skip requests; nothing leaves your computer. The account is optional and used only after you connect it. Its access covers your playback state, playback control and your plan (Premium or free) — nothing else. The token is kept in the Windows Credential Manager, never in a file and never in the page, and **Disconnect** deletes it.
 - Your clipboard is borrowed for a moment to read a selection or paste a translation, and given back (text and images).
 
 ## Build from source

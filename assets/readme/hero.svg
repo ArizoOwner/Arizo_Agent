@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 500" width="1200" height="500" role="img" aria-label="Arizo Translate: Ari the mascot greeting in English and Persian">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 500" width="1200" height="500" role="img" aria-label="Arizo-Agent: Ari the mascot greeting in English and Persian">
 
 <defs>
   
@@ -109,9 +109,9 @@
     </g>
 
   <!-- titles -->
-  <text x="600" y="410" text-anchor="middle" font-size="58" font-weight="800" fill="url(#title)" letter-spacing="1">Arizo Translate</text>
-  <text x="600" y="446" text-anchor="middle" font-size="21" fill="#c9cde0">A Dynamic Island translator for Windows 10 &amp; 11</text>
-  <text x="600" y="480" text-anchor="middle" font-size="20" fill="#9a8fd8" direction="rtl" style="font-family:Vazirmatn,Tahoma,'Segoe UI',sans-serif">مترجم داینامیک آیلند برای ویندوز</text>
+  <text x="600" y="410" text-anchor="middle" font-size="58" font-weight="800" fill="url(#title)" letter-spacing="1">Arizo-Agent</text>
+  <text x="600" y="446" text-anchor="middle" font-size="21" fill="#c9cde0">Translation, Spotify &amp; a tiny companion for Windows</text>
+  <text x="600" y="480" text-anchor="middle" font-size="20" fill="#9a8fd8" direction="rtl" style="font-family:Vazirmatn,Tahoma,'Segoe UI',sans-serif">ترجمه، اسپاتیفای و یک همراه کوچک برای ویندوز</text>
 </g>
 <rect width="1200" height="500" rx="30" fill="none" stroke="#ffffff14"/>
 </svg>

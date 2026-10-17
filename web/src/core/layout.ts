@@ -2,7 +2,10 @@
 
 export type IslandMode = "hidden" | "compact" | "expanded";
 
-export type IslandViewName = "translate" | "history" | "note" | "settings" | "greeting" | "wardrobe";
+export type IslandViewName = "translate" | "note" | "settings" | "greeting" | "wardrobe" | "spotify";
+
+/** The history pane is part of the translate view and needs this much room. */
+export const HISTORY_PANE_H = 350;
 
 export type BotStateName =
   | "idle"
@@ -85,11 +88,11 @@ export const VIEW_LAYOUTS: Record<IslandViewName, ViewLayout> = {
   // The two-card translator: source on the left, result on the right. Ari sits
   // beside the source text, like in the chat of the app this look comes from.
   translate: { height: TRANSLATE_MIN_H, botX: 54, botY: null, botDiameter: 60 },
-  history: { height: 350, botX: 54, botY: null, botDiameter: 60 },
   note: { height: 180, botX: 66, botY: null, botDiameter: 64 },
   settings: { height: 410, botX: 54, botY: null, botDiameter: 60 },
   greeting: { height: 160, botX: 320, botY: 96, botDiameter: 0 },
   wardrobe: { height: 330, botX: 80, botY: null, botDiameter: 76 },
+  spotify: { height: 330, botX: 54, botY: null, botDiameter: 60 },
 };
 
 export function islandSize(
@@ -148,7 +151,7 @@ function botPositionLtr(mode: IslandMode, view: IslandViewName, islandH: number)
         return { cx: layout.botX, cy: layout.botY, diameter: layout.botDiameter, opacity: 1 };
       }
       // The card views fill the area under the header: Ari sits at its centre.
-      if (view === "translate" || view === "history" || view === "settings") {
+      if (view === "translate" || view === "settings" || view === "spotify") {
         return { cx: layout.botX, cy: 42 + (islandH - 52) / 2, diameter: layout.botDiameter, opacity: 1 };
       }
       // Centre of the fixed 84 pt card (8 pt top inset + 34 pt header → content at y = 42)

@@ -5,7 +5,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import * as L from "../src/core/layout.ts";
 
-const EXPANDED_VIEWS = ["translate", "history", "settings", "wardrobe", "note"];
+const EXPANDED_VIEWS = ["translate", "settings", "wardrobe", "note", "spotify"];
 
 test("in a right-to-left language Ari sits on the mirrored side of the island", () => {
   for (const view of EXPANDED_VIEWS) {
