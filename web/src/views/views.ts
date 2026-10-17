@@ -10,8 +10,10 @@ import { buildTranslate, type TranslateHost } from "./translate";
 import { buildWardrobe } from "./wardrobe";
 import { buildSettingsView } from "./settings";
 import { buildSpotify } from "./spotify";
+import { buildFootball } from "./football";
 import { createMiniBot, type MiniTask } from "../ari/minibots";
 import { Spotify, SPOTIFY_GREEN, SPOTIFY_ID, musicPlaying } from "../core/spotify";
+import { FOOTBALL_COLOR, FOOTBALL_ID } from "../core/football";
 import type { HistoryItem } from "../core/history-logic";
 import type { Outfit, OutfitSelection } from "../ari/wardrobe";
 import { tl } from "../i18n/i18n";
@@ -47,7 +49,7 @@ export interface ViewHost {
 
 export function buildHeader(actions: ViewActions): ViewHost {
   function feature(view: IslandViewName, label: string, color: string, eye: MiniTask["miniEye"] = "pill") {
-    const task: MiniTask = { id: view === "spotify" ? SPOTIFY_ID : `feature_${view}`, name: label, color, state: "idle", miniEye: eye };
+    const task: MiniTask = { id: view === "spotify" ? SPOTIFY_ID : view === "football" ? FOOTBALL_ID : `feature_${view}`, name: label, color, state: "idle", miniEye: eye };
     return h("button", {
       class: "tab feature-tab", type: "button", title: tl(label), "aria-label": tl(label),
       "data-view": view, onclick: () => go(view),
@@ -57,6 +59,7 @@ export function buildHeader(actions: ViewActions): ViewHost {
 
   const tabTranslate = feature("translate", "Translate", "#4285F4");
   const tabSpotify = feature("spotify", "Spotify", SPOTIFY_GREEN);
+  const tabFootball = feature("football", "Football", FOOTBALL_COLOR);
   const gearBtn = h("button", { class: "tab-action feature-settings", type: "button", title: tl("Settings"), "aria-label": tl("Settings"), onclick: () => go("settings") },
     createMiniBot({ id: "feature_settings", name: "Settings", color: "#C0C4CC", state: "idle", miniEye: "line" }, 18));
   const soundBtn = h("button", { class: "tab-action", title: tl("Mute"), onclick: () => actions.toggleSound() }, svg(ICONS.speakerOn, 15));
@@ -69,7 +72,7 @@ export function buildHeader(actions: ViewActions): ViewHost {
   const el = h(
     "div",
     { id: "header" },
-    h("div", { class: "tabs", "aria-label": tl("Features") }, tabTranslate, tabSpotify),
+    h("div", { class: "tabs", "aria-label": tl("Features") }, tabTranslate, tabSpotify, tabFootball),
     h("div", { class: "header-actions" }, gearBtn, soundBtn),
   );
 
@@ -80,7 +83,9 @@ export function buildHeader(actions: ViewActions): ViewHost {
       tabTranslate.classList.toggle("on", v === "translate");
       tabSpotify.classList.toggle("on", v === "spotify");
       tabSpotify.style.display = State.settings.spotifyEnabled || v === "spotify" ? "" : "none";
-      for (const button of [tabTranslate, tabSpotify]) {
+      tabFootball.classList.toggle("on", v === "football");
+      tabFootball.style.display = State.settings.footballEnabled || v === "football" ? "" : "none";
+      for (const button of [tabTranslate, tabSpotify, tabFootball]) {
         button.setAttribute("aria-pressed", String(button.dataset.view === v));
       }
       gearBtn.classList.toggle("on", v === "settings");
@@ -124,5 +129,6 @@ export function buildViews(actions: ViewActions, closeIsland: () => void): Built
   map.set("settings", buildSettingsView(actions));
   map.set("wardrobe", buildWardrobe(actions));
   map.set("spotify", buildSpotify());
+  map.set("football", buildFootball());
   return { map, translate };
 }

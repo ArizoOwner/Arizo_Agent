@@ -226,6 +226,19 @@ export function buildSettingsView(actions: ViewActions): ViewHost {
       ),
     );
 
+    content.append(
+      settingRow(
+        t("Football"),
+        t("Live scores, fixtures and a goal celebration for your favourite team"),
+        toggle(s.footballEnabled, (val) => void save({ footballEnabled: val })),
+      ),
+      settingRow(
+        t("Team kit on Ari"),
+        t("Ari wears your team's shirt in the Football section"),
+        toggle(s.footballKit, (val) => void save({ footballKit: val })),
+      ),
+    );
+
     // 8. Save history & Limit
     const limitInput = h("input", {
       type: "number",

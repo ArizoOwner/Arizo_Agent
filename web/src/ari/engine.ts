@@ -7,7 +7,8 @@
 import { Ease, lerp, type EaseFn } from "../core/anim";
 import { Sound } from "../core/sound";
 import type { BotEmoteName, BotStateName } from "../core/layout";
-import { PUMPKIN_BODY, drawOutfitBehind, drawOutfitFront, makeHead } from "./outfits";
+import type { Kit } from "../core/football";
+import { PUMPKIN_BODY, drawKit, drawOutfitBehind, drawOutfitFront, makeHead } from "./outfits";
 import type { Outfit } from "./wardrobe";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -222,6 +223,16 @@ export class BotEngine {
   particleOverhang = 0;
 
   isDancing = false;
+  /** A goal for the favourite team: jumps, happy eyes, stars and hearts instead of notes. */
+  cheering = false;
+  /** Bad news for the favourite team: tired eyes, a drooping look and sweat. */
+  gloomy = false;
+  /** The favourite team's kit while it plays: [shirt colour, stripe colour], or null. */
+  kit: Kit | null = null;
+  private kitColor: Kit = { pattern: "solid", a: "#2DD4BF", b: "#2DD4BF", trim: "#F8FAFC" };
+  private kitAlpha = 0;
+  private nextCheer = 0;
+  private nextGloom = 0;
   dancingLevel = 0;
 
   // Mouth spring (fraction of R)
@@ -681,7 +692,19 @@ export class BotEngine {
     }
 
     // Music notes float up beside the body while it dances to a song.
-    if (this.isDancing && this.dancingLevel > 0.3 && n >= this.nextNote) {
+    if (this.cheering && n >= this.nextCheer) {
+      this.emit("star", 2);
+      this.emit("heart", 1);
+      this.nextCheer = n + 0.32;
+    }
+    if (this.gloomy && n >= this.nextGloom) {
+      this.emit("sweat", 1);
+      this.nextGloom = n + 0.9;
+    }
+    if (this.kit) this.kitColor = this.kit;
+    this.kitAlpha += ((this.kit && !this.isMini ? 1 : 0) - this.kitAlpha) * Math.min(1, dt * 5);
+    if (Math.abs((this.kit ? 1 : 0) - this.kitAlpha) < 0.01) this.kitAlpha = this.kit ? 1 : 0;
+    if (this.isDancing && !this.cheering && this.dancingLevel > 0.3 && n >= this.nextNote) {
       this.emit("note", 1);
       this.nextNote = n + 0.55 + Math.random() * 0.25;
     }
@@ -798,7 +821,7 @@ export class BotEngine {
     if (this.tilt !== 0) x.rotate(this.tilt);
     x.scale(this.sx, this.sy);
 
-    const dressed = !this.isMini && this.outfit !== "none";
+    const dressed = !this.isMini && (this.outfit !== "none" || this.kitAlpha > 0.01);
     const head = dressed ? makeHead(R, this.yaw, this.pitch, this.physDx, this.physDy) : null;
     const outfitState = { presence: this.outfitPresence, morph: this.morph };
     if (head) drawOutfitBehind(x, this.outfit, head, outfitState);
@@ -823,6 +846,7 @@ export class BotEngine {
     this.drawEyes(x, body, R, rx, ry);
     if (this.morph > 0.05) this.drawMouth(x, body, R);
 
+    if (head && this.kitAlpha > 0.01) drawKit(x, head, this.bodyPath(rx, ry, R), this.kitColor, this.kitAlpha, now());
     if (head) drawOutfitFront(x, this.outfit, head, outfitState);
 
     x.restore();
@@ -920,7 +944,8 @@ export class BotEngine {
 
   private drawEyes(x: CanvasRenderingContext2D, body: Path2D, R: number, rx: number, ry: number) {
     let shape: EyeShape = this.eyeOverride ?? this.cfg.eye;
-    if (this.isDancing && this.dancingLevel > 0.15 && !this.isMini && (this.state === "idle" || this.state === "finished")) {
+    if (this.gloomy && !this.isMini) shape = "tired";
+    if (!this.isMini && ((this.isDancing && this.dancingLevel > 0.15 && (this.state === "idle" || this.state === "finished")) || (this.cheering && this.dancingLevel > 0.15))) {
       shape = "happy";
     }
     if (this.morph > 0.5) {

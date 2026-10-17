@@ -37,6 +37,8 @@ export class IslandStateMachine {
    */
   homeCollapseDueAt: number | null = null;
 
+  /** A show fills the compact island: it must not hide until the show is over. */
+  private holding = false;
   private homeDelay = 15;
   private petitHide: number | null = null;
   private homeCollapse: number | null = null;
@@ -104,6 +106,22 @@ export class IslandStateMachine {
     this.schedulePetitHide();
   }
 
+  /**
+   * A show fills the island: the compact island stays up (its hide timer is stopped)
+   * until `releasePetit`, so it cannot fold away under the show.
+   */
+  holdPetit() {
+    this.holding = true;
+    this.clear("petitHide");
+  }
+
+  /** The show is over: the compact island hides again after its usual delay. */
+  releasePetit() {
+    if (!this.holding) return;
+    this.holding = false;
+    if (this.state === "petit") this.schedulePetitHide();
+  }
+
   /** Alert or explicit request: open straight to expanded. */
   forceHome() {
     this.cancelTimers();
@@ -130,7 +148,7 @@ export class IslandStateMachine {
     if (this.pinned) return;
     this.petitHide = window.setTimeout(() => {
       this.petitHide = null;
-      if (this.state === "petit" && !this.pinned) this.transition("hidden");
+      if (this.state === "petit" && !this.pinned && !this.holding) this.transition("hidden");
     }, this.petitToHiddenDelay * 1000);
   }
 

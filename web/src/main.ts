@@ -4,11 +4,13 @@ import "./style.css";
 import "./translate.css";
 import "./views/select.css";
 import "./views/spotify.css";
+import "./views/football.css";
 import { Bridge, IS_MOCK, IS_TAURI, onEvent } from "./core/bridge";
 import { Sound } from "./core/sound";
 import { State, mergeSettings, type Settings } from "./core/state";
 import { parseEngine } from "./core/pills";
 import { IDLE_SPOTIFY, Spotify, type SpotifyState } from "./core/spotify";
+import { Football, IDLE_FOOTBALL, setFootballState, type FootballState } from "./core/football";
 import { toast } from "./core/toast";
 import { Island } from "./island/island";
 import { onLanguageChange, resolveLanguage, setLanguage } from "./i18n/i18n";
@@ -70,6 +72,13 @@ async function main() {
         if (state && State.settings.spotifyEnabled) { Spotify.state = state; State.notify(); }
       });
     }
+    if (!State.settings.footballEnabled) {
+      Football.state = { ...IDLE_FOOTBALL };
+    } else {
+      void Bridge.footballRefresh().then((state) => {
+        if (state && State.settings.footballEnabled) { setFootballState(state); State.notify(); }
+      });
+    }
     applyLanguage();
     applyTheme();
     island.applySettings();
@@ -89,6 +98,15 @@ async function main() {
   });
   void Bridge.spotifyRefresh().then((spotify) => {
     if (spotify && State.settings.spotifyEnabled) Spotify.state = spotify;
+    State.notify();
+  });
+
+  await onEvent<FootballState>("football", (state) => {
+    setFootballState(State.settings.footballEnabled ? state : { ...IDLE_FOOTBALL });
+    State.notify();
+  });
+  void Bridge.footballRefresh().then((state) => {
+    if (state && State.settings.footballEnabled) Football.state = state;
     State.notify();
   });
 

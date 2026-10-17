@@ -1,5 +1,58 @@
 # Changelog
 
+## 3.2.0 — Football
+
+- **Football.** Choose a favourite team (search any club or national side, or pick one of the
+  popular ones) and the island shows its live score, the next matches and the recent results,
+  read from ESPN's public data (no key, no account). Dates and times follow the interface
+  language: Solar Hijri in Persian, Gregorian in English. When the team scores, the island
+  grows into a stage with a "GOAL!" banner and the scorer, rains balls and confetti, Ari cheers
+  (jumping, happy eyes, stars and hearts) with a new crowd-cheer sound, then everything returns
+  to normal. Only the favourite team's own goal in a game already being followed counts: opening
+  the app mid-game, a correction or the other side scoring never celebrates. Off with one switch
+  in Settings.
+- **Football, second by second.** While the team plays, only the live game is re-read every 3 s
+  (the full schedule every 45 s), every 10 s around a kick-off, every 30 s in the 20 minutes
+  before and every 5 minutes otherwise; a failed read during a game is retried after 8 s.
+  Every event is detected and answered with its own show: your goals (several between two reads
+  count together), goals against, yellow and red cards for either side, kick-off, half-time, the
+  second half and the final whistle (win, draw, loss). The island grows to a stage that fits the
+  event, Ari reacts (cheers, droops with sweat for bad news), a whistle, card or groan sound
+  plays, and events that arrive together wait their turn; bigger ones interrupt smaller ones.
+- **Ari in the team's kit.** While the favourite team is playing, Ari wears its shirt: the team's
+  own colours in broad stripes, a V collar, a club badge, the number 10, a headband and a
+  ball rocking at his feet. A new switch in Settings ("Team kit on Ari") turns it off.
+- **The kit belongs to the Football section.** Ari wears the favourite team's kit in the Football
+  section only, game or no game, and nothing else is worn there; in every other section his usual
+  outfit shows and the kit never appears, so the two never mix.
+- **The "Smart" button fits its word.** In Persian the engine button now grows to the width of
+  "هوشمند" instead of cutting it to "هوشمـ..".
+- **Smart translation fits its card.** The island window is taller (640 px), the result card keeps a
+  little slack so the last line is never cut, and the bottom fade only shows when there really is
+  more text below.
+- **Every team in its own kit.** The shirt takes the favourite team's real colours and pattern:
+  Barcelona's blue and garnet stripes, Real Madrid's white with black trim, and so on for the big
+  clubs; any other team gets its ESPN colour. The kit has no sleeves or hands.
+- **Next match for every team.** Teams whose schedule lists no future games (Persepolis, for one)
+  now get their next match from the team page, so "Next matches" is no longer empty.
+- **The next match in its own frame.** With no game on, the page shows the next match in a framed
+  card (both crests, the day, a large kick-off time and how long to wait), then the following ones
+  below it.
+- **Kit that moves in 3D.** The shirt's neckline, stripes, V collar, badge and number are built in
+  the head's own frame: when Ari looks down, up or turns, the shirt follows and his eyes never
+  sink into it.
+- **Shows from the hidden island.** An event now opens and holds the island even when it was fully
+  hidden, so it grows to its stage instead of staying tiny.
+- **Folded island.** A show now grows from the folded capsule cleanly: the clock and the mini
+  characters step aside, and Ari grows from the capsule to the stage instead of overlapping them.
+- **Persian numbers.** The score, clock, times and results use the Persian-capable font with firm
+  digits instead of the monospace font.
+- **Persian text is clearer.** Vazirmatn is scaled up so its letters match Latin ones, text is a
+  touch heavier with more line height, and dimmed text is brighter in Persian.
+- **README.** New animated football scenes (the island growing for every moment of a match with Ari in
+  Barcelona's kit, and a parade of team kits), a reactions table, the Football section and a new
+  ticker, in the English and Persian READMEs.
+
 ## 3.1.0 — Arizo-Agent
 
 - **New name.** Arizo Translate is now **Arizo-Agent**. App, tray, installer,

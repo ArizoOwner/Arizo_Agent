@@ -317,7 +317,8 @@ export function buildTranslate(actions: TranslateActions): TranslateHost {
     const srcNeed = contentHeight(input) + chromeHeight(srcBody, input);
     const resNeed = contentHeight(resScroll) + chromeHeight(resBody, resScroll);
     // translateHeight() adds what the island has around the cards (header, margins).
-    const needed = Math.max(srcNeed, resNeed);
+    // A few pixels of slack: sub-pixel rounding must never leave the last line cut off.
+    const needed = Math.max(srcNeed, resNeed) + 4;
     // The history pane covers both cards and wants its own room.
     const next = Math.max(translateHeight(needed), historyOpen ? HISTORY_PANE_H : 0);
     // The width follows the longer of what is typed and what came back. With
@@ -331,6 +332,7 @@ export function buildTranslate(actions: TranslateActions): TranslateHost {
       State.translateW = nextW;
       actions.heightChanged();
     }
+    syncFade();
   }
 
   function setInput(text: string) {
@@ -524,7 +526,16 @@ export function buildTranslate(actions: TranslateActions): TranslateHost {
     renderPills();
     resScroll.classList.toggle("scroll", true);
     fit();
+    syncFade();
   }
+
+  /** The fade at the bottom edge only shows while there is more text below it. */
+  function syncFade() {
+    const more = resScroll.scrollHeight - resScroll.clientHeight - resScroll.scrollTop > 4;
+    resScroll.classList.toggle("more", more);
+  }
+  resScroll.addEventListener("scroll", syncFade);
+  window.addEventListener("resize", syncFade);
 
   function renderCopyLabel() {
     const done = performance.now() < copiedUntil;

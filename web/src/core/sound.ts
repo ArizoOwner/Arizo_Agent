@@ -1,12 +1,12 @@
 // SoundEngine — port of SoundEngine.swift.
-// The 29 WAVs are synthesized by scripts/gen-sounds.mjs (`npm run sounds`) and served at
+// The 30 WAVs are synthesized by scripts/gen-sounds.mjs (`npm run sounds`) and served at
 // /sounds/<name>.wav. Several sounds may overlap.
 
 export const SOUND_NAMES = [
   "peek", "open", "close", "hover", "blip", "slap", "annoyed", "dizzy", "greet",
   "work", "finish", "error", "approval", "question", "approve", "gulp", "tick",
   "send", "love", "pop", "proud", "wink", "yawn", "attach", "think", "search",
-  "rate", "sleep", "greeting",
+  "rate", "sleep", "greeting", "goal", "whistle", "card", "groan",
 ] as const;
 
 export type SoundName = (typeof SOUND_NAMES)[number];

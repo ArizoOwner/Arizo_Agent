@@ -13,6 +13,7 @@
 
 import { Ease } from "../core/anim";
 import type { Outfit, OutfitSelection } from "./wardrobe";
+import type { Kit } from "../core/football";
 import { SCRIPT_FONTS } from "../core/fonts";
 
 const EXP = 2.7;
@@ -1068,6 +1069,234 @@ export function drawOutfitFront(ctx: Ctx, outfit: Outfit, H: Head, st: OutfitSta
       default: drawFace(l, outfit, H, body, simple);
     }
   });
+  ctx.restore();
+}
+
+// ── The football kit: a striped shirt with V-collar, badge and number, a headband and a ball ──
+
+function shade(hex: string, k: number): string {
+  const v = parseInt(hex.slice(1), 16);
+  const c = (n: number) => Math.max(0, Math.min(255, Math.round(n * k)));
+  return `rgb(${c((v >> 16) & 255)},${c((v >> 8) & 255)},${c(v & 255)})`;
+}
+
+/** The ball's pentagons, drawn at the origin on a ball of radius r. */
+function ballPatches(ctx: Ctx, r: number) {
+  ctx.fillStyle = "#1f2937";
+  const pent = (cx: number, cy: number, pr: number, rot: number) => {
+    ctx.beginPath();
+    for (let i = 0; i < 5; i++) {
+      const ang = rot + (i * 2 * Math.PI) / 5;
+      const x = cx + Math.cos(ang) * pr, y = cy + Math.sin(ang) * pr;
+      if (i) ctx.lineTo(x, y); else ctx.moveTo(x, y);
+    }
+    ctx.closePath();
+    ctx.fill();
+  };
+  pent(0, 0, r * 0.36, -Math.PI / 2);
+  for (let i = 0; i < 5; i++) {
+    const ang = -Math.PI / 2 + (i * 2 * Math.PI) / 5 + Math.PI / 5;
+    pent(Math.cos(ang) * r * 0.98, Math.sin(ang) * r * 0.98, r * 0.34, ang);
+  }
+}
+
+/**
+ * Ari in the favourite team's kit. The shirt is built in the head's own frame, like his
+ * eyes: its neckline sits a fixed angle below the eyes, so when he looks down, up or turns,
+ * the neckline, the stripes, the V collar, the badge and the number move with him and the
+ * eyes never end up inside the shirt.
+ */
+export function drawKit(ctx: Ctx, H: Head, body: Path2D, kit: Kit, alpha: number, t = 0) {
+  if (alpha <= 0.005) return;
+  const main = kit.a, trim = kit.trim;
+  // stripes are the second colour; a solid shirt only gets a faint tonal rib
+  const dark = kit.pattern === "stripes" ? kit.b : shade(main, 0.93);
+  // the number's outline contrasts with its colour
+  const outline = parseInt(trim.slice(1), 16) > 0x808080 ? "rgba(0,0,0,0.65)" : "rgba(255,255,255,0.85)";
+  const small = H.R < SIMPLIFY_BELOW_R;
+  // The neckline: a quarter radian below the eyes, curving down in the middle.
+  const p = EYE_P + H.pitch - 0.25;
+  const base = -Math.sin(p) * H.ry;
+  const cp = Math.cos(p);
+  const sx = (th: number) => Math.sin(th + H.yaw);
+  const facing = (th: number) => Math.cos(th + H.yaw);
+  const neckY = (th: number) => base + 0.1 * H.ry * facing(th);
+  const neckX = (th: number) => sx(th) * H.rx * cp;
+  const bottom = H.ry * 1.25;
+
+  ctx.save();
+  ctx.globalAlpha *= Math.min(1, alpha);
+
+  ctx.save();
+  ctx.clip(body);
+
+  // the shirt: everything below the neckline
+  const STEPS = 28;
+  const neck: Pt[] = [];
+  for (let i = 0; i <= STEPS; i++) {
+    const th = -1.6 + (3.2 * i) / STEPS;
+    neck.push({ x: neckX(th), y: neckY(th) });
+  }
+  const shirt = new Path2D();
+  shirt.moveTo(-H.rx * 2, neck[0].y);
+  for (const q of neck) shirt.lineTo(q.x, q.y);
+  shirt.lineTo(H.rx * 2, neck[STEPS].y);
+  shirt.lineTo(H.rx * 2, bottom);
+  shirt.lineTo(-H.rx * 2, bottom);
+  shirt.closePath();
+  ctx.fillStyle = main;
+  ctx.fill(shirt);
+
+  ctx.save();
+  ctx.clip(shirt);
+  // broad stripes that wrap round the body: edges follow the same turn as the neckline
+  const edge = (th: number, f: number) => {
+    const topX = neckX(th), topY = neckY(th);
+    const botX = sx(th) * H.rx * 0.98;
+    const midX = sx(th) * H.rx * 1.05;
+    return { topX, topY, botX, midX, midY: topY + (bottom - topY) * f };
+  };
+  ctx.fillStyle = dark;
+  for (let k = -4; k <= 3; k += 2) {
+    const t0 = k * 0.36, t1 = (k + 1) * 0.36;
+    if (facing((t0 + t1) / 2) < -0.1) continue;
+    const e0 = edge(t0, 0.5), e1 = edge(t1, 0.5);
+    ctx.beginPath();
+    ctx.moveTo(e0.topX, e0.topY - 1);
+    ctx.quadraticCurveTo(e0.midX, e0.midY, e0.botX, bottom);
+    ctx.lineTo(e1.botX, bottom);
+    ctx.quadraticCurveTo(e1.midX, e1.midY, e1.topX, e1.topY - 1);
+    ctx.closePath();
+    ctx.fill();
+  }
+  // light from the top left, shade towards the hem
+  ctx.fillStyle = lin(ctx, -H.rx * 0.6, base, H.rx * 0.5, H.ry * 1.1, [[0, "rgba(255,255,255,0.22)"], [0.5, "rgba(255,255,255,0)"], [1, "rgba(0,0,0,0.3)"]]);
+  ctx.fillRect(-H.rx * 2, base - H.ry * 0.3, H.rx * 4, H.ry * 3);
+  // the hem band
+  ctx.fillStyle = trim;
+  ctx.globalAlpha *= 0.9;
+  ctx.fillRect(-H.rx * 2, H.ry * 0.9, H.rx * 4, H.ry * 0.05);
+  ctx.globalAlpha /= 0.9;
+  ctx.restore();
+
+  // the neckline itself: a trim band along the edge, then the V in front
+  ctx.lineJoin = "round";
+  ctx.lineCap = "round";
+  const edgeLine = new Path2D();
+  neck.forEach((q, i) => (i ? edgeLine.lineTo(q.x, q.y) : edgeLine.moveTo(q.x, q.y)));
+  ctx.strokeStyle = "rgba(0,0,0,0.3)";
+  ctx.lineWidth = Math.max(1.6, H.R * 0.13);
+  ctx.stroke(edgeLine);
+  ctx.strokeStyle = trim;
+  ctx.lineWidth = Math.max(1, H.R * 0.085);
+  ctx.stroke(edgeLine);
+
+  const front = facing(0);
+  if (front > 0.25) {
+    const v = new Path2D();
+    v.moveTo(neckX(-0.4), neckY(-0.4));
+    v.lineTo(neckX(0), neckY(0) + H.ry * 0.24);
+    v.lineTo(neckX(0.4), neckY(0.4));
+    ctx.strokeStyle = "rgba(0,0,0,0.32)";
+    ctx.lineWidth = Math.max(1.4, H.R * 0.12);
+    ctx.stroke(v);
+    ctx.strokeStyle = trim;
+    ctx.lineWidth = Math.max(1, H.R * 0.08);
+    ctx.stroke(v);
+  }
+
+  if (!small) {
+    // the club badge on the chest
+    const bth = -0.62;
+    if (facing(bth) > 0.35) {
+      const bx = sx(bth) * H.rx * 0.9, by = neckY(bth) + H.ry * 0.26, k = Math.max(0.35, facing(bth));
+      ctx.save();
+      ctx.translate(bx, by);
+      ctx.scale(k, 1);
+      ctx.beginPath();
+      ctx.moveTo(-H.R * 0.1, -H.R * 0.1);
+      ctx.lineTo(H.R * 0.1, -H.R * 0.1);
+      ctx.lineTo(H.R * 0.1, H.R * 0.02);
+      ctx.quadraticCurveTo(H.R * 0.1, H.R * 0.14, 0, H.R * 0.18);
+      ctx.quadraticCurveTo(-H.R * 0.1, H.R * 0.14, -H.R * 0.1, H.R * 0.02);
+      ctx.closePath();
+      ctx.fillStyle = trim;
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(0, 0, H.R * 0.045, 0, Math.PI * 2);
+      ctx.fillStyle = main;
+      ctx.fill();
+      ctx.restore();
+    }
+    // the number, narrowing as he turns away from us
+    const nth = 0.18;
+    if (facing(nth) > 0.3) {
+      const k = Math.max(0.3, facing(nth));
+      ctx.save();
+      ctx.translate(sx(nth) * H.rx * 0.9, neckY(nth) + H.ry * 0.36);
+      ctx.scale(k, 1);
+      ctx.font = `900 ${(H.R * 0.38).toFixed(1)}px system-ui, "Segoe UI", sans-serif`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.lineWidth = Math.max(1.5, H.R * 0.07);
+      ctx.strokeStyle = outline;
+      ctx.strokeText("10", 0, 0);
+      ctx.fillStyle = trim;
+      ctx.fillText("10", 0, 0);
+      ctx.restore();
+    }
+  }
+  ctx.restore();
+
+  // a sweatband in the team colour across the forehead (follows the head in 3D)
+  // (built in the head's own frame, above the eyes, so it never covers them when he looks down)
+  {
+    const e1 = EYE_P + H.pitch + 0.52, e2 = EYE_P + H.pitch + 0.68;
+    const lo: Pt[] = [], hi: Pt[] = [];
+    for (let i = 0; i <= 24; i++) {
+      const th = -1.45 + (2.9 * i) / 24;
+      const f = facing(th);
+      if (f < 0.02) continue;
+      const x1 = sx(th) * Math.cos(e1) * H.rx, x2 = sx(th) * Math.cos(e2) * H.rx;
+      lo.push({ x: x1, y: -Math.sin(e1) * H.ry + 0.07 * H.ry * f });
+      hi.push({ x: x2, y: -Math.sin(e2) * H.ry + 0.07 * H.ry * f });
+    }
+    if (lo.length > 2) {
+      ctx.save();
+      ctx.clip(body);
+      const band = new Path2D();
+      lo.forEach((q, i) => (i ? band.lineTo(q.x, q.y) : band.moveTo(q.x, q.y)));
+      for (let i = hi.length - 1; i >= 0; i--) band.lineTo(hi[i].x, hi[i].y);
+      band.closePath();
+      ctx.fillStyle = main;
+      ctx.fill(band);
+      ctx.strokeStyle = trim;
+      ctx.lineWidth = Math.max(0.8, H.R * 0.035);
+      ctx.stroke(band);
+      ctx.restore();
+    }
+  }
+
+  // a little ball at his feet, rocking from side to side
+  if (!small) {
+    const r = H.R * 0.2;
+    const bx = H.rx * 0.78 + Math.sin(t * 3.2) * H.R * 0.04, by = H.ry * 0.82 - Math.abs(Math.sin(t * 3.2)) * H.R * 0.08;
+    ctx.save();
+    ctx.translate(bx, by);
+    ctx.rotate(t * 1.6);
+    ctx.beginPath();
+    ctx.arc(0, 0, r, 0, Math.PI * 2);
+    ctx.fillStyle = rad(ctx, -r * 0.3, -r * 0.3, 0, r * 1.3, [[0, "#ffffff"], [1, "#cbd5e1"]]);
+    ctx.fill();
+    ctx.save();
+    ctx.clip();
+    ballPatches(ctx, r);
+    ctx.restore();
+    ctx.lineWidth = Math.max(0.6, r * 0.08);
+    ctx.strokeStyle = "rgba(15,23,42,0.55)";
+    ctx.stroke();
+    ctx.restore();
+  }
   ctx.restore();
 }
 

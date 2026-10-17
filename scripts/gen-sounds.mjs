@@ -1,4 +1,4 @@
-// Synthesizes Ari's 29 sound effects from scratch (sines, glides, soft noise) and writes
+// Synthesizes Ari's 30 sound effects from scratch (sines, glides, soft noise) and writes
 // them to web/public/sounds. Original work, deterministic.   npm run sounds
 
 import { mkdirSync, writeFileSync } from "node:fs";
@@ -77,6 +77,31 @@ const DEFS = {
     const theme = [C.C5, C.E5, C.G5, C.E5, C.G5, C.C6, C.G5, C.C6];
     theme.forEach((f, i) => { note(b, { t: 0.3 + i * 0.28, dur: 0.5, f0: f, vol: 0.35, harm: 0.3 }); note(b, { t: 0.3 + i * 0.28, dur: 0.6, f0: f / 2, vol: 0.18, tri: true }); });
     [C.C5, C.E5, C.G5, C.C6].forEach((f) => note(b, { t: 2.7, dur: 1.4, f0: f, vol: 0.18, atk: 0.04 }));
+  },
+  // A goal: the crowd swells, a bright rising fanfare, then a big chord with cheering bursts.
+  goal: (b) => {
+    puff(b, { dur: 1.2, vol: 0.32, tone: 0.3 });
+    seq(b, [C.C5, C.E5, C.G5, C.C6], 0.09, { dur: 0.3, vol: 0.4 });
+    [C.C5, C.E5, C.G5, C.C6].forEach((f) => note(b, { t: 0.42, dur: 0.85, f0: f, vol: 0.2, harm: 0.35 }));
+    [0.42, 0.62, 0.84, 1.0].forEach((t) => puff(b, { t, dur: 0.16, vol: 0.3, tone: 0.55 }));
+  },
+  // A referee's whistle: a short trill, then a long blast.
+  whistle: (b) => {
+    for (let i = 0; i < 3; i++) note(b, { t: i * 0.11, dur: 0.1, f0: 2900, f1: 3050, vol: 0.34, vib: 90, vibHz: 38, harm: 0.1 });
+    note(b, { t: 0.42, dur: 0.5, f0: 2950, f1: 3000, vol: 0.38, vib: 110, vibHz: 36, harm: 0.1, atk: 0.02 });
+    puff(b, { t: 0.42, dur: 0.5, vol: 0.05, tone: 0.9 });
+  },
+  // A card raised: a sharp double tick and a short warning tone.
+  card: (b) => {
+    puff(b, { t: 0, dur: 0.05, vol: 0.4, tone: 0.7 });
+    puff(b, { t: 0.09, dur: 0.05, vol: 0.4, tone: 0.7 });
+    note(b, { t: 0.2, dur: 0.38, f0: 330, f1: 262, vol: 0.34, tri: true, harm: 0.25 });
+  },
+  // The crowd's groan: a low sinking murmur.
+  groan: (b) => {
+    puff(b, { t: 0, dur: 0.9, vol: 0.2, tone: 0.12 });
+    note(b, { t: 0.05, dur: 0.8, f0: 300, f1: 150, vol: 0.28, tri: true, harm: 0.3, vib: 5, vibHz: 6 });
+    note(b, { t: 0.05, dur: 0.8, f0: 225, f1: 112, vol: 0.2, tri: true, harm: 0.2 });
   },
 };
 

@@ -9,6 +9,7 @@
 // The pages never touch the OS or the network: they call the commands below.
 
 mod aphra;
+mod football;
 mod google;
 mod idioms;
 mod input;
@@ -558,6 +559,7 @@ fn save_settings(
         hide_bubble(&app);
     }
     spotify::sync(&app, saved.spotify_enabled, &saved.spotify_client_id);
+    football::sync(&app, saved.football_enabled, &saved.football_team_id, &saved.football_team_name);
     refresh_tray(&app);
     let public = st.store.public_settings();
     let _ = app.emit("settings-changed", public.clone());
@@ -1034,6 +1036,9 @@ pub fn run() {
             open_settings_window,
             hide_bubble_window,
             set_bubble_size,
+            football::football_refresh,
+            football::football_search,
+            football::football_logo,
             spotify::spotify_refresh,
             spotify::spotify_control,
             spotify::spotify_open,
@@ -1051,6 +1056,7 @@ pub fn run() {
             build_tray(&handle)?;
             create_bubble_window(&handle);
             spotify::sync(&handle, settings.spotify_enabled, &settings.spotify_client_id);
+            football::sync(&handle, settings.football_enabled, &settings.football_team_id, &settings.football_team_name);
             // Reuse the legacy startup entry, updating its executable after an upgrade.
             apply_autostart(&handle, settings.launch_at_startup);
 
@@ -1089,6 +1095,7 @@ pub fn run() {
             if let tauri::RunEvent::Exit = event {
                 input::stop_mouse_monitor();
                 spotify::sync(app, false, "");
+                football::sync(app, false, "", "");
                 let _ = app.global_shortcut().unregister_all();
             }
         });

@@ -8,6 +8,7 @@ import { listen } from "@tauri-apps/api/event";
 import type { Settings, SettingsPatch } from "./state";
 import type { HistoryItem } from "./history-logic";
 import type { SpotifyState } from "./spotify";
+import type { FootballState, FootballTeamHit } from "./football";
 import { mockInvoke, mockListen } from "./mock";
 
 export const IS_TAURI =
@@ -187,6 +188,12 @@ export const Bridge = {
   spotifyDisconnect: () => call<boolean>("spotify_disconnect"),
   /** The address to register in the Spotify developer dashboard. */
   spotifyRedirectUri: () => call<string>("spotify_redirect_uri"),
+
+  // ── Football ──────────────────────────────────────────────────────────────
+  footballRefresh: () => call<FootballState>("football_refresh"),
+  footballSearch: (query: string) => callOrThrow<FootballTeamHit[]>("football_search", { query }),
+  /** A crest as a data URL, or null when there is none. */
+  footballLogo: (id: string) => call<string | null>("football_logo", { id }),
 
   // ── History ───────────────────────────────────────────────────────────────
   getHistory: () => call<HistoryItem[]>("get_history"),

@@ -5,6 +5,7 @@
 import { DEFAULT_SETTINGS, mergeSettings, type Settings, type SettingsPatch } from "./state";
 import type { HistoryItem } from "./history-logic";
 import { IDLE_SPOTIFY, withPlaying, type SpotifyState } from "./spotify";
+import { IDLE_FOOTBALL, POPULAR_TEAMS, type FootballMatch, type FootballState, type FootballTeamHit } from "./football";
 import { autoTarget, detectLanguageClient } from "./text";
 
 type Handler = (payload: unknown) => void;
@@ -34,6 +35,41 @@ const LANGS = [
 let settings: Settings = mergeSettings(DEFAULT_SETTINGS, { appLanguage: "en" });
 let apiKeySet = false;
 let spotify: SpotifyState = { ...IDLE_SPOTIFY, enabled: settings.spotifyEnabled };
+
+let football: FootballState = { ...IDLE_FOOTBALL, enabled: settings.footballEnabled };
+
+const side = (id: string, name: string, score: number | null = null) => ({ id, name, short: name, score, color: "" });
+function sampleMatch(id: string, hours: number, opponent: [string, string], home: boolean, own: number | null, theirs: number | null, state: FootballMatch["state"]): FootballMatch {
+  const me = side(settings.footballTeamId || "83", settings.footballTeamName || "Barcelona", own);
+  const opp = side(opponent[0], opponent[1], theirs);
+  return {
+    id, league: "esp.1", leagueName: "LALIGA", date: new Date(Date.now() + hours * 3_600_000).toISOString().slice(0, 16) + "Z",
+    state, clock: state === "in" ? "67'" : state === "post" ? "FT" : "", home: home ? me : opp, away: home ? opp : me, goals: [],
+  };
+}
+
+/** Browser-only football data for the chosen team (a live game when `live` is set). */
+let footballLive = false;
+export function mockFootball(extra: Partial<FootballState> = {}, live = footballLive) {
+  footballLive = live;
+  const teamId = settings.footballTeamId;
+  football = !settings.footballEnabled || !teamId ? { ...IDLE_FOOTBALL, enabled: settings.footballEnabled } : {
+    enabled: true, configured: true, team: { id: teamId, name: settings.footballTeamName },
+    live: live ? sampleMatch("9001", -1.1, ["86", "Real Madrid"], true, 1, 1, "in") : null,
+    upcoming: [
+      sampleMatch("9002", 52, ["160", "Paris Saint-Germain"], false, null, null, "pre"),
+      sampleMatch("9003", 190, ["86", "Real Madrid"], true, null, null, "pre"),
+      sampleMatch("9004", 330, ["243", "Sevilla"], false, null, null, "pre"),
+    ],
+    recent: [
+      sampleMatch("9010", -70, ["2922", "Getafe"], true, 3, 0, "post"),
+      sampleMatch("9011", -240, ["432", "Galatasaray"], false, 4, 1, "post"),
+      sampleMatch("9012", -410, ["243", "Sevilla"], false, 1, 1, "post"),
+    ],
+    updatedAt: Date.now(), error: "", ...extra,
+  };
+  mockEmit("football", football);
+}
 
 /** Browser-only sample player; never talks to the real Spotify app. */
 export function mockSpotify(state: Partial<SpotifyState>) {
@@ -109,7 +145,7 @@ export async function mockInvoke(cmd: string, args: Record<string, unknown> = {}
   switch (cmd) {
     case "boot":
       return {
-        settings, version: "3.1.0", cursorPoll: false,
+        settings, version: "3.2.0", cursorPoll: false,
         screen: { x: 0, y: 0, width: 1920, height: 1080, scale: 1 },
       };
     case "get_settings":
@@ -123,8 +159,18 @@ export async function mockInvoke(cmd: string, args: Record<string, unknown> = {}
       else spotify = { ...spotify, enabled: true };
       mockEmit("settings-changed", settings);
       mockEmit("spotify", spotify);
+      mockFootball();
       return { ok: true, hotkeyOk: true, inlineHotkeyOk: true, hideHotkeyOk: true, settings };
     }
+    case "football_refresh":
+      if (!football.configured && settings.footballTeamId) mockFootball();
+      return football;
+    case "football_search": {
+      const q = String(args.query ?? "").toLowerCase();
+      return POPULAR_TEAMS.filter((tm) => tm.name.toLowerCase().includes(q)).map((tm): FootballTeamHit => ({ ...tm, league: "esp.1" }));
+    }
+    case "football_logo":
+      return null;
     case "spotify_refresh":
       return spotify;
     case "spotify_installed":

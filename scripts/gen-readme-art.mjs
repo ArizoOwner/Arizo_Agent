@@ -5,6 +5,7 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { footballArt } from "./readme-football-art.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const outDir = join(root, "assets", "readme");
@@ -432,7 +433,7 @@ ${note(96, 140, 0, -1, "#fff")}${note(246, 132, 1.1, 1, "#fff")}${note(120, 112,
 // ─────────────────────────────────────────────── marquee
 function marquee() {
   const W = 1200, H = 52, GAP = 236;
-  const items = ["⚡ Fast engine", "✦ Smart AI engine", "🎵 Spotify player", "🏝️ Dynamic Island", "Alt+Shift+D in place", "🎯 Quick bubble", "فارسی ⇄ English", "🗣️ Speech", "🔒 No telemetry", "✨ Animated miniatures"];
+  const items = ["⚡ Fast engine", "✦ Smart AI engine", "🎵 Spotify player", "🏝️ Dynamic Island", "Alt+Shift+D in place", "🎯 Quick bubble", "فارسی ⇄ English", "🗣️ Speech", "⚽ Live football", "🥅 Goal shows", "👕 Team kits", "🔒 No telemetry", "✨ Animated miniatures"];
   const row = (off) => items.map((t, i) => `<text x="${off + i * GAP + 20}" y="32" font-size="18" fill="#d6d9ec" ${/[؀-ۿ]/.test(t) ? `style="font-family:${FA}"` : ""}>${t}</text><circle cx="${off + i * GAP + GAP - 20}" cy="26" r="3" fill="${VIOLET}"/>`).join("");
   const total = items.length * GAP;
   const body = `
@@ -493,4 +494,5 @@ function footer() {
 }
 
 hero(); demo(); outfits(); spotify(); marquee(); divider(); footer();
+footballArt({ save, svg, ariDefs, CSS, BODY, SANS, FA, VIOLET });
 console.log(`README art written to ${outDir}`);

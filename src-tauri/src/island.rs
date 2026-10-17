@@ -16,7 +16,7 @@ use crate::platform::{self, cursor_physical};
 
 /// Logical size of the full window — the largest island view.
 pub const PANEL_W: f64 = 920.0;
-pub const PANEL_H: f64 = 520.0;
+pub const PANEL_H: f64 = 640.0;
 /// Logical size of the invisible strip that wakes the island when it is hidden.
 pub const STRIP_W: f64 = 240.0;
 pub const STRIP_H: f64 = 6.0;

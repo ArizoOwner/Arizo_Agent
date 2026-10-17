@@ -1,0 +1,161 @@
+/* The football page: dense, dark cards with a bright live score, in the spirit of FotMob. */
+.football-view { --fb-accent: #2dd4bf; --fb-live: #ff4757; --fb-win: #34d399; --fb-loss: #fb7185; --fb-draw: #94a3b8; }
+.fb-shell {
+  height: 100%; min-width: 0; padding: 14px 18px 10px;
+  padding-inline-start: 100px; display: flex; flex-direction: column; gap: 8px;
+}
+.fb-heading { display: flex; align-items: center; min-height: 24px; gap: 10px; }
+.fb-brand { color: var(--fb-accent); font-size: 13px; font-weight: 750; letter-spacing: -.2px; }
+.fb-heading-actions { display: flex; align-items: center; gap: 8px; margin-inline-start: auto; }
+.fb-link { border: 0; background: none; color: var(--dim); font: 10px var(--font); cursor: pointer; white-space: nowrap; }
+.fb-link:hover { color: var(--ink); }
+.fb-icon { display: grid; place-items: center; width: 24px; height: 24px; border: 0; border-radius: 50%; background: transparent; color: var(--dim); cursor: pointer; }
+.fb-icon:hover { color: var(--ink); background: rgb(var(--fg) / .08); }
+.fb-link:focus-visible, .fb-icon:focus-visible, .fb-chip:focus-visible { outline: 2px solid var(--fb-accent); outline-offset: 2px; }
+
+/* Choosing the team */
+.fb-picker { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 8px; }
+.fb-picker-title { font-size: 16px; font-weight: 650; color: var(--ink); }
+.fb-picker-hint { font-size: 10.5px; color: var(--dim); line-height: 1.6; }
+.fb-search {
+  border: 0; outline: none; border-radius: 999px; padding: 8px 15px; background: rgb(var(--fg) / .08);
+  color: var(--ink); font: 12px var(--font); cursor: text; user-select: text;
+}
+.fb-search::placeholder { color: var(--dim-3); }
+.fb-search:focus-visible { box-shadow: 0 0 0 2px var(--fb-accent); }
+.fb-chips { display: flex; flex-wrap: wrap; gap: 6px; overflow: hidden; align-content: flex-start; max-height: 138px; }
+.fb-chip {
+  display: inline-flex; align-items: center; gap: 6px; border: 0; border-radius: 999px; padding: 4px 11px 4px 5px;
+  background: rgb(var(--fg) / .06); color: var(--ink-2); font: 11px var(--font); cursor: pointer;
+  transition: background .15s, transform .12s;
+}
+.fb-chip:hover { background: rgb(var(--fg) / .13); color: var(--ink); }
+.fb-chip:active { transform: scale(.96); }
+.fb-note { font-size: 10px; color: var(--dim); min-height: 14px; }
+
+/* The team page */
+.fb-page { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 8px; }
+.fb-team { display: flex; align-items: center; gap: 9px; min-height: 28px; }
+.fb-team-name { font-size: 16px; font-weight: 700; color: var(--ink); }
+.fb-status { margin-inline-start: auto; font-size: 10px; color: var(--dim); }
+.fb-live-now .fb-status { color: var(--fb-live); font-weight: 650; }
+.fb-crest {
+  width: 18px; height: 18px; flex: 0 0 auto; display: inline-grid; place-items: center; border-radius: 50%;
+  background: center / contain no-repeat; font: 700 9px var(--font); color: var(--ink-2);
+}
+.fb-crest.plain { background-color: rgb(var(--fg) / .1); }
+.fb-crest-lg { width: 28px; height: 28px; font-size: 13px; }
+
+.fb-live-card {
+  border-radius: 16px; padding: 9px 14px 8px; background: linear-gradient(180deg, rgb(255 71 87 / .13), rgb(var(--fg) / .045));
+  box-shadow: inset 0 0 0 1px rgb(255 71 87 / .28);
+}
+.fb-live-top { display: flex; align-items: center; gap: 8px; font-size: 10px; color: var(--dim); }
+.fb-live-badge { display: inline-flex; align-items: center; gap: 5px; color: var(--fb-live); font-weight: 750; letter-spacing: .4px; }
+.fb-live-badge i { width: 6px; height: 6px; border-radius: 50%; background: var(--fb-live); animation: fb-pulse 1.2s ease-in-out infinite; }
+.fb-live-clock { color: var(--ink); font-weight: 650; font-family: var(--mono); }
+.fb-league { margin-inline-start: auto; }
+.fb-score-row { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 12px; margin-top: 3px; }
+.fb-side { display: flex; align-items: center; gap: 8px; min-width: 0; color: var(--ink-2); font-size: 12px; }
+.fb-side.rev { flex-direction: row-reverse; text-align: end; }
+.fb-side.mine { color: var(--ink); font-weight: 700; }
+.fb-side-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fb-score { display: flex; align-items: baseline; gap: 8px; font-family: var(--mono); color: var(--ink); }
+.fb-score b { font-size: 30px; line-height: 1.1; font-weight: 750; }
+.fb-score em { font-style: normal; color: var(--dim); }
+.fb-next-card {
+  border-radius: 16px; padding: 9px 14px 8px; background: linear-gradient(180deg, rgb(45 212 191 / .13), rgb(var(--fg) / .045));
+  box-shadow: inset 0 0 0 1px rgb(45 212 191 / .3);
+}
+.fb-next-top { display: flex; align-items: center; gap: 8px; font-size: 10px; color: var(--dim); }
+.fb-next-badge { color: var(--fb-accent); font-weight: 750; letter-spacing: .4px; }
+.fb-next-when { display: flex; flex-direction: column; align-items: center; gap: 1px; min-width: 120px; color: var(--ink); }
+.fb-next-day { font-size: 12px; color: var(--ink-2); white-space: nowrap; }
+.fb-next-time { font: 750 26px/1.1 var(--mono); letter-spacing: .5px; }
+.fb-next-eta { font-size: 10.5px; color: var(--fb-accent); }
+html[lang="fa"] .fb-next-time { font-family: var(--font); font-size: 28px; font-weight: 800; letter-spacing: 0; }
+.fb-goals { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-top: 2px; font-size: 10px; color: var(--dim); min-height: 13px; }
+
+.fb-lists { flex: 1; min-height: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.fb-col { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.fb-col-title { font-size: 10px; font-weight: 700; color: var(--dim); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 1px; }
+.fb-none { font-size: 10.5px; color: var(--dim-3); padding: 6px 0; }
+.fb-row { display: grid; grid-template-columns: 112px 1fr auto; align-items: center; gap: 8px; padding: 4px 8px; border-radius: 10px; background: rgb(var(--fg) / .04); }
+.fb-row-when { display: flex; flex-direction: column; min-width: 0; font-size: 10.5px; color: var(--ink-2); line-height: 1.35; }
+.fb-row-when > span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fb-row-when small { font-size: 9px; color: var(--dim-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: flex; gap: 5px; }
+.fb-time { font-family: var(--mono); color: var(--ink-2); }
+.fb-row-opp { display: flex; align-items: center; gap: 6px; min-width: 0; font-size: 11.5px; color: var(--ink); }
+.fb-row-opp span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fb-row-res { display: flex; align-items: center; gap: 6px; font: 10.5px var(--mono); color: var(--ink-2); }
+.fb-row-res b { display: grid; place-items: center; min-width: 17px; height: 17px; padding: 0 4px; border-radius: 5px; font: 700 9.5px var(--font); color: #06130f; }
+.fb-row-res.w b { background: var(--fb-win); }
+.fb-row-res.l b { background: var(--fb-loss); }
+.fb-row-res.d b { background: var(--fb-draw); }
+.fb-row-res.pre span { color: var(--dim); font-size: 10px; }
+
+.fb-empty { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; text-align: center; }
+.fb-empty-title { font-size: 16px; font-weight: 650; }
+.fb-empty-hint { font-size: 11px; color: var(--dim); }
+.fb-error { color: var(--red-text); font-size: 10px; line-height: 1.6; max-height: 28px; overflow: hidden; }
+@keyframes fb-pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .35; transform: scale(.7); } }
+@media (max-width: 650px) {
+  .fb-shell { padding-inline-start: 88px; }
+}
+
+/* ── The goal celebration: a stage over the island, then a rain of balls and confetti ── */
+#goal-layer { position: absolute; inset: 0; overflow: hidden; border-radius: inherit; pointer-events: none; opacity: 0; z-index: 7; }
+#goal-layer.on { opacity: 1; }
+.goal-banner {
+  position: absolute; left: 0; right: 0; top: 36px; display: flex; flex-direction: column; align-items: center; gap: 4px;
+  text-align: center; transform: scale(.4); opacity: 0;
+}
+#goal-layer.on .goal-banner { animation: goal-pop .6s cubic-bezier(.2, 1.4, .4, 1) .15s forwards; }
+.goal-word { font-size: 56px; font-weight: 900; letter-spacing: 4px; line-height: 1.1; color: #fff7d1;
+  filter: drop-shadow(0 3px 0 #b45309) drop-shadow(0 0 22px rgb(250 204 21 / .75)); }
+.goal-player { font-size: 18px; font-weight: 700; color: #fff; text-shadow: 0 2px 12px #000a; }
+.goal-score { font: 700 15px var(--mono); color: #fde68a; direction: ltr; text-shadow: 0 2px 12px #000a; }
+.goal-drop { position: absolute; top: -30px; will-change: transform, opacity; }
+#goal-layer.on .goal-drop { animation: goal-fall var(--fall) linear var(--delay) both; }
+.goal-ball { border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff 0 38%, #e5e7eb 39% 60%, #111827 61% 100%); box-shadow: 0 0 0 1px #0004; }
+.goal-confetti { border-radius: 2px; }
+.goal-star { clip-path: polygon(50% 0, 62% 36%, 100% 38%, 70% 60%, 80% 100%, 50% 76%, 20% 100%, 30% 60%, 0 38%, 38% 36%); }
+.goal-word.small { font-size: 34px; letter-spacing: 1px; }
+.goal-cardY, .goal-cardR { border-radius: 3px; box-shadow: 0 2px 6px #0006; }
+.goal-cardY { background: #facc15; }
+.goal-cardR { background: #ef4444; }
+.goal-drip { border-radius: 50% 50% 50% 50% / 62% 62% 38% 38%; background: linear-gradient(180deg, #bfe3ff, #5aa9ff); opacity: .9; }
+#goal-layer.tone-red .goal-word { color: #ffe1e1; filter: drop-shadow(0 3px 0 #7f1d1d) drop-shadow(0 0 22px rgb(239 68 68 / .75)); }
+#goal-layer.tone-red .goal-score { color: #fecaca; }
+#goal-layer.tone-amber .goal-word { color: #fff3c4; filter: drop-shadow(0 3px 0 #92400e) drop-shadow(0 0 20px rgb(250 204 21 / .7)); }
+#goal-layer.tone-blue .goal-word { color: #dbeafe; filter: drop-shadow(0 3px 0 #1e3a8a) drop-shadow(0 0 20px rgb(96 165 250 / .65)); }
+#goal-layer.tone-blue .goal-score { color: #bfdbfe; }
+#goal-layer.tone-green .goal-word { color: #dcfce7; filter: drop-shadow(0 3px 0 #14532d) drop-shadow(0 0 22px rgb(52 211 153 / .75)); }
+#goal-layer.tone-green .goal-score { color: #bbf7d0; }
+#goal-layer.tone-teal .goal-word { color: #ccfbf1; filter: drop-shadow(0 3px 0 #115e59) drop-shadow(0 0 20px rgb(45 212 191 / .7)); }
+#goal-layer.tone-teal .goal-score { color: #99f6e4; }
+#goal-layer.tone-red .goal-glow { background: radial-gradient(circle at 50% 38%, rgb(239 68 68 / .45), rgb(127 29 29 / .2) 46%, transparent 72%); }
+#goal-layer.tone-amber .goal-glow { background: radial-gradient(circle at 50% 38%, rgb(250 204 21 / .4), rgb(180 83 9 / .15) 46%, transparent 72%); }
+#goal-layer.tone-blue .goal-glow { background: radial-gradient(circle at 50% 38%, rgb(96 165 250 / .38), rgb(30 58 138 / .18) 46%, transparent 72%); }
+#goal-layer.tone-green .goal-glow, #goal-layer.tone-teal .goal-glow { background: radial-gradient(circle at 50% 38%, rgb(52 211 153 / .42), rgb(6 78 59 / .18) 46%, transparent 72%); }
+.goal-glow { position: absolute; inset: -40px; background: radial-gradient(circle at 50% 38%, rgb(253 224 71 / .5), rgb(52 211 153 / .18) 46%, transparent 72%); opacity: 0; }
+#goal-layer.on .goal-glow { animation: goal-glow 1.1s ease-out forwards; }
+@keyframes goal-pop { 0% { transform: scale(.4); opacity: 0; } 60% { transform: scale(1.12); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
+@keyframes goal-glow { 0% { opacity: 0; } 25% { opacity: 1; } 100% { opacity: .25; } }
+@keyframes goal-fall {
+  0% { transform: translate3d(0, 0, 0) rotate(0); opacity: 0; }
+  8% { opacity: 1; }
+  100% { transform: translate3d(var(--sway), 420px, 0) rotate(var(--spin)); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #goal-layer.on .goal-drop { animation-duration: 0s; opacity: 0; }
+}
+
+/* Persian digits: the mono font has none, so Vazirmatn draws the numbers (firm, with even widths). */
+html[lang="fa"] .fb-score, html[lang="fa"] .fb-live-clock, html[lang="fa"] .fb-time, html[lang="fa"] .fb-row-res,
+html[lang="fa"] .goal-score { font-family: var(--font); font-feature-settings: "tnum"; }
+html[lang="fa"] .fb-score b { font-size: 34px; font-weight: 800; line-height: 1.05; }
+html[lang="fa"] .fb-live-clock { font-weight: 700; font-size: 11.5px; }
+html[lang="fa"] .fb-row-res { font-size: 12px; font-weight: 650; }
+html[lang="fa"] .fb-time { font-weight: 650; }
+html[lang="fa"] .goal-score { font-size: 16px; font-weight: 750; }

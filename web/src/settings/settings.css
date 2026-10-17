@@ -14,6 +14,8 @@
   src: url("../assets/fonts/Vazirmatn-Variable.woff2") format("woff2");
   font-weight: 100 900;
   font-display: swap;
+  /* Persian letters sit smaller than Latin ones at the same size: scale only them up. */
+  size-adjust: 114%;
   unicode-range: U+0600-06FF, U+0750-077F, U+FB50-FDFF, U+FE70-FEFF, U+200C-200D, U+061F;
 }
 
@@ -78,6 +80,17 @@
   --amber-text: #8a5200;
   --bg: #f3f4f7;
 }
+
+/* Persian reads best a little larger, firmer and with room above and below the line. */
+html[lang="fa"], html[lang="fa"] body {
+  font-feature-settings: normal;
+  -webkit-text-stroke: 0.25px currentColor;
+  letter-spacing: 0;
+}
+html[lang="fa"] { --dim: #a9aeb7; --dim-2: #a3a8b1; --dim-3: #8b909a; }
+html[lang="fa"][data-theme="light"] { --dim: #4a505a; --dim-2: #50565f; --dim-3: #5a606b; }
+html[lang="fa"] input, html[lang="fa"] textarea, html[lang="fa"] select, html[lang="fa"] button { -webkit-text-stroke: 0; }
+html[lang="fa"] body, html[lang="fa"] .tr-text, html[lang="fa"] .bubble-result { line-height: 1.65; }
 
 * {
   box-sizing: border-box;

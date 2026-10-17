@@ -20,7 +20,7 @@ test("mergeSettings keeps the nested AI settings whole", () => {
 
 test("the settings keys are exactly the contract's", () => {
   assert.deepEqual(Object.keys(S.DEFAULT_SETTINGS).sort(), [
-    "ariOutfit", "aphra", "appLanguage", "autoCloseInterval", "autoCopy", "defaultEngine", "historyLimit",
+    "ariOutfit", "aphra", "appLanguage", "autoCloseInterval", "autoCopy", "defaultEngine", "footballEnabled", "footballKit", "footballTeamId", "footballTeamName", "historyLimit",
     "hotkey", "hideHotkey", "hideOnBlur", "inlineHotkey", "language", "launchAtStartup", "nativeLang", "restoreClipboard",
     "saveHistory", "screen", "secondLang", "showFloatingBubble", "soundEnabled", "soundVolume", "spotifyClientId", "spotifyEnabled", "theme",
   ].sort());

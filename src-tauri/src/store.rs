@@ -71,6 +71,13 @@ pub struct Settings {
     pub spotify_enabled: bool,
     /// Public OAuth client id of the user's own Spotify developer app (PKCE: no secret).
     pub spotify_client_id: String,
+    /// The football page: live score, fixtures and the goal celebration.
+    pub football_enabled: bool,
+    /// Ari wears the favourite team's kit while it plays.
+    pub football_kit: bool,
+    /// ESPN id of the favourite team ("" = none chosen yet) and its name for display.
+    pub football_team_id: String,
+    pub football_team_name: String,
     /// Seconds before an open island folds back to its compact size.
     pub auto_close_interval: f64,
     /// Ari's outfit: "auto", "none" or an outfit id.
@@ -103,6 +110,10 @@ impl Default for Settings {
             sound_volume: 0.5,
             spotify_enabled: true,
             spotify_client_id: String::new(),
+            football_enabled: true,
+            football_kit: true,
+            football_team_id: String::new(),
+            football_team_name: String::new(),
             auto_close_interval: 15.0,
             ari_outfit: "auto".into(),
             language: String::new(),
@@ -194,6 +205,14 @@ pub fn merge(base: &Settings, incoming: &Value) -> Settings {
             let id = pick_str(incoming.get("spotifyClientId"), &base.spotify_client_id, 64);
             if id.chars().all(|c| c.is_ascii_alphanumeric()) { id } else { base.spotify_client_id.clone() }
         },
+        football_enabled: pick_bool(incoming.get("footballEnabled"), base.football_enabled),
+        football_kit: pick_bool(incoming.get("footballKit"), base.football_kit),
+        // Empty is a real value (no team chosen); anything else must be an ESPN numeric id.
+        football_team_id: {
+            let id = pick_str(incoming.get("footballTeamId"), &base.football_team_id, 9);
+            if id.chars().all(|c| c.is_ascii_digit()) { id } else { base.football_team_id.clone() }
+        },
+        football_team_name: pick_str(incoming.get("footballTeamName"), &base.football_team_name, 60),
         auto_close_interval: pick_num(incoming.get("autoCloseInterval"), base.auto_close_interval, 0.0, 3600.0),
         ari_outfit: non_empty(pick_str(incoming.get("ariOutfit"), &base.ari_outfit, 40), &base.ari_outfit),
         // Empty is a real value here: it means "follow the system".
@@ -503,6 +522,23 @@ mod tests {
         let m = merge(&base, &json!({ "aphra": { "tone": "literary" } }));
         assert_eq!(m.aphra.model, "custom");
         assert_eq!(m.aphra.tone, "literary");
+    }
+
+    #[test]
+    fn the_football_team_is_a_plain_id_and_old_preferences_have_none() {
+        let old = merge(&Settings::default(), &json!({}));
+        assert!(old.football_enabled);
+        assert_eq!((old.football_team_id.as_str(), old.football_team_name.as_str()), ("", ""));
+        let set = merge(&old, &json!({ "footballTeamId": " 83 ", "footballTeamName": "Barcelona" }));
+        assert_eq!((set.football_team_id.as_str(), set.football_team_name.as_str()), ("83", "Barcelona"));
+        assert_eq!(merge(&set, &json!({ "footballTeamId": "83; drop" })).football_team_id, "83");
+        assert_eq!(merge(&set, &json!({ "footballTeamId": 83 })).football_team_id, "83", "a number is not accepted: the id stays");
+        assert_eq!(merge(&set, &json!({ "footballTeamId": "" })).football_team_id, "");
+        assert!(!merge(&old, &json!({ "footballEnabled": false })).football_enabled);
+        assert!(merge(&old, &json!({ "footballEnabled": "no" })).football_enabled);
+        assert!(old.football_kit);
+        assert!(!merge(&old, &json!({ "footballKit": false })).football_kit);
+        assert_eq!(serde_json::to_value(set).unwrap()["footballTeamId"], "83");
     }
 
     #[test]

@@ -43,6 +43,13 @@ export interface Settings {
   spotifyEnabled: boolean;
   /** The public client id of the user's Spotify developer app (no secret is ever stored). */
   spotifyClientId: string;
+  /** The football page: live score, fixtures and the goal celebration. */
+  footballEnabled: boolean;
+  /** Ari wears the favourite team's kit while it plays. */
+  footballKit: boolean;
+  /** ESPN id and name of the favourite team ("" until one is chosen). */
+  footballTeamId: string;
+  footballTeamName: string;
   autoCloseInterval: number;
   /** Ari's outfit: "auto" (dresses for the season), "none" or an outfit id. */
   ariOutfit: string;
@@ -80,6 +87,10 @@ export const DEFAULT_SETTINGS: Settings = {
   soundVolume: 0.5,
   spotifyEnabled: true,
   spotifyClientId: "",
+  footballEnabled: true,
+  footballKit: true,
+  footballTeamId: "",
+  footballTeamName: "",
   autoCloseInterval: 15,
   ariOutfit: DEFAULT_OUTFIT,
   language: "",

@@ -23,7 +23,7 @@ import { enhanceSelect } from "../views/select";
 import { applyTheme as applyThemeTo, watchSystemTheme } from "../core/theme";
 import { LANGUAGES, isRtl, onLanguageChange, resolveLanguage, setLanguage, t } from "../i18n/i18n";
 
-const VERSION_FALLBACK = "3.1.0";
+const VERSION_FALLBACK = "3.2.0";
 const REPO_URL = "https://github.com/ArizoOwner/Arizo_Agent";
 
 let settings: Settings = { ...DEFAULT_SETTINGS };
@@ -119,6 +119,10 @@ function generalSection(): HTMLElement {
     row(t("Launch at startup"), toggle(settings.launchAtStartup, (v) => void save({ launchAtStartup: v }))),
     row(t("Spotify player"), toggle(settings.spotifyEnabled, (v) => void save({ spotifyEnabled: v })),
       h("span", { class: "hint", text: t("See and control your Spotify playback from the island") })),
+    row(t("Football"), toggle(settings.footballEnabled, (v) => void save({ footballEnabled: v })),
+      h("span", { class: "hint", text: t("Live scores, fixtures and a goal celebration for your favourite team") })),
+    row(t("Team kit on Ari"), toggle(settings.footballKit, (v) => void save({ footballKit: v })),
+      h("span", { class: "hint", text: t("Ari wears your team's shirt in the Football section") })),
     row(t("Hide when I click elsewhere"), toggle(settings.hideOnBlur, (v) => void save({ hideOnBlur: v }))),
     row(t("Copy the translation automatically"), toggle(settings.autoCopy, (v) => void save({ autoCopy: v }))),
     row(t("Restore the clipboard after replacing"), toggle(settings.restoreClipboard, (v) => void save({ restoreClipboard: v }))),

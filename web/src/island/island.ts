@@ -11,6 +11,11 @@ import { onEmote } from "../core/mood";
 import { Sound } from "../core/sound";
 import { State } from "../core/state";
 import { Spotify, SPOTIFY_GREEN, SPOTIFY_ID, islandDances, musicPlaying } from "../core/spotify";
+import {
+  CELEBRATION_MS, EVENT_STYLE, FOOTBALL_COLOR, FOOTBALL_ID, Football, ariCheers, ariGloomy, celebrating, celebrationLevel, celebrationSize,
+  kitForState, makeRain, onFootballEvent, styleOf,
+  type Celebration, type FootballEvent, type GoalInfo,
+} from "../core/football";
 import { BotEngine } from "../ari/engine";
 import { GREETING_H, GREETING_W, Greeting } from "../ari/greeting";
 import { createMiniBot, pruneMiniBots, syncMiniBotStates, tickMiniBots, type MiniTask } from "../ari/minibots";
@@ -21,7 +26,7 @@ import type { HistoryItem } from "../core/history-logic";
 import { onToast } from "../core/toast";
 import { h } from "../views/dom";
 import { IslandStateMachine } from "./fsm";
-import { isRtl, language } from "../i18n/i18n";
+import { isRtl, language, t } from "../i18n/i18n";
 
 const BOT_OVERHANG = 40;
 /** Extra canvas on each side of Ari, for the witch hat's brim and the Santa hat's tip. */
@@ -86,6 +91,13 @@ export class Island {
   private lastSyncedView: IslandViewName | null = null;
   private toastTimer: number | null = null;
 
+  // The goal celebration: the island grows, rains balls and confetti, then returns.
+  private celebration: (Celebration & { event?: FootballEvent }) | null = null;
+  private goalLayer!: HTMLElement;
+  private celebrationLevelNow = 0;
+  /** Events that came while another show was running; played in turn. */
+  private showQueue: FootballEvent[] = [];
+
   constructor(root: HTMLElement) {
     this.root = root;
     this.build();
@@ -95,6 +107,7 @@ export class Island {
     this.greeting.onComplete = () => this.fsm.greetComplete();
     onEmote((e) => this.emote(e));
     onToast((m, ms) => this.showToast(m, ms));
+    onFootballEvent((e) => this.celebrateEvent(e));
     State.subscribe(() => {
       this.dirty = true;
       this.ensureRunning();
@@ -159,6 +172,7 @@ export class Island {
     this.capsuleText = h("div", { id: "capsule-text", dir: "auto" });
     this.toastEl = h("div", { id: "toast" });
     this.countdown = h("div", { id: "countdown" });
+    this.goalLayer = h("div", { id: "goal-layer", "aria-hidden": "true" });
 
     this.header = buildHeader(actions);
     const built = buildViews(actions, () => this.closeAfterAction());
@@ -179,6 +193,7 @@ export class Island {
       this.capsuleText,
       this.toastEl,
       this.countdown,
+      this.goalLayer,
     );
 
     const dpr = Math.min(2, window.devicePixelRatio || 1);
@@ -290,6 +305,108 @@ export class Island {
     this.expand(view);
   }
 
+  // ── Goal celebration ───────────────────────────────────────────────────────
+
+  /**
+   * The favourite team scored: the island opens if it was folded, grows into a
+   * stage, rains balls and confetti while Ari cheers, then goes back.
+   */
+  celebrateGoal(info: GoalInfo) {
+    this.celebrateEvent({ kind: "goal", teamName: info.teamName, opponent: info.opponent, player: info.player, minute: "", score: info.score, count: 1 });
+  }
+
+  /**
+   * Something happened in the game (a goal, a card, kick-off, the final whistle):
+   * the island grows into a stage that fits it, Ari reacts, and it goes back.
+   * An event that arrives during a show waits its turn, unless it matters more.
+   */
+  celebrateEvent(e: FootballEvent) {
+    const style = EVENT_STYLE[e.kind];
+    const now = performance.now();
+    if (this.celebration && celebrating(this.celebration, now)) {
+      if (style.priority <= styleOf(this.celebration).priority) {
+        if (this.showQueue.length < 5) this.showQueue.push(e);
+        return;
+      }
+      this.showQueue.unshift(this.celebration.event ?? e);
+    }
+    this.startShow(e);
+  }
+
+  private startShow(e: FootballEvent) {
+    const style = EVENT_STYLE[e.kind];
+    // From the hidden strip the window is only 240×6 px: open it first (setMode does,
+    // below), and keep the island from folding away again while the show runs.
+    if (State.mode === "hidden") this.fsm.reveal();
+    this.fsm.holdPetit();
+    const now = performance.now();
+    this.celebration = {
+      startedAt: now, kind: e.kind, ms: style.ms, event: e,
+      teamName: e.teamName, player: e.player, score: e.score, opponent: e.opponent,
+    };
+    this.buildGoalLayer(e);
+    State.lastActivity = now;
+    Sound.play(style.sound);
+    this.engine.triggerEmote(style.emote, 3);
+    this.ensureRunning();
+    State.notify();
+  }
+
+  private buildGoalLayer(e: FootballEvent) {
+    const style = EVENT_STYLE[e.kind];
+    const layer = this.goalLayer;
+    layer.classList.remove("on");
+    layer.className = "tone-" + style.tone;
+    layer.replaceChildren();
+    void layer.offsetWidth; // restart the CSS animations
+    const drops = style.rain === "none" ? [] : makeRain(style.rain === "party" ? 46 : 26, PANEL_W - 140, 20261017 + style.priority, style.ms);
+    const word = t(style.word) + (e.count > 1 ? " ×" + e.count : "");
+    const who = [e.player, e.minute].filter(Boolean).join("  ");
+    layer.append(
+      h("div", { class: "goal-glow" }),
+      ...drops.map((d) => {
+        const kind = style.rain === "party" ? d.kind : style.rain === "balls" ? "ball" : style.rain;
+        const drop = h("i", { class: "goal-drop goal-" + kind });
+        drop.style.left = d.x + "px";
+        drop.style.width = drop.style.height = d.size + "px";
+        if (kind === "cardY" || kind === "cardR") drop.style.height = d.size * 1.4 + "px";
+        drop.style.setProperty("--delay", Math.round(d.delay) + "ms");
+        drop.style.setProperty("--fall", Math.round(d.fall) + "ms");
+        drop.style.setProperty("--spin", Math.round(d.spin) + "deg");
+        drop.style.setProperty("--sway", Math.round((d.hue % 90) - 45) + "px");
+        if (kind === "confetti" || kind === "star") drop.style.background = "hsl(" + d.hue + " 90% 60%)";
+        return drop;
+      }),
+      h("div", { class: "goal-banner" },
+        h("div", { class: "goal-word" + (word.length > 14 ? " small" : ""), text: word, dir: "auto" }),
+        who ? h("div", { class: "goal-player", text: who, dir: "auto" }) : null,
+        e.score ? h("div", { class: "goal-score", text: e.teamName + "  " + e.score + "  " + e.opponent, dir: "auto" }) : null),
+    );
+    layer.classList.add("on");
+  }
+
+  private stepCelebration(nowMs: number) {
+    const before = this.celebrationLevelNow;
+    // A frame's clock can be a hair older than the moment an event started its show
+    // (events arrive between frames): that is "not started yet", never "already over".
+    const over = this.celebration != null && nowMs - this.celebration.startedAt >= (this.celebration.ms ?? CELEBRATION_MS);
+    this.celebrationLevelNow = celebrationLevel(this.celebration, nowMs);
+    if (this.celebration && over) {
+      this.celebration = null;
+      this.celebrationLevelNow = 0;
+      this.goalLayer.classList.remove("on");
+      this.goalLayer.replaceChildren();
+      this.engine.cheering = false;
+      this.engine.gloomy = false;
+      this.fsm.releasePetit();
+      this.dirty = true;
+      const next = this.showQueue.shift();
+      if (next) this.startShow(next);
+      else this.engine.triggerEmote("happy");
+    }
+    if (before !== this.celebrationLevelNow) this.dirty = true;
+  }
+
   /** Esc: folds the island. */
   close() {
     this.collapse();
@@ -350,6 +467,13 @@ export class Island {
     return { w, h, r };
   }
 
+  /** The size to draw now: the target, stretched toward the stage while a goal is celebrated. */
+  private drawnSize(w: number, h: number): { w: number; h: number } {
+    return this.celebrationLevelNow > 0.001
+      ? celebrationSize({ w, h }, this.celebrationLevelNow, { w: PANEL_W, h: PANEL_H }, styleOf(this.celebration).stage)
+      : { w, h };
+  }
+
   private animateGeometry(shrinking: boolean) {
     const { w, h, r } = this.targetSize();
     if (shrinking) {
@@ -365,9 +489,10 @@ export class Island {
   }
 
   private applyGeometry() {
-    const w = this.width.value;
-    const hh = this.height.value;
-    const r = this.radius.value;
+    const shown = this.drawnSize(this.width.value, this.height.value);
+    const w = shown.w;
+    const hh = shown.h;
+    const r = this.celebrationLevelNow > 0.001 ? Math.max(this.radius.value, EXPANDED_CORNER) : this.radius.value;
     this.islandEl.style.width = `${w}px`;
     this.islandEl.style.height = `${hh}px`;
     this.islandEl.style.borderRadius = `0 0 ${r}px ${r}px`;
@@ -389,8 +514,9 @@ export class Island {
 
   /** Island rect in window coordinates (origin top-left of the 720×320 window). */
   private islandRect(): { x: number; y: number; w: number; h: number } {
-    const w = this.width.value;
-    const hh = this.height.value;
+    const shown = this.drawnSize(this.width.value, this.height.value);
+    const w = shown.w;
+    const hh = shown.h;
     return { x: (PANEL_W - w) / 2, y: 0, w, h: hh };
   }
 
@@ -595,6 +721,7 @@ export class Island {
     this.width.step(dt, nowMs);
     this.height.step(dt, nowMs);
     this.radius.step(dt, nowMs);
+    this.stepCelebration(nowMs);
     this.applyGeometry();
 
     if (this.dirty) {
@@ -632,7 +759,7 @@ export class Island {
       ? settling
       : settling ||
         !this.botCx.settled || !this.botCy.settled || !this.botSize.settled ||
-        greetingActive || this.engine.busy || viewAnimating;
+        greetingActive || this.engine.busy || viewAnimating || this.celebration != null;
 
     if (busy) {
       requestAnimationFrame(this.frame);
@@ -643,10 +770,19 @@ export class Island {
   };
 
   private updateBotTargets() {
+    const shown = this.drawnSize(this.width.value, this.height.value);
     const p = botPosition(
-      State.mode, State.view, this.height.value, isRtl(),
-      islandSize(State.mode, State.view, State.translateH, State.translateW).w,
+      State.mode, State.view, shown.h, isRtl(),
+      this.celebrationLevelNow > 0.001 ? shown.w : islandSize(State.mode, State.view, State.translateH, State.translateW).w,
     );
+    // While celebrating, Ari moves to the middle of the stage and grows — from the
+    // folded capsule too, where he starts small beside the clock.
+    if (this.celebrationLevelNow > 0.001 && (State.mode === "expanded" || State.mode === "compact")) {
+      const k = this.celebrationLevelNow;
+      p.cx += (shown.w / 2 - p.cx) * k;
+      p.cy += (shown.h * 0.7 - p.cy) * k;
+      p.diameter = State.mode === "compact" ? p.diameter + (66 - p.diameter) * k : p.diameter * (1 + 0.55 * k);
+    }
     this.botCx.target = p.cx;
     this.botCy.target = p.cy;
     this.botSize.target = p.diameter / 0.6;
@@ -700,10 +836,17 @@ export class Island {
     }
     // In the wardrobe or settings the hovered outfit swaps in at once, without the drop-in.
     const inWardrobe = State.mode === "expanded" && (State.view === "wardrobe" || State.view === "settings");
-    const outfit = State.wardrobePreview ?? this.seasons.get(parseOutfit(State.settings.ariOutfit));
-    this.engine.setOutfit(outfit, !inWardrobe);
+    // The Football section is Ari's own dressing room: there he wears the favourite team's kit
+    // and nothing else, and everywhere else the kit stays off. The two never mix.
+    const kit = State.mode === "expanded" && State.view === "football" && State.settings.footballKit ? kitForState(Football.state) : null;
+    const outfit = kit ? "none" : State.wardrobePreview ?? this.seasons.get(parseOutfit(State.settings.ariOutfit));
+    this.engine.setOutfit(outfit, !inWardrobe && !kit);
 
-    this.engine.setDancing(islandDances({
+    const cheering = ariCheers(this.celebration, performance.now(), State.mode, State.view);
+    this.engine.cheering = cheering;
+    this.engine.gloomy = ariGloomy(this.celebration, performance.now(), State.mode, State.view);
+    this.engine.kit = kit;
+    this.engine.setDancing(cheering || islandDances({
       music: musicPlaying(Spotify.state), state: State.effectiveState, mode: State.mode, view: State.view,
     }));
     this.engine.update(dt);
@@ -748,7 +891,8 @@ export class Island {
     const greetingActive = expanded && State.view === "greeting";
 
     const live = expanded && !greetingActive;
-    this.contentEl.style.opacity = live ? "1" : "0";
+    // While a goal is celebrated the page behind it fades to a hint, so the banner reads.
+    this.contentEl.style.opacity = live ? String(1 - 0.9 * this.celebrationLevelNow) : "0";
     this.contentEl.style.pointerEvents = live ? "auto" : "none";
     this.header.el.style.pointerEvents = live ? "auto" : "none";
     this.greetingCanvas.style.display = greetingActive ? "block" : "none";
@@ -772,7 +916,7 @@ export class Island {
     // island may take keyboard focus (the field itself asks, on focus).
     if (this.lastSyncedView !== State.view) {
       this.lastSyncedView = State.view;
-      if (State.view === "translate" || State.view === "spotify") {
+      if (State.view === "translate" || State.view === "spotify" || State.view === "football") {
         window.setTimeout(() => {
           if (State.view === this.lastSyncedView) this.views.get(State.view)?.focus?.();
         }, 120);
@@ -786,7 +930,11 @@ export class Island {
     if (State.settings.spotifyEnabled) {
       tasks.push({ id: SPOTIFY_ID, name: "Spotify", color: SPOTIFY_GREEN, state: "idle" });
     }
-    const showGrid = State.mode === "compact";
+    if (State.settings.footballEnabled && State.settings.footballTeamId) {
+      tasks.push({ id: FOOTBALL_ID, name: "Football", color: FOOTBALL_COLOR, state: "idle" });
+    }
+    // The capsule's minis and clock step aside while a show fills the island.
+    const showGrid = State.mode === "compact" && this.celebrationLevelNow < 0.001 && this.celebration == null;
     this.miniGrid.style.opacity = showGrid ? "1" : "0";
     this.capsuleText.style.opacity = showGrid ? "1" : "0";
     if (showGrid) {

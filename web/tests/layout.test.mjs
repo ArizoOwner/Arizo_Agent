@@ -34,7 +34,7 @@ test("the translate view grows with the text and stops at the window", () => {
 });
 
 test("the view list is the translator's own", () => {
-  assert.deepEqual(Object.keys(L.VIEW_LAYOUTS).sort(), ["greeting", "note", "settings", "spotify", "translate", "wardrobe"]);
+  assert.deepEqual(Object.keys(L.VIEW_LAYOUTS).sort(), ["football", "greeting", "note", "settings", "spotify", "translate", "wardrobe"]);
 });
 
 test("Ari: hidden has no opacity, compact sits at the left, expanded follows the view", () => {

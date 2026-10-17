@@ -8,12 +8,12 @@
 
 A Dynamic Island for translation. Ari, a little mascot, watches your cursor; a shortcut swaps the text you just typed for its translation, right where you typed it. Persian ⇄ English out of the box, 100+ languages underneath.
 
-[![Version](https://img.shields.io/badge/version-3.1.0-8b5cf6?logo=github)](https://github.com/ArizoOwner/Arizo_Agent/releases)
+[![Version](https://img.shields.io/badge/version-3.2.0-8b5cf6?logo=github)](https://github.com/ArizoOwner/Arizo_Agent/releases)
 ![Windows 10/11](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4?logo=windows&logoColor=white)
 ![Tauri 2](https://img.shields.io/badge/Tauri-2-FFC131?logo=tauri&logoColor=black)
 ![Rust](https://img.shields.io/badge/Rust-backend-000000?logo=rust)
 ![TypeScript](https://img.shields.io/badge/TypeScript-front%20end-3178C6?logo=typescript&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-114%20passing-22c55e)
+![Tests](https://img.shields.io/badge/tests-177%20passing-22c55e)
 ![No telemetry](https://img.shields.io/badge/telemetry-none-22c55e)
 ![Native Windows](https://img.shields.io/badge/build-native%20Windows-0A84FF)
 ![Code: MIT](https://img.shields.io/badge/code-MIT-green)
@@ -43,11 +43,13 @@ Meet **Ari**: a soft little squircle with two dark eyes that breathes, blinks, f
 - 🧠 **Smart language handling** — auto direction (your first language → your second, anything else → your first; swap with `Ctrl+S`), Persian-aware detection even for sentences full of English technical words, and an idiom polish that swaps literal renderings for the natural equivalent (« سنگ تمام گذاشت » → *spared no effort*, *piece of cake* → « مثل آب خوردن »).
 - 🔁 **Two engines, never empty-handed** — a free **Fast** engine and a language-model **Smart** one. If Smart fails (no key, no network, quota) the translation is made with Fast and you're told why.
 - 🎵 **Spotify in the island** — two ways to listen, and you can use both. **On this PC, with no setup:** the island reads the Spotify desktop app through the Windows media controls and shows the cover, title, artist and timeline, with play/pause, previous/next, seek, shuffle, repeat and Spotify's own volume. **With your account:** connect once (OAuth with PKCE — you paste the Client ID of a free developer app you create and approve access in the browser; there is no client secret) to follow and control playback on your phone or any other device too. Account controls need Spotify Premium; a free account can watch. If both are playing, the account wins unless only this PC is. While a song plays, Ari dances to the beat (112 BPM) with little ♪ notes floating beside — white on the dark island, black on the light one.
-- ✨ **A mini companion for every feature** — Translate, Spotify and Settings each have their own animated, colour-coded miniature in the header. The green one dances with the music.
+- ⚽ **Football for your favourite team** — pick a club or national side once and the island shows its **live score**, the **next matches** (in their own framed card) and the **recent results**, read online (no account, no key). Kick-off dates and times follow your language: **Solar Hijri (شمسی)** in Persian, **Gregorian** in English, with Persian digits. The score is read **every 3 seconds** while your team plays, and **every moment of the match gets its own show**: the island grows into a stage that fits it, Ari reacts, and a matching sound plays — your goals (confetti and balls), goals against (blue drops, a groan, sweat), yellow and red cards for either side, kick-off, half-time, the second half and the final whistle (win, draw or loss). Several events at once play in turn; bigger ones interrupt smaller ones. It works from the compact capsule and even from the fully hidden island.
+- 👕 **Ari in your team's kit** — in the Football section Ari wears the real shirt of your favourite team: Barcelona's blue and garnet stripes, Real Madrid's white with black trim, Juventus, PSG, Milan, Esteghlal… (any other team takes its own colour). The shirt is drawn in 3D with his head — when he looks down or turns, the collar, stripes, badge and number follow and his eyes never sink into it. A switch in Settings turns it off, and everywhere else he keeps his usual outfit.
+- ✨ **A mini companion for every feature** — Translate, Spotify, Football and Settings each have their own animated, colour-coded miniature in the header. The green one dances with the music.
 - 🗣️ **Speech for every language** — including Persian, which Windows has no voice for.
 - 📋 **Bilingual copy, PDF line-break cleaner, searchable history** — copy source + translation together, undo the broken lines from a pasted PDF, and open **History** from inside Translate to star, search and re-translate what you did before. History from 2.x is imported on first launch.
 - 👗 **Dress Ari up** — a wardrobe of hats and accessories (witch hat, party hat, crown, sunglasses, bunny ears…) that also changes with the seasons on its own. Open it from **Settings**, or right-click Ari.
-- 🔊 **29 original sounds** — a soft, synthesized sound for every gesture, all generated from code (`npm run sounds`). Mute or set the volume in Settings.
+- 🔊 **30 original sounds** — a soft, synthesized sound for every gesture, all generated from code (`npm run sounds`). Mute or set the volume in Settings.
 - 🌓 **Looks the part** — dark, light, or follow Windows. Persian (right-to-left, Vazirmatn) or English interface, switched live in **Settings** (`Ctrl+,`).
 - 🔒 **Private by design** — no telemetry, your API key lives in the Windows Credential Manager and never reaches the page.
 - 🪶 **Lightweight** — Rust and the system WebView2 instead of a bundled Chromium. Download the installer or the single-file portable executable from Releases.
@@ -59,6 +61,28 @@ Meet **Ari**: a soft little squircle with two dark eyes that breathes, blinks, f
 <img src="assets/readme/outfits.svg" width="760" alt="Ari trying on hats and accessories">
 
 </div>
+
+## Football
+
+<div align="center">
+
+<img src="assets/readme/football.svg" width="760" alt="The island growing for every moment of a match — kick-off, goal, yellow card, half-time, goal conceded, red card, sent off, full time — while Ari reacts in his team kit">
+
+<br>
+
+<img src="assets/readme/kits.svg" width="760" alt="Ari wearing the kits of Barcelona, Real Madrid, Juventus, Paris Saint-Germain, AC Milan and Esteghlal">
+
+</div>
+
+| Moment | The island | Ari | Sound |
+| :--- | :--- | :--- | :--- |
+| ⚽ Your goal | Grows to a full stage, goal rain, scorer and score | Jumps for joy, stars and hearts | Crowd cheer |
+| 😬 Goal against | Blue drops, the scorer and score | Tired eyes, sweat | A groan |
+| 🟨 Yellow card (yours or theirs) | Falling yellow cards | Surprised, or a wink | Card |
+| 🟥 Red card / opponent sent off | Red cards, a red glow | Droops, or cheers when it is theirs | Card |
+| 🏁 Kick-off, second half | Falling balls | Happy | Whistle |
+| ⏸️ Half-time | A calm teal stage | A wink | Whistle |
+| 🏆 Full time | Win: confetti. Draw: calm. Loss: drops | Cheers, shrugs or droops | Cheer, whistle or groan |
 
 ## Spotify
 
@@ -111,8 +135,8 @@ Download from the [Releases](https://github.com/ArizoOwner/Arizo_Agent/releases)
 
 | File | What it is |
 | :--- | :--- |
-| `Arizo-Agent-Setup-3.1.0.exe` | Installer for the current user — no administrator rights |
-| `Arizo-Agent-3.1.0-Portable.exe` | One executable, runs without installing |
+| `Arizo-Agent-Setup-3.2.0.exe` | Installer for the current user — no administrator rights |
+| `Arizo-Agent-3.2.0-Portable.exe` | One executable, runs without installing |
 | `SHA256SUMS.txt` | Checksums of both |
 
 The installer is **not code-signed**, so Windows SmartScreen shows a warning the first time: click **More info → Run anyway**. The app is open source — read it, or build it yourself.
@@ -126,6 +150,7 @@ The app lives in the notification area. Closing the island only hides it; quit f
 - **Your API key** is kept in the Windows Credential Manager. It is never written to a file and never handed to the page — the interface can only ask whether one exists.
 - Settings and history stay on your PC, in `%APPDATA%\Arizo Translate`. This legacy folder, the credential service and the bundle identifier are intentionally preserved in Arizo-Agent 3.1.0, so upgrades keep your data and API key.
 - Spotify: on this PC the island only reads the media session Windows already shows for the Spotify app and sends it the usual play/pause/skip requests; nothing leaves your computer. The account is optional and used only after you connect it. Its access covers your playback state, playback control and your plan (Premium or free) — nothing else. The token is kept in the Windows Credential Manager, never in a file and never in the page, and **Disconnect** deletes it.
+- Football: the island asks ESPN's public football data for your team's id (and, for a live game, its league and day) — nothing about you is sent, no account or key is involved, and the team you chose is only stored in your settings file. Turn it off in Settings and nothing is requested.
 - Your clipboard is borrowed for a moment to read a selection or paste a translation, and given back (text and images).
 
 ## Build from source
