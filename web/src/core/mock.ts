@@ -4,7 +4,9 @@
 
 import { DEFAULT_SETTINGS, mergeSettings, type Settings, type SettingsPatch } from "./state";
 import type { HistoryItem } from "./history-logic";
+import type { TranslateData } from "./bridge";
 import { IDLE_SPOTIFY, withPlaying, type SpotifyState } from "./spotify";
+import { IDLE_CRYPTO, type CryptoState } from "./crypto";
 import { IDLE_FOOTBALL, POPULAR_TEAMS, type FootballMatch, type FootballState, type FootballTeamHit } from "./football";
 import { autoTarget, detectLanguageClient } from "./text";
 
@@ -71,6 +73,35 @@ export function mockFootball(extra: Partial<FootballState> = {}, live = football
   mockEmit("football", football);
 }
 
+let crypto: CryptoState = { ...IDLE_CRYPTO, enabled: settings.cryptoEnabled, phase: "setup" };
+
+/** Browser-only sample prices (only after a token was "connected"); never an exchange. */
+export function mockCrypto(patch: Partial<CryptoState> = {}): CryptoState {
+  const hasCredential = patch.hasCredential ?? crypto.hasCredential;
+  const asset = settings.cryptoAsset;
+  const quote = settings.cryptoQuote;
+  const usd = asset === "USDT" ? 1 : asset === "BTC" ? 68500 : asset === "ETH" ? 3400 : 150;
+  const price = usd * (quote === "IRT" ? 70000 : 1);
+  const now = Math.floor(Date.now() / 60_000) * 60_000;
+  const candles = hasCredential ? Array.from({ length: 40 }, (_, i) => {
+    const wave = Math.sin(i / 3) * price * 0.002;
+    const o = price + wave, c = price + Math.sin((i + 1) / 3) * price * 0.002;
+    return { t: now - (39 - i) * 60_000, o, h: Math.max(o, c) * 1.0006, l: Math.min(o, c) * 0.9994, c, v: 5 + (i % 7) };
+  }) : [];
+  crypto = {
+    ...crypto, ...patch,
+    enabled: settings.cryptoEnabled, provider: settings.cryptoProvider, hasCredential, asset, quote,
+    phase: !settings.cryptoEnabled ? "off" : hasCredential ? "live" : "setup",
+    timeframe: (patch.timeframe ?? settings.cryptoTimeframe ?? "1m") as any,
+    ticker: hasCredential ? { price, open: price * 0.99, high: price * 1.02, low: price * 0.98, change: 1.25, volume: 1.8e9 } : null,
+    candles,
+    assets: hasCredential ? [...(quote === "IRT" ? ["USDT"] : []), "BTC", "ETH", "SOL", "TON", "BNB", "XRP", "DOGE", "ADA", "TRX", "AVAX", "LINK", "LTC"].map((a, i) => ({ asset: a, price: (a === "USDT" ? 1 : 68500 / (i + 1)) * (quote === "IRT" ? 70000 : 1), change: 1.1 - i * 0.3, volume: 1e9 / (i + 1) })) : [],
+    updatedAt: hasCredential ? Date.now() : 0, seq: crypto.seq + 1,
+  };
+  mockEmit("crypto", crypto);
+  return crypto;
+}
+
 /** Browser-only sample player; never talks to the real Spotify app. */
 export function mockSpotify(state: Partial<SpotifyState>) {
   spotify = { ...spotify, ...state, enabled: settings.spotifyEnabled };
@@ -97,7 +128,10 @@ async function translate(p: Params) {
   const target = p.targetLang === "auto"
     ? autoTarget(detected, settings.nativeLang, settings.secondLang)
     : p.targetLang;
-  const full = `[mock] ${p.text}`;
+  // Scripts that record the README animations can answer with real-looking translations.
+  const demo = (globalThis as { __demoTranslate?: (text: string, engine: string, target: string) => Partial<TranslateData> | null })
+    .__demoTranslate?.(p.text, p.engine, target) ?? null;
+  const full = demo?.translation ?? `[mock] ${p.text}`;
   // A few streamed partials, like the smart engine's tokens.
   const steps = 4;
   for (let i = 1; i <= steps; i++) {
@@ -112,7 +146,7 @@ async function translate(p: Params) {
     ? { code: "MISSING_API_KEY", message: "No key" }
     : null;
   const usedSmart = smart && !warning;
-  const data = {
+  const data: TranslateData = {
     translation: full,
     translit: target === "fa" ? "[mock] tarjome" : "",
     alternatives: [
@@ -131,6 +165,7 @@ async function translate(p: Params) {
     critiqueNotes: usedSmart ? "A natural, neutral tone was used." : "",
     toneUsed: p.tone ?? "auto",
     engine: usedSmart ? "aphra" : "google",
+    ...(demo ?? {}),
   };
   if (settings.saveHistory) {
     history = [{
@@ -145,7 +180,7 @@ export async function mockInvoke(cmd: string, args: Record<string, unknown> = {}
   switch (cmd) {
     case "boot":
       return {
-        settings, version: "3.2.0", cursorPoll: false,
+        settings, version: "3.3.0", cursorPoll: false,
         screen: { x: 0, y: 0, width: 1920, height: 1080, scale: 1 },
       };
     case "get_settings":
@@ -245,6 +280,29 @@ export async function mockInvoke(cmd: string, args: Record<string, unknown> = {}
       return "Hello world, this text came from the clipboard.";
     case "capture_selected_text":
       return "";
+    case "crypto_state":
+      return crypto;
+    case "crypto_connect": {
+      // The browser has no exchange: a token is accepted so the screens can be seen, with sample prices.
+      const token = String(args.token ?? "").trim();
+      if (!token) throw new Error("invalid_input");
+      if (!args.secret) throw new Error("secret_required");
+      settings = { ...settings, cryptoProvider: args.provider === "binance" || args.provider === "toobit" ? args.provider : "nobitex", cryptoEnabled: true };
+      mockEmit("settings-changed", settings);
+      return mockCrypto({ hasCredential: true });
+    }
+    case "crypto_disconnect":
+      return mockCrypto({ hasCredential: false });
+    case "crypto_select":
+      settings = { ...settings, cryptoAsset: String(args.asset), cryptoQuote: args.quote === "IRT" ? "IRT" : "USDT" };
+      mockEmit("settings-changed", settings);
+      return mockCrypto({});
+    case "crypto_set_timeframe":
+      settings = { ...settings, cryptoTimeframe: args.timeframe as any };
+      mockEmit("settings-changed", settings);
+      return mockCrypto({ timeframe: args.timeframe as any });
+    case "crypto_active":
+      return null;
     case "list_monitors":
       return [{ key: "at:0,0", label: "Display 1 (1920×1080)" }];
     default:

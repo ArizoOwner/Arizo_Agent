@@ -89,6 +89,7 @@ export class Island {
 
   private confusedRecovery: number | null = null;
   private lastSyncedView: IslandViewName | null = null;
+  private cryptoReported = false;
   private toastTimer: number | null = null;
 
   // The goal celebration: the island grows, rains balls and confetti, then returns.
@@ -910,6 +911,13 @@ export class Island {
       const on = name === State.view;
       view.el.classList.toggle("on", on);
       if (on) view.sync();
+    }
+
+    // The backend reads prices only while the crypto section is on screen.
+    const cryptoOnScreen = expanded && State.view === "crypto";
+    if (cryptoOnScreen !== this.cryptoReported) {
+      this.cryptoReported = cryptoOnScreen;
+      void Bridge.cryptoActive(cryptoOnScreen);
     }
 
     // The translate and history views have a text field: while one is up the

@@ -141,9 +141,9 @@ select.chip option {
 .src-action-btn {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 4px 10px;
-  font: 500 11.5px var(--font);
+  gap: 4px;
+  padding: 3px 8px;
+  font: 500 11px var(--font);
   border-radius: 999px;
   border: 0;
   background: rgb(var(--fg) / 0.08);
@@ -195,9 +195,20 @@ select.chip option {
 .src-bar {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   min-height: 26px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.src-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.src-bar .grow {
+  flex: 1 1 0px;
+  min-width: 0;
 }
 
 .counter {

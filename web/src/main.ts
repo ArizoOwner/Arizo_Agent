@@ -5,11 +5,13 @@ import "./translate.css";
 import "./views/select.css";
 import "./views/spotify.css";
 import "./views/football.css";
+import "./views/crypto.css";
 import { Bridge, IS_MOCK, IS_TAURI, onEvent } from "./core/bridge";
 import { Sound } from "./core/sound";
 import { State, mergeSettings, type Settings } from "./core/state";
 import { parseEngine } from "./core/pills";
 import { IDLE_SPOTIFY, Spotify, type SpotifyState } from "./core/spotify";
+import { setCryptoState, type CryptoState } from "./core/crypto";
 import { Football, IDLE_FOOTBALL, setFootballState, type FootballState } from "./core/football";
 import { toast } from "./core/toast";
 import { Island } from "./island/island";
@@ -108,6 +110,13 @@ async function main() {
   void Bridge.footballRefresh().then((state) => {
     if (state && State.settings.footballEnabled) Football.state = state;
     State.notify();
+  });
+
+  await onEvent<CryptoState>("crypto", (state) => {
+    if (setCryptoState(state)) State.notify();
+  });
+  void Bridge.cryptoState().then((state) => {
+    if (state && setCryptoState(state)) State.notify();
   });
 
   island.launch();

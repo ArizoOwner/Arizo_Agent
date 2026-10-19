@@ -90,3 +90,55 @@
 .spotify-client:focus-visible { box-shadow: 0 0 0 2px var(--spotify-accent); }
 .spotify-client:disabled { opacity: .55; }
 .spotify-account { color: var(--dim-3); font-size: 9.5px; max-width: 55%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ── Day / Light Mode Theme Overrides ────────────────────────────────────── */
+
+:root[data-theme="light"] .spotify-view .spotify-control {
+  color: var(--ink-2, #1d2026);
+}
+
+:root[data-theme="light"] .spotify-view .spotify-control:hover:not(:disabled) {
+  color: var(--ink-strong, #0b0c0e);
+  background: rgb(var(--fg) / 0.08);
+}
+
+:root[data-theme="light"] .spotify-view .spotify-control.spotify-play {
+  background: #16a34a;
+  color: #ffffff;
+}
+
+:root[data-theme="light"] .spotify-view .spotify-control.spotify-play:hover:not(:disabled) {
+  background: #15803d;
+  color: #ffffff;
+}
+
+:root[data-theme="light"] .spotify-view .spotify-cover {
+  background: var(--card-flat, #f1f3f6);
+  border: 1px solid rgb(var(--fg) / 0.08);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+:root[data-theme="light"] .spotify-view .spotify-brand {
+  color: #16a34a;
+}
+
+:root[data-theme="light"] .spotify-view .spotify-range {
+  accent-color: #16a34a;
+}
+
+:root[data-theme="light"] .spotify-view .spotify-client {
+  background: #ffffff;
+  border: 1px solid rgb(var(--fg) / 0.15);
+  color: var(--ink);
+}
+
+:root[data-theme="light"] .spotify-view .spotify-redirect {
+  background: var(--card-flat, #f1f3f6);
+  border: 1px solid rgb(var(--fg) / 0.12);
+  color: var(--ink);
+}
+
+:root[data-theme="light"] .spotify-view .spotify-empty-action {
+  background: #16a34a;
+  color: #ffffff;
+}

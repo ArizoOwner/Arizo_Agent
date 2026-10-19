@@ -16,7 +16,7 @@ export function layoutArt(u) {
 
   // ───────────────────────────────────────────── header
   function header() {
-    const W = 1200, H = 560, LOOP = 30;
+    const W = 1200, H = 560, LOOP = 32;
     // Seven features, each owns a slot of the loop: the island shows its name, Ari wears its look.
     const F = [
       { en: "Translate anywhere", fa: "ترجمه در هر جا", c: BLUE, icon: "T", sub: "Alt+Shift+D replaces your text in place" },
@@ -25,6 +25,7 @@ export function layoutArt(u) {
       { en: "Spotify player", fa: "پخش‌کننده‌ی اسپاتیفای", c: GREEN, icon: "♪", sub: "Cover, controls, Ari dances to the beat" },
       { en: "Live football", fa: "فوتبال زنده", c: TEAL, icon: "⚽", sub: "A show for every goal, card and whistle" },
       { en: "Team kits", fa: "پیراهن تیم‌ها", c: AMBER, icon: "👕", sub: "Ari wears your team's real shirt" },
+      { en: "Live crypto", fa: "ارز دیجیتال زنده", c: "#f59e0b", icon: "₿", sub: "Live prices and candles from your own exchange" },
       { en: "Wardrobe &amp; seasons", fa: "کمد لباس و فصل‌ها", c: "#fb923c", icon: "🎩", sub: "Hats, glasses, crowns — and the seasons" },
     ];
     const N = F.length, SLOT = LOOP / N;
@@ -50,6 +51,7 @@ export function layoutArt(u) {
         case 3: return `<g transform="translate(0 -88)"><path d="M-70 14 C-70 -50 70 -50 70 14" fill="none" stroke="#e5e7eb" stroke-width="10" stroke-linecap="round"/><rect x="-92" y="-10" width="30" height="48" rx="12" fill="#1f2937" stroke="${GREEN}" stroke-width="4"/><rect x="62" y="-10" width="30" height="48" rx="12" fill="#1f2937" stroke="${GREEN}" stroke-width="4"/></g>`;
         case 4: return `<g transform="translate(60 70)"><circle r="22" fill="#fff"/><path d="M0-12 9-4 6 8H-6L-9-4Z" fill="#1f2937"/></g>`;
         case 5: return `<g transform="translate(0 -88)"><path d="M-86 -52 Q0 -86 86 -52 L84 -40 Q0 -72 -84 -40Z" fill="#A50044" stroke="#EDBB00" stroke-width="2"/></g>`;
+        case 6: return `<g transform="translate(0 -92)"><circle cx="0" cy="-8" r="30" fill="#F7931A" stroke="#fff" stroke-opacity=".7" stroke-width="3"/><text x="0" y="3" text-anchor="middle" font-size="34" font-weight="900" fill="#fff">₿</text><g class="spark"><path d="M44-34 L47-26 55-23 47-20 44-12 41-20 33-23 41-26Z" fill="#fff"/></g></g>`;
         default: return `<g transform="translate(0 -86)"><ellipse cx="0" cy="6" rx="112" ry="19" fill="#5b21b6"/><path d="M-62 4 C-40 -20 -22 -70 6 -128 C12 -90 38 -40 62 4Z" fill="#7c3aed"/><path d="M-62 4 Q0 20 62 4 L58 -10 Q0 4 -58 -10Z" fill="#f97316"/></g>`;
       }
     };
@@ -71,7 +73,7 @@ export function layoutArt(u) {
     // Floating feature glyphs around Ari
     const orbit = [
       ["⚡", 190, 250, BLUE, 0], ["✦", 1010, 230, VIOLET, 1.2], ["♪", 250, 140, GREEN, 2.1], ["⚽", 960, 140, TEAL, 0.7],
-      ["👕", 150, 360, AMBER, 1.7], ["🎩", 1060, 360, "#fb923c", 2.6],
+      ["👕", 150, 360, AMBER, 1.7], ["🎩", 1060, 360, "#fb923c", 2.6], ["₿", 330, 400, "#f59e0b", 3.1],
     ].map(([g, x, y, c, d]) => `<g transform="translate(${x} ${y})"><g class="drift" style="animation-delay:${d}s"><circle r="26" fill="${c}" opacity=".14"/><circle r="26" fill="none" stroke="${c}" stroke-opacity=".5"/><text y="9" text-anchor="middle" font-size="24" style="font-family:'Segoe UI Emoji','Apple Color Emoji',sans-serif">${g}</text></g></g>`).join("");
 
     const body = `
@@ -152,6 +154,7 @@ ${stars(18, W, H, name.length + 9)}
     translate: { en: "Translate anywhere", fa: "ترجمه در هر جا", c: BLUE, c2: VIOLET, icon: "🌐", art: "Type, paste, select — the island answers without taking your focus" },
     spotify: { en: "Spotify, in the island", fa: "اسپاتیفای در جزیره", c: GREEN, c2: TEAL, icon: "🎵", art: "Cover, timeline and controls — and Ari dances to the beat" },
     football: { en: "Live football", fa: "فوتبال زنده", c: TEAL, c2: "#34d399", icon: "⚽", art: "Every goal, card and whistle gets its own show" },
+    crypto: { en: "Live crypto", fa: "ارز دیجیتال زنده", c: "#f59e0b", c2: "#fbbf24", icon: "₿", art: "Prices and candles from your own exchange — Nobitex, Binance or Toobit" },
     wardrobe: { en: "Ari's wardrobe", fa: "کمد لباس آری", c: "#fb923c", c2: ROSE, icon: "🎩", art: "Hats, glasses and crowns — and the seasons dress him on their own" },
     engines: { en: "Two engines", fa: "دو موتور ترجمه", c: VIOLET, c2: BLUE, icon: "✦", art: "Fast and free, or Smart with tone, idioms and alternatives" },
     start: { en: "Get started", fa: "شروع کنید", c: AMBER, c2: ROSE, icon: "🚀", art: "Install in seconds — no administrator rights, no account" },
@@ -161,7 +164,7 @@ ${stars(18, W, H, name.length + 9)}
 
   // ───────────────────────────────────────────── feature cards (an animated grid)
   function cards() {
-    const W = 1200, H = 540;
+    const W = 1200, H = 744;
     const items = [
       ["⚡", "Translate in place", "ترجمه در محل", "Alt+Shift+D swaps your text for its translation in any app", BLUE],
       ["🎯", "Quick bubble", "حباب سریع", "Select text anywhere — a button appears by the cursor", ROSE],
@@ -170,6 +173,10 @@ ${stars(18, W, H, name.length + 9)}
       ["🎵", "Spotify player", "پخش‌کننده", "On this PC with no setup, or your account on any device", GREEN],
       ["⚽", "Live football", "فوتبال زنده", "Score every 3 s, a show for every moment of the match", TEAL],
       ["👕", "Your team's kit", "پیراهن تیم شما", "Ari wears the real shirt, drawn in 3D with his head", AMBER],
+      ["₿", "Live crypto prices", "قیمت زنده", "Your own exchange: Nobitex, Binance or Toobit", "#f59e0b"],
+      ["📈", "Candles, 1m to 1d", "کندل و تایم‌فریم", "A candlestick chart and a timeframe dropdown", "#fb7185"],
+      ["⭐", "Favourite coins", "ارزهای موردعلاقه", "Star the coins you follow, pick one as the default", "#fbbf24"],
+      ["🔑", "Read-only API key", "کلید فقط‌خواندنی", "Locked in the Windows Credential Manager", "#34d399"],
       ["👗", "Wardrobe &amp; seasons", "کمد لباس", "Hats and accessories — and the seasons dress him alone", "#fb923c"],
       ["🗣️", "Speech", "گفتار", "Reads the translation aloud — including Persian", "#a3e635"],
       ["📋", "History &amp; clipboard", "تاریخچه", "Star, search, bilingual copy, PDF line-break cleaner", "#f0abfc"],
@@ -212,7 +219,7 @@ ${tiles}`;
       ["1", "Download", "دانلود", "Installer or portable exe from Releases", "⬇️", BLUE],
       ["2", "Run", "اجرا", "No administrator rights, no account", "▶️", VIOLET],
       ["3", "Meet Ari", "آری را ببینید", "He lives at the top of your screen", "👋", AMBER],
-      ["4", "Press Alt+D", "Alt+D", "Translate, play music, follow your team", "✨", GREEN],
+      ["4", "Press Alt+D", "Alt+D", "Translate, play music, watch the market", "✨", GREEN],
     ];
     const cw = 250, gap = 40, x0 = 40;
     const tiles = S.map(([n, en, fa, sub, ic, c], i) => {

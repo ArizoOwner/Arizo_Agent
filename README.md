@@ -1,24 +1,24 @@
 <div align="center">
 
-<img src="assets/readme/header.svg" width="100%" alt="Arizo-Agent — Ari, a tiny friend at the top of your Windows screen, shows translation, the two engines, the quick bubble, Spotify, live football, team kits and the wardrobe">
+<img src="assets/readme/header.svg" width="100%" alt="Arizo-Agent — Ari, a tiny friend at the top of your Windows screen, shows translation, the two engines, the quick bubble, Spotify, live football, team kits, live crypto prices and the wardrobe">
 
 <br>
 
-[![Version](https://img.shields.io/badge/version-3.2.0-8b5cf6?logo=github)](https://github.com/ArizoOwner/Arizo_Agent/releases)
+[![Version](https://img.shields.io/badge/version-3.3.0-8b5cf6?logo=github)](https://github.com/ArizoOwner/Arizo_Agent/releases)
 ![Windows 10/11](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4?logo=windows&logoColor=white)
 ![Tauri 2](https://img.shields.io/badge/Tauri-2-FFC131?logo=tauri&logoColor=black)
 ![Rust](https://img.shields.io/badge/Rust-backend-000000?logo=rust)
 ![TypeScript](https://img.shields.io/badge/TypeScript-front%20end-3178C6?logo=typescript&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-177%20passing-22c55e)
+![Tests](https://img.shields.io/badge/tests-209%20passing-22c55e)
 ![No telemetry](https://img.shields.io/badge/telemetry-none-22c55e)
 ![Code: MIT](https://img.shields.io/badge/code-MIT-green)
 [![GitHub stars](https://img.shields.io/github/stars/ArizoOwner/Arizo_Agent?style=social)](https://github.com/ArizoOwner/Arizo_Agent/stargazers)
 
 **🌐 Language:** English • [فارسی](README.fa.md)
 
-**A Dynamic Island for your Windows desktop. It translates anything, plays your music, follows your football team — and a little mascot named Ari keeps you company.**
+**A Dynamic Island for your Windows desktop. It translates anything, plays your music, follows your football team, watches your crypto prices — and a little mascot named Ari keeps you company.**
 
-[⬇️ Download](https://github.com/ArizoOwner/Arizo_Agent/releases) • [Features](#everything-in-one-look) • [Translate](#translate-anywhere) • [Spotify](#spotify-in-the-island) • [Football](#live-football) • [Wardrobe](#aris-wardrobe) • [Shortcuts](#keyboard-shortcuts) • [Install](#get-started) • [Privacy](#private-by-design) • [Build](#for-developers)
+[⬇️ Download](https://github.com/ArizoOwner/Arizo_Agent/releases) • [Features](#everything-in-one-look) • [Translate](#translate-anywhere) • [Spotify](#spotify-in-the-island) • [Football](#live-football) • [Crypto](#live-crypto) • [Wardrobe](#aris-wardrobe) • [Shortcuts](#keyboard-shortcuts) • [Install](#get-started) • [Privacy](#private-by-design) • [Build](#for-developers)
 
 <img src="assets/readme/marquee.svg" width="100%" alt="">
 
@@ -28,7 +28,7 @@
 
 <div align="center">
 
-<img src="assets/readme/cards.svg" width="100%" alt="Translate in place, quick bubble, smart language handling, never empty-handed, Spotify player, live football, your team's kit, wardrobe and seasons, speech, history, 30 original sounds, private and light">
+<img src="assets/readme/cards.svg" width="100%" alt="Translate in place, quick bubble, smart language handling, never empty-handed, Spotify player, live football, your team's kit, live crypto prices, candles from 1m to 1d, favourite coins, a read-only API key, wardrobe and seasons, speech, history, 30 original sounds, private and light">
 
 </div>
 
@@ -122,6 +122,46 @@ In the Football section Ari wears the **real shirt of your favourite team**: Bar
 
 </div>
 
+<img src="assets/readme/banner-crypto.svg" width="100%" alt="Live crypto">
+
+## Live crypto
+
+<div align="center">
+
+<img src="docs/media/crypto-en.gif" width="720" alt="Connecting an exchange, picking Tether and Bitcoin, starring favourites, choosing a timeframe and switching the price to Toman">
+
+</div>
+
+**New in 3.3.** Connect **your own exchange account** once and the island shows the **live price** of any coin, a **candlestick chart** and your **favourite coins** — read straight from the exchange, with no middleman and no invented numbers. Nothing is shown until the exchange has accepted your key.
+
+<div align="center">
+
+<img src="assets/readme/crypto.svg" width="760" alt="The crypto section for Bitcoin and Ethereum in dollars and for Bitcoin in Toman, with a live price, a candlestick chart, a timeframe dropdown and favourite coins">
+
+</div>
+
+- 🏦 **Your exchange, your key.** Pick **Nobitex**, **Binance** or **Toobit** and paste a **read-only** API key. The app only reads: it never trades, withdraws or places an order.
+- 📈 **Candles, from one minute to one day.** A candlestick (or line) chart with volume, a hover crosshair and the open, high, low and close of each candle — plus the 24-hour high, low and volume. Choose the **timeframe from a dropdown**: 1m, 5m, 15m, 1h, 4h or 1d.
+- 🪙 **The coin list comes from the exchange.** Every coin the exchange lists, with its price and change, is searchable in the dropdown, and the **coin icons are loaded online** (with a drawn fallback if one is missing).
+- ⭐ **Favourites and a default coin.** Star the coins you follow (up to 40); they sit in a bar under the picker for one-click switching. Mark one as the **default**: it is the first coin the island shows every time it starts.
+- 💵 **Toman as `T`, dollars as `$`.** On Nobitex the price toggles between Toman — written `4,795,000,000 T` on one line, with the chart axis in millions — and USDT. **Tether** is in the list too.
+- 🌓 **Made to match.** Light and dark themes, and the Persian interface lays everything out right-to-left with firm digits in Vazirmatn.
+- 🔋 **Quiet when you don't look.** Prices are read **only while the Crypto section is on screen** (every 5 s on Nobitex, 3 s on Toobit, 2 s on Binance), then the app goes back to sleep.
+
+<div align="center">
+
+<img src="assets/readme/crypto-flow.svg" width="100%" alt="Connect your exchange, pick a coin, star your favourites, choose a timeframe — Nobitex, Binance or Toobit">
+
+</div>
+
+| Exchange | Your key | Prices in |
+| :--- | :--- | :--- |
+| **Nobitex** | Public key + private key (*Account → API services*, read access). Every request is signed with Ed25519; the private key is shown only once, when you create it | Toman and USDT |
+| **Binance** | API key + secret (read-only), signed with HMAC-SHA256 | USDT |
+| **Toobit** | API key + secret (read-only), signed with HMAC-SHA256 | USDT |
+
+On Nobitex, Tether trades only against the Toman, so it shows its Toman price (Nobitex publishes no candles for it, so only the live price and the 24-hour figures appear). Keys can be changed or removed any time with **Change API**, and the whole section can be switched off in **Settings**.
+
 <img src="assets/readme/banner-wardrobe.svg" width="100%" alt="Ari's wardrobe">
 
 ## Ari's wardrobe
@@ -145,7 +185,7 @@ Hats and accessories — witch hat, party hat, crown, sunglasses, bunny ears… 
 
 </div>
 
-- ✨ **A mini companion for every feature.** Translate, Spotify, Football and Settings each have their own animated, colour-coded miniature in the header. The green one dances with the music.
+- ✨ **A mini companion for every feature.** Translate, Spotify, Football, Crypto and Settings each have their own animated, colour-coded miniature in the header. The green one dances with the music.
 - 🔊 **30 original sounds** — a soft, synthesized sound for every gesture, all generated from code (`npm run sounds`). Mute or set the volume in Settings.
 - 🌓 **Looks the part** — dark, light, or follow Windows. Persian (right-to-left, Vazirmatn) or English interface, switched live.
 - 🪶 **Lightweight** — Rust and the system WebView2 instead of a bundled Chromium.
@@ -180,8 +220,8 @@ Download from the [Releases](https://github.com/ArizoOwner/Arizo_Agent/releases)
 
 | File | What it is |
 | :--- | :--- |
-| `Arizo-Agent-Setup-3.2.0.exe` | Installer for the current user — no administrator rights |
-| `Arizo-Agent-3.2.0-Portable.exe` | One executable, runs without installing |
+| `Arizo-Agent-Setup-3.3.0.exe` | Installer for the current user — no administrator rights |
+| `Arizo-Agent-3.3.0-Portable.exe` | One executable, runs without installing |
 | `SHA256SUMS.txt` | Checksums of both |
 
 The installer is **not code-signed**, so Windows SmartScreen shows a warning the first time: click **More info → Run anyway**. The app is open source — read it, or build it yourself.
@@ -200,6 +240,7 @@ The app lives in the notification area. Closing the island only hides it; quit f
 - Settings and history stay on your PC, in `%APPDATA%\Arizo Translate`. This legacy folder, the credential service and the bundle identifier are intentionally preserved, so upgrades keep your data and API key.
 - Spotify: on this PC the island only reads the media session Windows already shows for the Spotify app and sends it the usual play/pause/skip requests; nothing leaves your computer. The account is optional and used only after you connect it. Its access covers your playback state, playback control and your plan (Premium or free) — nothing else. The token is kept in the Windows Credential Manager, never in a file and never in the page, and **Disconnect** deletes it.
 - Football: the island asks ESPN's public football data for your team's id (and, for a live game, its league and day) — nothing about you is sent, no account or key is involved, and the team you chose is only stored in your settings file. Turn it off in Settings and nothing is requested.
+- Crypto: you bring your own exchange key. It is kept in the Windows Credential Manager (one entry per exchange), never in a file and never in the page, and **Change API** deletes it. The app only sends read requests — prices, candles and a check that the key works — straight to the exchange you chose (Nobitex, Binance or Toobit); there is no server of ours in between, and prices are only requested while the Crypto section is on screen. Turn the section off in Settings and nothing is requested.
 - Your clipboard is borrowed for a moment to read a selection or paste a translation, and given back (text and images).
 
 <img src="assets/readme/banner-dev.svg" width="100%" alt="For developers">
@@ -221,7 +262,7 @@ npm run pack           # installer + portable exe + checksums in release/
 ```
 web/                      the island, the bubble and the settings window
   src/ari/                Ari: the engine, the wardrobe, the outfits
-  src/views/              translate, history, settings, the themed dropdown
+  src/views/              translate, history, settings, crypto, the themed dropdown
   src/core/               state, bridge, theme, sound, layout…
 src-tauri/src/            Rust backend
   lib.rs                  windows, tray, shortcuts, the commands the page calls
@@ -229,6 +270,7 @@ src-tauri/src/            Rust backend
   google.rs  aphra.rs     the two engines        translator.rs  cache, fallback, history
   langs.rs  idioms.rs     detection and polish   store.rs       settings, history, API key
   textutil.rs  tts.rs     chunking and speech
+  crypto.rs               the exchanges: signed requests, prices, candles, the poller
 scripts/                  icon + sound generators, packaging, README art (npm run readme-art)
 ```
 

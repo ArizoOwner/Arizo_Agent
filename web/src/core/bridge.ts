@@ -9,6 +9,7 @@ import type { Settings, SettingsPatch } from "./state";
 import type { HistoryItem } from "./history-logic";
 import type { SpotifyState } from "./spotify";
 import type { FootballState, FootballTeamHit } from "./football";
+import type { CryptoState } from "./crypto";
 import { mockInvoke, mockListen } from "./mock";
 
 export const IS_TAURI =
@@ -195,6 +196,18 @@ export const Bridge = {
   /** A crest as a data URL, or null when there is none. */
   footballLogo: (id: string) => call<string | null>("football_logo", { id }),
 
+  // ── Crypto ────────────────────────────────────────────────────────────────
+  cryptoState: () => call<CryptoState>("crypto_state"),
+  /** Checks the credentials with the exchange; rejects with a short code (see CRYPTO_ERRORS). */
+  cryptoConnect: (provider: string, token: string, secret?: string) =>
+    callOrThrow<CryptoState>("crypto_connect", { provider, token, secret: secret ?? null }),
+  /** Forgets the stored credentials of the exchange in use. */
+  cryptoDisconnect: () => callOrThrow<CryptoState>("crypto_disconnect"),
+  cryptoSelect: (asset: string, quote: string) => callOrThrow<CryptoState>("crypto_select", { asset, quote }),
+  cryptoSetTimeframe: (timeframe: string) => callOrThrow<CryptoState>("crypto_set_timeframe", { timeframe }),
+  /** Whether the crypto section is on screen: nothing is read while it is not. */
+  cryptoActive: (active: boolean) => call<void>("crypto_active", { active }),
+
   // ── History ───────────────────────────────────────────────────────────────
   getHistory: () => call<HistoryItem[]>("get_history"),
   clearHistory: () => call<void>("clear_history"),
@@ -225,6 +238,7 @@ export type BridgeEvent =
   | { name: "screen-changed"; payload: null }
   | { name: "settings-changed"; payload: Settings }
   | { name: "spotify"; payload: SpotifyState }
+  | { name: "crypto"; payload: CryptoState }
   | { name: "captured-text"; payload: string }
   | { name: "toast"; payload: string }
   | { name: "translate-partial"; payload: { requestId: number; text: string } }

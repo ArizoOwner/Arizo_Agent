@@ -11,3 +11,15 @@ src-tauri/gen/
 .env
 .env.*
 !.env.example
+
+# Security & sensitive files
+*.key
+*.pem
+*.pfx
+*.cert
+*.token
+*.db
+*.sqlite
+*.log
+.DS_Store
+Thumbs.db

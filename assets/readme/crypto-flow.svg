@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 352" width="1200" height="352" role="img" aria-label="Connect your exchange, pick a coin, star your favourites, choose a timeframe — Nobitex, Binance or Toobit">
+
+<style>
+  text{font-family:'Segoe UI','Inter',system-ui,-apple-system,Arial,sans-serif}
+  .float{animation:float 5s ease-in-out infinite}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+  .breathe{transform-box:fill-box;transform-origin:50% 100%;animation:breathe 4s ease-in-out infinite}
+  @keyframes breathe{0%,100%{transform:scale(1,1)}50%{transform:scale(1.025,.972)}}
+  .eye{transform-box:fill-box;transform-origin:center;animation:blink 5s infinite}
+  @keyframes blink{0%,91%,100%{transform:scaleY(1)}94%{transform:scaleY(.08)}}
+  .look{animation:look 9s ease-in-out infinite}
+  @keyframes look{0%,100%{transform:translate(0,0)}15%{transform:translate(-14px,3px)}35%{transform:translate(12px,-3px)}55%{transform:translate(0,6px)}75%{transform:translate(8px,2px)}}
+  .spark{transform-box:fill-box;transform-origin:center;animation:spark 3s ease-in-out infinite}
+  @keyframes spark{0%,100%{transform:scale(.2) rotate(0);opacity:0}50%{transform:scale(1) rotate(45deg);opacity:1}}
+  .drift{animation:drift 7s ease-in-out infinite}
+  @keyframes drift{0%,100%{transform:translate(0,0)}50%{transform:translate(0,-14px)}}
+  .twinkle{animation:twinkle 4s ease-in-out infinite}
+  @keyframes twinkle{0%,100%{opacity:.15}50%{opacity:.9}}
+  .pair{transform-box:fill-box;transform-origin:center;animation:pair 9s infinite both;opacity:0}
+  @keyframes pair{0%{opacity:0;transform:scale(.7) translateY(10px)}4%{opacity:1;transform:scale(1.04) translateY(0)}6%{transform:scale(1)}29%{opacity:1;transform:scale(1)}33%{opacity:0;transform:scale(.9) translateY(-8px)}100%{opacity:0}}
+
+  .st{opacity:0;animation:st 8s ease-out infinite both}
+  @keyframes st{0%{opacity:0;transform:translateY(14px)}8%,94%{opacity:1;transform:translateY(0)}100%{opacity:1}}
+  .arrow{animation:arrow 1.4s ease-in-out infinite}
+  @keyframes arrow{0%,100%{transform:translateX(-3px);opacity:.35}50%{transform:translateX(4px);opacity:1}}
+</style>
+<rect width="1200" height="352" rx="26" fill="#0b0b13" stroke="#ffffff14"/>
+
+  <g transform="translate(40 34)"><g class="st" style="animation-delay:0.0s">
+    <rect width="250" height="172" rx="22" fill="#12121c" stroke="#f59e0b" stroke-opacity=".45"/>
+    <circle cx="40" cy="40" r="22" fill="#f59e0b"/><text x="40" y="48" text-anchor="middle" font-size="22" font-weight="900" fill="#0b0b12">1</text>
+    <text x="226" y="52" text-anchor="end" font-size="30" style="font-family:'Segoe UI Emoji','Apple Color Emoji',sans-serif">🔑</text>
+    <text x="24" y="86" font-size="17" font-weight="800" fill="#fff">Connect your exchange</text>
+    <text x="226" y="108" text-anchor="end" font-size="13.5" fill="#f59e0b" style="font-family:Vazirmatn,Tahoma,'Segoe UI',sans-serif">اتصال به صرافی</text>
+    <text x="24" y="134" font-size="12.5" fill="#aab0c8">Paste a read-only API key — it</text><text x="24" y="151" font-size="12.5" fill="#aab0c8">is checked, then locked away</text>
+  </g></g>
+  <g transform="translate(310 120)"><path class="arrow" d="M-8-8 L6 0 -8 8" fill="none" stroke="#ffffff55" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="animation-delay:0.0s"/></g>
+  <g transform="translate(330 34)"><g class="st" style="animation-delay:0.6s">
+    <rect width="250" height="172" rx="22" fill="#12121c" stroke="#38bdf8" stroke-opacity=".45"/>
+    <circle cx="40" cy="40" r="22" fill="#38bdf8"/><text x="40" y="48" text-anchor="middle" font-size="22" font-weight="900" fill="#0b0b12">2</text>
+    <text x="226" y="52" text-anchor="end" font-size="30" style="font-family:'Segoe UI Emoji','Apple Color Emoji',sans-serif">🪙</text>
+    <text x="24" y="86" font-size="17" font-weight="800" fill="#fff">Pick a coin</text>
+    <text x="226" y="108" text-anchor="end" font-size="13.5" fill="#38bdf8" style="font-family:Vazirmatn,Tahoma,'Segoe UI',sans-serif">انتخاب ارز</text>
+    <text x="24" y="134" font-size="12.5" fill="#aab0c8">The list and the icons come</text><text x="24" y="151" font-size="12.5" fill="#aab0c8">from the exchange itself</text>
+  </g></g>
+  <g transform="translate(600 120)"><path class="arrow" d="M-8-8 L6 0 -8 8" fill="none" stroke="#ffffff55" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="animation-delay:0.3s"/></g>
+  <g transform="translate(620 34)"><g class="st" style="animation-delay:1.2s">
+    <rect width="250" height="172" rx="22" fill="#12121c" stroke="#fbbf24" stroke-opacity=".45"/>
+    <circle cx="40" cy="40" r="22" fill="#fbbf24"/><text x="40" y="48" text-anchor="middle" font-size="22" font-weight="900" fill="#0b0b12">3</text>
+    <text x="226" y="52" text-anchor="end" font-size="30" style="font-family:'Segoe UI Emoji','Apple Color Emoji',sans-serif">⭐</text>
+    <text x="24" y="86" font-size="17" font-weight="800" fill="#fff">Star your favourites</text>
+    <text x="226" y="108" text-anchor="end" font-size="13.5" fill="#fbbf24" style="font-family:Vazirmatn,Tahoma,'Segoe UI',sans-serif">موردعلاقه‌ها</text>
+    <text x="24" y="134" font-size="12.5" fill="#aab0c8">Choose one as the default: it</text><text x="24" y="151" font-size="12.5" fill="#aab0c8">is the island's first coin</text>
+  </g></g>
+  <g transform="translate(890 120)"><path class="arrow" d="M-8-8 L6 0 -8 8" fill="none" stroke="#ffffff55" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="animation-delay:0.6s"/></g>
+  <g transform="translate(910 34)"><g class="st" style="animation-delay:1.8s">
+    <rect width="250" height="172" rx="22" fill="#12121c" stroke="#a78bfa" stroke-opacity=".45"/>
+    <circle cx="40" cy="40" r="22" fill="#a78bfa"/><text x="40" y="48" text-anchor="middle" font-size="22" font-weight="900" fill="#0b0b12">4</text>
+    <text x="226" y="52" text-anchor="end" font-size="30" style="font-family:'Segoe UI Emoji','Apple Color Emoji',sans-serif">⏱️</text>
+    <text x="24" y="86" font-size="17" font-weight="800" fill="#fff">Choose a timeframe</text>
+    <text x="226" y="108" text-anchor="end" font-size="13.5" fill="#a78bfa" style="font-family:Vazirmatn,Tahoma,'Segoe UI',sans-serif">انتخاب تایم‌فریم</text>
+    <text x="24" y="134" font-size="12.5" fill="#aab0c8">1m, 5m, 15m, 1h, 4h or 1d</text><text x="24" y="151" font-size="12.5" fill="#aab0c8">candles from a dropdown</text>
+  </g></g>
+  
+
+  <g transform="translate(130 236)">
+    <rect width="300" height="84" rx="20" fill="#12121c" stroke="#2563eb" stroke-opacity=".5"/>
+    <rect width="300" height="84" rx="20" fill="#2563eb" opacity="0"><animate attributeName="opacity" calcMode="discrete" dur="9s" repeatCount="indefinite" keyTimes="0.0000;0.3333;1.0000" values="0.14;0.14;0;0"/></rect>
+    <circle cx="42" cy="42" r="22" fill="#2563eb"/><text x="42" y="50" text-anchor="middle" font-size="22" font-weight="900" fill="#0b0b12">N</text>
+    <text x="78" y="36" font-size="19" font-weight="800" fill="#fff">Nobitex  <tspan font-size="14" fill="#2563eb" style="font-family:Vazirmatn,Tahoma,'Segoe UI',sans-serif">نوبیتکس</tspan></text>
+    <text x="78" y="58" font-size="12.5" fill="#aab0c8">IRT · USDT  ·  Ed25519 signed key</text>
+  </g>
+  <g transform="translate(470 236)">
+    <rect width="300" height="84" rx="20" fill="#12121c" stroke="#f0b90b" stroke-opacity=".5"/>
+    <rect width="300" height="84" rx="20" fill="#f0b90b" opacity="0"><animate attributeName="opacity" calcMode="discrete" dur="9s" repeatCount="indefinite" keyTimes="0.0000;0.3333;0.6667;1.0000" values="0;0.14;0;0"/></rect>
+    <circle cx="42" cy="42" r="22" fill="#f0b90b"/><text x="42" y="50" text-anchor="middle" font-size="22" font-weight="900" fill="#0b0b12">B</text>
+    <text x="78" y="36" font-size="19" font-weight="800" fill="#fff">Binance  <tspan font-size="14" fill="#f0b90b" style="font-family:Vazirmatn,Tahoma,'Segoe UI',sans-serif">بایننس</tspan></text>
+    <text x="78" y="58" font-size="12.5" fill="#aab0c8">USDT  ·  HMAC-SHA256 key</text>
+  </g>
+  <g transform="translate(810 236)">
+    <rect width="300" height="84" rx="20" fill="#12121c" stroke="#22c55e" stroke-opacity=".5"/>
+    <rect width="300" height="84" rx="20" fill="#22c55e" opacity="0"><animate attributeName="opacity" calcMode="discrete" dur="9s" repeatCount="indefinite" keyTimes="0.0000;0.6667;1.0000" values="0;0;0.14;0"/></rect>
+    <circle cx="42" cy="42" r="22" fill="#22c55e"/><text x="42" y="50" text-anchor="middle" font-size="22" font-weight="900" fill="#0b0b12">T</text>
+    <text x="78" y="36" font-size="19" font-weight="800" fill="#fff">Toobit  <tspan font-size="14" fill="#22c55e" style="font-family:Vazirmatn,Tahoma,'Segoe UI',sans-serif">توبیت</tspan></text>
+    <text x="78" y="58" font-size="12.5" fill="#aab0c8">USDT  ·  HMAC-SHA256 key</text>
+  </g>
+</svg>

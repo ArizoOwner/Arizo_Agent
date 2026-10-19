@@ -161,6 +161,9 @@ body {
   position: absolute;
   inset: 0;
   overflow: hidden;
+  /* `clip` cannot be scrolled at all: with `hidden`, focusing a field while the island is
+     small scrolled the content up and the header with the tabs never came back. */
+  overflow: clip;
   border-radius: inherit;
 }
 

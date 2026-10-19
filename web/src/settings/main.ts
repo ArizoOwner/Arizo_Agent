@@ -23,7 +23,7 @@ import { enhanceSelect } from "../views/select";
 import { applyTheme as applyThemeTo, watchSystemTheme } from "../core/theme";
 import { LANGUAGES, isRtl, onLanguageChange, resolveLanguage, setLanguage, t } from "../i18n/i18n";
 
-const VERSION_FALLBACK = "3.2.0";
+const VERSION_FALLBACK = "3.3.0";
 const REPO_URL = "https://github.com/ArizoOwner/Arizo_Agent";
 
 let settings: Settings = { ...DEFAULT_SETTINGS };
@@ -123,6 +123,8 @@ function generalSection(): HTMLElement {
       h("span", { class: "hint", text: t("Live scores, fixtures and a goal celebration for your favourite team") })),
     row(t("Team kit on Ari"), toggle(settings.footballKit, (v) => void save({ footballKit: v })),
       h("span", { class: "hint", text: t("Ari wears your team's shirt in the Football section") })),
+    row(t("Crypto prices"), toggle(settings.cryptoEnabled, (v) => void save({ cryptoEnabled: v })),
+      h("span", { class: "hint", text: t("Live prices and a 1-minute chart, read through your own exchange API") })),
     row(t("Hide when I click elsewhere"), toggle(settings.hideOnBlur, (v) => void save({ hideOnBlur: v }))),
     row(t("Copy the translation automatically"), toggle(settings.autoCopy, (v) => void save({ autoCopy: v }))),
     row(t("Restore the clipboard after replacing"), toggle(settings.restoreClipboard, (v) => void save({ restoreClipboard: v }))),

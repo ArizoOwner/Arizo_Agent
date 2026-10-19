@@ -50,6 +50,18 @@ export interface Settings {
   /** ESPN id and name of the favourite team ("" until one is chosen). */
   footballTeamId: string;
   footballTeamName: string;
+  /** Live prices and a 1-minute chart, read through the user's own exchange API. */
+  cryptoEnabled: boolean;
+  /** The exchange whose API the user entered. The token itself is never a setting. */
+  cryptoProvider: "nobitex" | "binance" | "toobit";
+  /** The coin on screen ("BTC") and the market it is read in ("USDT", or "IRT" for Toman). */
+  cryptoAsset: string;
+  cryptoQuote: "USDT" | "IRT";
+  /** The chart timeframe: "1m", "5m", "15m", "1h", "4h", "1d". */
+  cryptoTimeframe: "1m" | "5m" | "15m" | "1h" | "4h" | "1d";
+  /** The coins the user starred, and the one of them shown when the app starts ("" = none). */
+  cryptoFavorites: string[];
+  cryptoDefaultAsset: string;
   autoCloseInterval: number;
   /** Ari's outfit: "auto" (dresses for the season), "none" or an outfit id. */
   ariOutfit: string;
@@ -91,6 +103,13 @@ export const DEFAULT_SETTINGS: Settings = {
   footballKit: true,
   footballTeamId: "",
   footballTeamName: "",
+  cryptoEnabled: true,
+  cryptoProvider: "nobitex",
+  cryptoAsset: "BTC",
+  cryptoQuote: "USDT",
+  cryptoTimeframe: "1m",
+  cryptoFavorites: [],
+  cryptoDefaultAsset: "",
   autoCloseInterval: 15,
   ariOutfit: DEFAULT_OUTFIT,
   language: "",

@@ -2,7 +2,7 @@
 
 export type IslandMode = "hidden" | "compact" | "expanded";
 
-export type IslandViewName = "translate" | "note" | "settings" | "greeting" | "wardrobe" | "spotify" | "football";
+export type IslandViewName = "translate" | "note" | "settings" | "greeting" | "wardrobe" | "spotify" | "football" | "crypto";
 
 /** The history pane is part of the translate view and needs this much room. */
 export const HISTORY_PANE_H = 350;
@@ -94,6 +94,7 @@ export const VIEW_LAYOUTS: Record<IslandViewName, ViewLayout> = {
   wardrobe: { height: 330, botX: 80, botY: null, botDiameter: 76 },
   spotify: { height: 330, botX: 54, botY: null, botDiameter: 60 },
   football: { height: 400, botX: 54, botY: null, botDiameter: 60 },
+  crypto: { height: 452, botX: 54, botY: null, botDiameter: 60 },
 };
 
 export function islandSize(
@@ -152,7 +153,7 @@ function botPositionLtr(mode: IslandMode, view: IslandViewName, islandH: number)
         return { cx: layout.botX, cy: layout.botY, diameter: layout.botDiameter, opacity: 1 };
       }
       // The card views fill the area under the header: Ari sits at its centre.
-      if (view === "translate" || view === "settings" || view === "spotify" || view === "football") {
+      if (view === "translate" || view === "settings" || view === "spotify" || view === "football" || view === "crypto") {
         return { cx: layout.botX, cy: 42 + (islandH - 52) / 2, diameter: layout.botDiameter, opacity: 1 };
       }
       // Centre of the fixed 84 pt card (8 pt top inset + 34 pt header → content at y = 42)

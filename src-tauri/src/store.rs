@@ -19,6 +19,21 @@ const KEY_NAME: &str = "ai-api-key";
 pub const DEFAULT_BASE_URL: &str = "https://openrouter.ai/api/v1";
 pub const DEFAULT_MODEL: &str = "deepseek/deepseek-chat";
 
+pub const CRYPTO_PROVIDERS: &[&str] = &["nobitex", "binance", "toobit"];
+const CRYPTO_QUOTES: &[&str] = &["USDT", "IRT"];
+pub const CRYPTO_TIMEFRAMES: &[&str] = &["1m", "5m", "15m", "1h", "4h", "1d"];
+/// How many favourite coins are kept.
+const MAX_FAVORITES: usize = 40;
+
+/// A coin ticker as the exchanges write it: capital letters, digits and the odd underscore
+/// ("1K_SHIB"), never empty, never starting with an underscore.
+pub fn valid_asset(s: &str) -> bool {
+    !s.is_empty()
+        && s.len() <= 16
+        && !s.starts_with('_')
+        && s.bytes().all(|b| b.is_ascii_uppercase() || b.is_ascii_digit() || b == b'_')
+}
+
 const ENGINES: &[&str] = &["google", "aphra"];
 const TONES: &[&str] = &["auto", "formal", "colloquial", "technical", "literary"];
 const THEMES: &[&str] = &["dark", "light", "system"];
@@ -78,6 +93,19 @@ pub struct Settings {
     /// ESPN id of the favourite team ("" = none chosen yet) and its name for display.
     pub football_team_id: String,
     pub football_team_name: String,
+    /// Live prices read through the user's own exchange account (crypto.rs). The
+    /// token itself is never a setting: it lives in the Credential Manager.
+    pub crypto_enabled: bool,
+    /// "nobitex" or "binance": the exchange whose API the user entered.
+    pub crypto_provider: String,
+    /// The coin on screen ("BTC") and the market it is read in ("USDT" or "IRT").
+    pub crypto_asset: String,
+    pub crypto_quote: String,
+    /// The coins the user starred, and the one of them shown when the app starts ("" = none).
+    pub crypto_favorites: Vec<String>,
+    pub crypto_default_asset: String,
+    /// Chart timeframe: "1m", "5m", "15m", "1h", "4h", "1d".
+    pub crypto_timeframe: String,
     /// Seconds before an open island folds back to its compact size.
     pub auto_close_interval: f64,
     /// Ari's outfit: "auto", "none" or an outfit id.
@@ -114,6 +142,13 @@ impl Default for Settings {
             football_kit: true,
             football_team_id: String::new(),
             football_team_name: String::new(),
+            crypto_enabled: true,
+            crypto_provider: "nobitex".into(),
+            crypto_asset: "BTC".into(),
+            crypto_quote: "USDT".into(),
+            crypto_favorites: Vec::new(),
+            crypto_default_asset: String::new(),
+            crypto_timeframe: "1m".into(),
             auto_close_interval: 15.0,
             ari_outfit: "auto".into(),
             language: String::new(),
@@ -166,6 +201,38 @@ fn pick_enum(v: Option<&Value>, allowed: &[&str], fallback: &str) -> String {
     }
 }
 
+/// A list of coin tickers: each cleaned, valid, once, in the order given.
+fn pick_assets(v: Option<&Value>, fallback: &[String], max: usize) -> Vec<String> {
+    let Some(list) = v.and_then(Value::as_array) else { return fallback.to_vec() };
+    let mut out: Vec<String> = Vec::new();
+    for item in list {
+        let Some(s) = item.as_str() else { continue };
+        let a = s.trim().to_ascii_uppercase();
+        if valid_asset(&a) && !out.contains(&a) && out.len() < max {
+            out.push(a);
+        }
+    }
+    out
+}
+
+/// The default coin must be one of the favourites; "" clears it, and it goes when its star does.
+fn pick_default_asset(v: Option<&Value>, favorites: &[String], base: &str) -> String {
+    let kept = if favorites.iter().any(|f| f == base) { base.to_string() } else { String::new() };
+    match v.and_then(Value::as_str) {
+        Some(s) => {
+            let a = s.trim().to_ascii_uppercase();
+            if a.is_empty() {
+                String::new()
+            } else if favorites.contains(&a) {
+                a
+            } else {
+                kept
+            }
+        }
+        None => kept,
+    }
+}
+
 fn pick_bool(v: Option<&Value>, fallback: bool) -> bool {
     v.and_then(Value::as_bool).unwrap_or(fallback)
 }
@@ -174,6 +241,8 @@ fn pick_bool(v: Option<&Value>, fallback: bool) -> bool {
 pub fn merge(base: &Settings, incoming: &Value) -> Settings {
     let a = incoming.get("aphra");
     let limit = incoming.get("historyLimit").and_then(Value::as_f64);
+    let favorites = pick_assets(incoming.get("cryptoFavorites"), &base.crypto_favorites, MAX_FAVORITES);
+    let default_asset = pick_default_asset(incoming.get("cryptoDefaultAsset"), &favorites, &base.crypto_default_asset);
     Settings {
         theme: pick_enum(incoming.get("theme"), THEMES, &base.theme),
         app_language: pick_enum(incoming.get("appLanguage"), APP_LANGS, &base.app_language),
@@ -213,6 +282,16 @@ pub fn merge(base: &Settings, incoming: &Value) -> Settings {
             if id.chars().all(|c| c.is_ascii_digit()) { id } else { base.football_team_id.clone() }
         },
         football_team_name: pick_str(incoming.get("footballTeamName"), &base.football_team_name, 60),
+        crypto_enabled: pick_bool(incoming.get("cryptoEnabled"), base.crypto_enabled),
+        crypto_provider: pick_enum(incoming.get("cryptoProvider"), CRYPTO_PROVIDERS, &base.crypto_provider),
+        crypto_asset: {
+            let a = pick_str(incoming.get("cryptoAsset"), &base.crypto_asset, 12).to_ascii_uppercase();
+            if valid_asset(&a) { a } else { base.crypto_asset.clone() }
+        },
+        crypto_quote: pick_enum(incoming.get("cryptoQuote"), CRYPTO_QUOTES, &base.crypto_quote),
+        crypto_favorites: favorites,
+        crypto_default_asset: default_asset,
+        crypto_timeframe: pick_enum(incoming.get("cryptoTimeframe"), CRYPTO_TIMEFRAMES, &base.crypto_timeframe),
         auto_close_interval: pick_num(incoming.get("autoCloseInterval"), base.auto_close_interval, 0.0, 3600.0),
         ari_outfit: non_empty(pick_str(incoming.get("ariOutfit"), &base.ari_outfit, 40), &base.ari_outfit),
         // Empty is a real value here: it means "follow the system".
@@ -256,6 +335,46 @@ pub fn clear_api_key() -> Result<(), String> {
     match entry.delete_credential() {
         Ok(()) | Err(keyring::Error::NoEntry) => Ok(()),
         Err(e) => Err(e.to_string()),
+    }
+}
+
+// ── Exchange credentials (Windows Credential Manager, one entry per exchange) ──
+//
+// The page can only ask the backend to connect or to forget: no command hands a
+// token back, and none of it is ever written to settings.json.
+
+/// `part` is "token" (Nobitex, Binance key) or "secret" (Binance signing secret).
+fn crypto_entry(provider: &str, part: &str) -> Option<keyring::Entry> {
+    if !CRYPTO_PROVIDERS.contains(&provider) || !matches!(part, "token" | "secret") {
+        return None;
+    }
+    keyring::Entry::new(KEY_SERVICE, &format!("crypto-{provider}-{part}")).ok()
+}
+
+pub fn crypto_credential(provider: &str, part: &str) -> String {
+    crypto_entry(provider, part).and_then(|e| e.get_password().ok()).unwrap_or_default()
+}
+
+pub fn set_crypto_credential(provider: &str, part: &str, value: &str) -> Result<(), String> {
+    let entry = crypto_entry(provider, part).ok_or("credential store unavailable")?;
+    if value.is_empty() {
+        return clear_crypto_credential(provider, part);
+    }
+    entry.set_password(value).map_err(|e| e.to_string())
+}
+
+pub fn clear_crypto_credential(provider: &str, part: &str) -> Result<(), String> {
+    let Some(entry) = crypto_entry(provider, part) else { return Ok(()) };
+    match entry.delete_credential() {
+        Ok(()) | Err(keyring::Error::NoEntry) => Ok(()),
+        Err(e) => Err(e.to_string()),
+    }
+}
+
+/// Forgets the single shared entry an earlier build used for every exchange.
+fn forget_legacy_crypto_entry() {
+    if let Ok(entry) = keyring::Entry::new(KEY_SERVICE, "crypto_api_key") {
+        let _ = entry.delete_credential();
     }
 }
 
@@ -354,6 +473,7 @@ pub struct Store {
 
 impl Store {
     pub fn load() -> Self {
+        forget_legacy_crypto_entry();
         Self::load_from(config_dir(), legacy_dir())
     }
 
@@ -411,6 +531,14 @@ impl Store {
             a.insert("hasApiKey".into(), json!(has_api_key()));
         }
         v
+    }
+
+    /// At start the coin on screen is the user's default one, when they chose one.
+    pub fn use_default_crypto_asset(&self) {
+        let default = self.settings().crypto_default_asset;
+        if !default.is_empty() {
+            let _ = self.save_settings(&json!({ "cryptoAsset": default }));
+        }
     }
 
     pub fn save_settings(&self, incoming: &Value) -> Option<Settings> {
@@ -555,6 +683,71 @@ mod tests {
         assert_eq!(merge(&set, &json!({ "spotifyClientId": "bad id!?" })).spotify_client_id, "abc123");
         assert_eq!(merge(&set, &json!({ "spotifyClientId": "" })).spotify_client_id, "");
         assert_eq!(KEY_SERVICE, "com.arizo.translate", "renaming must not orphan stored API keys");
+    }
+
+    #[test]
+    fn an_exchange_token_is_never_a_setting() {
+        let m = merge(&Settings::default(), &json!({ "cryptoApiKey": "do-not-keep-this", "cryptoToken": "nor-this" }));
+        let text = serde_json::to_string(&m).unwrap();
+        assert!(!text.contains("do-not-keep-this") && !text.contains("nor-this"));
+        assert!(!text.contains("cryptoApiKey") && !text.contains("cryptoToken"));
+        // A settings.json written by the earlier build loses the field the next time it is saved.
+        let dir = temp("crypto-legacy");
+        std::fs::create_dir_all(&dir).unwrap();
+        std::fs::write(dir.join("settings.json"), r#"{"hotkey":"Alt+Q","cryptoApiKey":"old-secret"}"#).unwrap();
+        let store = Store::load_from(dir.clone(), None);
+        assert_eq!(store.settings().hotkey, "Alt+Q");
+        let on_disk = std::fs::read_to_string(dir.join("settings.json")).unwrap();
+        assert!(!on_disk.contains("old-secret") && !on_disk.contains("cryptoApiKey"));
+        assert!(!store.public_settings().to_string().contains("old-secret"));
+        let _ = std::fs::remove_dir_all(dir);
+    }
+
+    #[test]
+    fn the_crypto_choice_is_validated() {
+        let base = Settings::default();
+        assert_eq!((base.crypto_provider.as_str(), base.crypto_asset.as_str(), base.crypto_quote.as_str()), ("nobitex", "BTC", "USDT"));
+        let m = merge(&base, &json!({ "cryptoProvider": "binance", "cryptoAsset": " eth ", "cryptoQuote": "IRT" }));
+        assert_eq!((m.crypto_provider.as_str(), m.crypto_asset.as_str(), m.crypto_quote.as_str()), ("binance", "ETH", "IRT"));
+        assert_eq!(merge(&m, &json!({ "cryptoProvider": "evil" })).crypto_provider, "binance", "an unknown exchange is refused");
+        assert_eq!(merge(&m, &json!({ "cryptoAsset": "E T H!" })).crypto_asset, "ETH", "a malformed ticker is refused");
+        assert_eq!(merge(&m, &json!({ "cryptoAsset": "" })).crypto_asset, "ETH");
+        assert_eq!(merge(&m, &json!({ "cryptoQuote": "EUR" })).crypto_quote, "IRT");
+        assert_eq!(merge(&m, &json!({ "cryptoAsset": 5 })).crypto_asset, "ETH", "a number is not a ticker");
+        assert!(valid_asset("1INCH") && valid_asset("BTC") && valid_asset("1K_SHIB") && valid_asset("1M_PEPE"));
+        assert!(!valid_asset("btc") && !valid_asset("") && !valid_asset("A-B") && !valid_asset("_X") && !valid_asset(&"A".repeat(17)));
+    }
+
+    #[test]
+    fn favourites_are_clean_and_the_default_is_always_one_of_them() {
+        let base = Settings::default();
+        assert!(base.crypto_favorites.is_empty() && base.crypto_default_asset.is_empty());
+        let m = merge(&base, &json!({ "cryptoFavorites": [" btc ", "ETH", "eth", "bad coin", 7, "SOL"], "cryptoDefaultAsset": "eth" }));
+        assert_eq!(m.crypto_favorites, ["BTC", "ETH", "SOL"], "cleaned, once each, in order");
+        assert_eq!(m.crypto_default_asset, "ETH");
+        // A default that is not starred is refused; the old one stays.
+        assert_eq!(merge(&m, &json!({ "cryptoDefaultAsset": "DOGE" })).crypto_default_asset, "ETH");
+        // "" clears it.
+        assert_eq!(merge(&m, &json!({ "cryptoDefaultAsset": "" })).crypto_default_asset, "");
+        // Taking the star off the default takes the default with it.
+        let less = merge(&m, &json!({ "cryptoFavorites": ["BTC", "SOL"] }));
+        assert_eq!((less.crypto_favorites.len(), less.crypto_default_asset.as_str()), (2, ""));
+        // Not a list: nothing changes. The list is capped.
+        assert_eq!(merge(&m, &json!({ "cryptoFavorites": "BTC" })).crypto_favorites, m.crypto_favorites);
+        let many: Vec<String> = (0..100).map(|i| format!("C{i}")).collect();
+        assert_eq!(merge(&base, &json!({ "cryptoFavorites": many })).crypto_favorites.len(), MAX_FAVORITES);
+        // Toobit is a known exchange.
+        assert_eq!(merge(&base, &json!({ "cryptoProvider": "toobit" })).crypto_provider, "toobit");
+    }
+
+    #[test]
+    fn credentials_have_one_slot_per_exchange_and_never_for_strangers() {
+        assert!(crypto_entry("nobitex", "token").is_some());
+        assert!(crypto_entry("binance", "secret").is_some());
+        assert!(crypto_entry("evil", "token").is_none(), "only known exchanges get a slot");
+        assert!(crypto_entry("nobitex", "../x").is_none(), "only known parts get a slot");
+        assert_eq!(crypto_credential("evil", "token"), "");
+        assert!(clear_crypto_credential("evil", "token").is_ok());
     }
 
     #[test]

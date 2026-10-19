@@ -1,5 +1,41 @@
 # Changelog
 
+## 3.3.0 — Crypto
+
+- **Live crypto prices.** A new Crypto section shows the live price of any coin, a candlestick
+  (or line) chart with volume and a hover crosshair, the 24-hour high, low and volume, and the
+  coins you follow. Prices are read straight from your own exchange account — **Nobitex**,
+  **Binance** or **Toobit** — with no server of ours in between and no invented numbers: nothing
+  is shown until the exchange has accepted your key.
+- **Your key, kept safe.** The key is read-only, lives in the Windows Credential Manager (one
+  entry per exchange), and is never written to a file or handed to the page; the interface only
+  hears short status codes. Nobitex's new API keys are supported with their real scheme (a public
+  key plus a private key, every request signed with Ed25519); Binance and Toobit use HMAC-SHA256.
+  **Change API** deletes the key.
+- **Timeframes.** Choose 1m, 5m, 15m, 1h, 4h or 1d candles from a dropdown; the choice is
+  remembered.
+- **Favourites and a default coin.** Star up to 40 coins for one-click switching in a bar under
+  the picker, and mark one as the default: it is the island's first coin at every start.
+- **Coin list and icons from the exchange.** The dropdown lists every coin the exchange offers,
+  with its price and change, and the icons are loaded online with a drawn fallback.
+- **Toman and Tether.** On Nobitex the price toggles between Toman and USDT. Toman is written
+  with `T` on a single line (`4,795,000,000 T`) and the chart axis in millions; Tether is in the
+  list too (Nobitex publishes no candles for it, so only its live price and 24-hour figures show).
+- **Quiet by design.** Prices are polled only while the Crypto section is on screen (every 5 s on
+  Nobitex, 3 s on Toobit, 2 s on Binance), failures are retried with a back-off and the last
+  prices stay visible, marked as stale. Switch the whole section off in Settings.
+- **Both languages, both themes.** The section is laid out right-to-left in Persian with firm
+  Vazirmatn digits, and follows the light and dark themes — including the exchange dropdown and
+  the connect card.
+- **Fixed: the header tabs could scroll out of view.** Focusing a field while the island was
+  collapsed could push the Translate / Spotify / Football / Crypto tabs out of sight; the island
+  now clips instead of scrolling.
+- **Fixed: Translate buttons wrapping.** Clear, Fix and the other action buttons under the text
+  box now stay on one horizontal row at any width.
+- **Fixed: Spotify in the light theme.** Colours of the Spotify section now follow the day theme.
+- **README.** New Crypto section with an animated recording, animated art and the exchange table,
+  in English and Persian.
+
 ## 3.2.0 — Football
 
 - **Football.** Choose a favourite team (search any club or national side, or pick one of the

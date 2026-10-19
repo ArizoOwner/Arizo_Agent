@@ -237,6 +237,11 @@ export function buildSettingsView(actions: ViewActions): ViewHost {
         t("Ari wears your team's shirt in the Football section"),
         toggle(s.footballKit, (val) => void save({ footballKit: val })),
       ),
+      settingRow(
+        t("Crypto prices"),
+        t("Live prices and a 1-minute chart, read through your own exchange API"),
+        toggle(s.cryptoEnabled, (val) => void save({ cryptoEnabled: val })),
+      ),
     );
 
     // 8. Save history & Limit

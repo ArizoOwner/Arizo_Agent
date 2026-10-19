@@ -9,6 +9,7 @@
 // The pages never touch the OS or the network: they call the commands below.
 
 mod aphra;
+mod crypto;
 mod football;
 mod google;
 mod idioms;
@@ -560,6 +561,7 @@ fn save_settings(
     }
     spotify::sync(&app, saved.spotify_enabled, &saved.spotify_client_id);
     football::sync(&app, saved.football_enabled, &saved.football_team_id, &saved.football_team_name);
+    crypto::sync(&app);
     refresh_tray(&app);
     let public = st.store.public_settings();
     let _ = app.emit("settings-changed", public.clone());
@@ -1039,6 +1041,12 @@ pub fn run() {
             football::football_refresh,
             football::football_search,
             football::football_logo,
+            crypto::crypto_state,
+            crypto::crypto_connect,
+            crypto::crypto_disconnect,
+            crypto::crypto_select,
+            crypto::crypto_set_timeframe,
+            crypto::crypto_active,
             spotify::spotify_refresh,
             spotify::spotify_control,
             spotify::spotify_open,
@@ -1057,6 +1065,8 @@ pub fn run() {
             create_bubble_window(&handle);
             spotify::sync(&handle, settings.spotify_enabled, &settings.spotify_client_id);
             football::sync(&handle, settings.football_enabled, &settings.football_team_id, &settings.football_team_name);
+            st.store.use_default_crypto_asset();
+            crypto::sync(&handle);
             // Reuse the legacy startup entry, updating its executable after an upgrade.
             apply_autostart(&handle, settings.launch_at_startup);
 
@@ -1096,6 +1106,7 @@ pub fn run() {
                 input::stop_mouse_monitor();
                 spotify::sync(app, false, "");
                 football::sync(app, false, "", "");
+                crypto::shutdown();
                 let _ = app.global_shortcut().unregister_all();
             }
         });
