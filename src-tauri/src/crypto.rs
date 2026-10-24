@@ -462,21 +462,6 @@ pub fn parse_nobitex_assets(j: &Value, quote: Quote) -> Vec<Asset> {
             })
         })
         .collect();
-    // Tether (USDT in Toman from usdt-rls) is always offered in Nobitex:
-    if !out.iter().any(|a| a.asset == "USDT") {
-        if let Some(m) = map.get("usdt-rls") {
-            if m["isClosed"].as_bool() != Some(true) {
-                if let Some(price) = positive(m, "latest").map(|p| p * 0.1) {
-                    out.push(Asset {
-                        asset: "USDT".into(),
-                        price,
-                        change: field(m, "dayChange").unwrap_or(0.0),
-                        volume: field(m, "volumeDst").map_or(0.0, |v| v.max(0.0) * 0.1),
-                    });
-                }
-            }
-        }
-    }
     sort_assets(&mut out);
     out
 }
@@ -658,6 +643,8 @@ fn http() -> &'static reqwest::Client {
 /// A GET with sensitive headers. Errors become codes: the URL, the headers and
 /// the exchange's answer never reach a log or the page.
 async fn get(url: &str, headers: &[(&'static str, String)]) -> Result<Reply, Fail> {
+    // The query of a signed call carries the signature: only the path is logged.
+    let shown = url.split('?').next().unwrap_or(url);
     let mut last_err = String::new();
     for attempt in 0..2 {
         if attempt > 0 {
@@ -690,7 +677,7 @@ async fn get(url: &str, headers: &[(&'static str, String)]) -> Result<Reply, Fai
                         }
                         Ok(None) => break,
                         Err(e) => {
-                            crate::log(&format!("[crypto] chunk error on {url}: {e}"));
+                            crate::log(&format!("[crypto] chunk error on {shown}: {}", e.without_url()));
                             ok = false;
                             break;
                         }
@@ -701,12 +688,12 @@ async fn get(url: &str, headers: &[(&'static str, String)]) -> Result<Reply, Fai
                 }
             }
             Err(e) => {
-                last_err = e.to_string();
-                crate::log(&format!("[crypto] attempt {attempt} failed on {url}: {e}"));
+                last_err = e.without_url().to_string();
+                crate::log(&format!("[crypto] attempt {attempt} failed on {shown}: {last_err}"));
             }
         }
     }
-    crate::log(&format!("[crypto] network error on {url}: {last_err}"));
+    crate::log(&format!("[crypto] network error on {shown}: {last_err}"));
     Err(Fail::Network)
 }
 
@@ -1063,7 +1050,7 @@ async fn frame(provider: Provider, creds: &Creds, sel: &Selection, cache: &mut C
     let ticker = fetch_ticker(provider, creds, &sel.asset, sel.quote).await?;
 
     // The list of every coin: a failure here must not spoil the coin on screen.
-    if cache.assets.is_empty() || cache.list_at.map_or(true, |t| t.elapsed() >= provider.list_every()) {
+    if cache.list_at.map_or(true,|t| t.elapsed() >= provider.list_every()) {
         if let Ok(list) = fetch_assets(provider, creds, sel.quote).await {
             cache.assets = list;
             cache.assets_quote = Some(sel.quote);
@@ -1177,12 +1164,15 @@ async fn run(app: AppHandle, generation: u64, provider: Provider, wake: Arc<Noti
         if !current(generation) {
             return;
         }
+        // The coin changed while this answer was on its way: it says nothing about the new one.
+        let stale = SHARED.lock().unwrap().selection != sel.id;
         let wait = match result {
             Ok(f) => {
                 fails = 0;
                 publish_frame(&app, generation, sel.id, f);
                 provider.every()
             }
+            Err(f) if stale && !f.rejects_credentials() => Duration::from_millis(10),
             Err(Fail::UnknownAsset) if sel.asset != "BTC" => {
                 // This exchange has no such coin: go back to the default one.
                 let _ = crate::state(&app).store.save_settings(&json!({ "cryptoAsset": "BTC" }));
@@ -1413,6 +1403,20 @@ mod tests {
         assert_eq!(names, ["BTC", "ETH", "1K_SHIB"], "closed and priceless markets are gone, big volume first");
         assert!(parse_nobitex_assets(&nobitex_stats(), Quote::Irt).is_empty(), "another market, another list");
         assert!(parse_nobitex_assets(&json!({}), Quote::Usdt).is_empty());
+    }
+
+    #[test]
+    fn a_toman_tether_market_is_not_a_usdt_row() {
+        let stats = json!({"status":"ok","stats":{
+            "btc-usdt":{"latest":"82353.32","dayChange":"1.03","volumeDst":"1000.0","isClosed":false},
+            "usdt-rls":{"latest":"980000","dayChange":"0.2","volumeDst":"90000000000","isClosed":false}}});
+        let usdt = parse_nobitex_assets(&stats, Quote::Usdt);
+        let names: Vec<&str> = usdt.iter().map(|a| a.asset.as_str()).collect();
+        assert_eq!(names, ["BTC"], "a price in Toman must not be shown as dollars");
+        let irt = parse_nobitex_assets(&stats, Quote::Irt);
+        assert_eq!(irt.len(), 1);
+        assert_eq!(irt[0].asset, "USDT");
+        assert!((irt[0].price - 98000.0).abs() < 1e-6);
     }
 
     #[test]

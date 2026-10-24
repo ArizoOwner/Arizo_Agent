@@ -102,6 +102,23 @@ pub fn split_text(text: &str, max: usize) -> Vec<String> {
     pieces
 }
 
+/// Joins the translations of the chunks `split_text` produced. A chunk cut at a
+/// sentence boundary lost the space that followed it, so it is put back there.
+pub fn join_translations(sources: &[String], translations: &[String]) -> String {
+    let mut out = String::new();
+    for (i, t) in translations.iter().enumerate() {
+        let cut_after_sentence = sources.get(i).is_some_and(|s| s.chars().last().is_some_and(is_sentence_end))
+            && sources.get(i + 1).is_some_and(|n| n.chars().next().is_some_and(|c| !c.is_whitespace()));
+        if cut_after_sentence {
+            out.push_str(t.trim_end_matches(' '));
+            out.push(' ');
+        } else {
+            out.push_str(t);
+        }
+    }
+    out
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -118,6 +135,17 @@ mod tests {
         assert!(chunks.iter().all(|c| len(c) <= 200), "chunk too long");
         assert_eq!(squash(&chunks.concat()), squash(&text));
         assert_eq!(split_text("short", 100), vec!["short".to_string()]);
+    }
+
+    #[test]
+    fn translations_of_sentence_cut_chunks_are_rejoined_with_a_space() {
+        let text = (0..40).map(|i| format!("Sentence number {i} is here.")).collect::<Vec<_>>().join(" ");
+        let chunks = split_text(&text, 100);
+        assert!(chunks.len() > 1);
+        assert_eq!(join_translations(&chunks, &chunks), text, "no separator lost at a chunk boundary");
+
+        let paras = vec!["One.\n".to_string(), "Two.".to_string()];
+        assert_eq!(join_translations(&paras, &paras), "One.\nTwo.", "an existing newline is not doubled");
     }
 
     #[test]

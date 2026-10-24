@@ -8,7 +8,8 @@ use std::process::Command;
 use tauri::WebviewWindow;
 use windows::Win32::Foundation::{HWND, POINT};
 use windows::Win32::UI::WindowsAndMessaging::{
-    GetCursorPos, GetWindowLongPtrW, SetWindowLongPtrW, GWL_EXSTYLE, WS_EX_NOACTIVATE, WS_EX_TOOLWINDOW,
+    GetCursorPos, GetWindowLongPtrW, SetWindowLongPtrW, SetWindowPos, GWL_EXSTYLE, SWP_NOACTIVATE, SWP_NOZORDER,
+    WS_EX_NOACTIVATE, WS_EX_TOOLWINDOW,
 };
 
 /// Keeps spawned helpers from flashing a console window.
@@ -55,6 +56,14 @@ pub fn set_activating(win: &WebviewWindow, activating: bool) {
         };
         SetWindowLongPtrW(hwnd, GWL_EXSTYLE, want);
     }
+}
+
+/// Moves and resizes the window in one call. Two calls (size, then position) leave the island
+/// for a moment at the wrong place on screen, which shows while its width is being dragged.
+/// False when there is no window handle yet: the caller then does it in two steps.
+pub fn place_window(win: &WebviewWindow, x: i32, y: i32, w: u32, h: u32) -> bool {
+    let Some(hwnd) = hwnd_of(win) else { return false };
+    unsafe { SetWindowPos(hwnd, None, x, y, w as i32, h as i32, SWP_NOZORDER | SWP_NOACTIVATE).is_ok() }
 }
 
 /// The cursor poll already parks itself with the island (island.rs): nothing to do.

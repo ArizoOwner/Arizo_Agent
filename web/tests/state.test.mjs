@@ -20,9 +20,10 @@ test("mergeSettings keeps the nested AI settings whole", () => {
 
 test("the settings keys are exactly the contract's", () => {
   assert.deepEqual(Object.keys(S.DEFAULT_SETTINGS).sort(), [
-    "ariOutfit", "aphra", "appLanguage", "autoCloseInterval", "autoCopy", "cryptoAsset", "cryptoDefaultAsset", "cryptoEnabled", "cryptoFavorites", "cryptoProvider", "cryptoQuote", "cryptoTimeframe", "defaultEngine", "footballEnabled", "footballKit", "footballTeamId", "footballTeamName", "historyLimit",
+    "ariOutfit", "aphra", "appLanguage", "autoCloseInterval", "autoCopy", "cryptoAsset", "cryptoDefaultAsset", "cryptoEnabled", "cryptoFavorites", "cryptoProvider", "cryptoQuote", "cryptoTimeframe", "defaultEngine", "featureOrder", "footballEnabled", "footballKit", "footballTeamId", "footballTeamName", "historyLimit",
     "hotkey", "hideHotkey", "hideOnBlur", "inlineHotkey", "language", "launchAtStartup", "nativeLang", "restoreClipboard",
     "saveHistory", "screen", "secondLang", "showFloatingBubble", "soundEnabled", "soundVolume", "spotifyClientId", "spotifyEnabled", "theme",
+    "uiCompactHeight", "uiCompactScale", "uiCompactWidth", "uiCorner", "uiFloatGap", "uiFloating", "uiFontScale", "uiHeight", "uiTransparency", "uiWidth",
   ].sort());
   assert.deepEqual(Object.keys(S.DEFAULT_SETTINGS.aphra).sort(), ["baseUrl", "hasApiKey", "model", "showBreakdown", "tone"]);
 });

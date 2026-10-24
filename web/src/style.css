@@ -30,7 +30,9 @@
   --font: "Inter", "Vazirmatn", system-ui, "Segoe UI Variable Text", "Segoe UI", "Segoe UI Emoji", "Nirmala UI",
     "Microsoft YaHei UI", "Microsoft YaHei", "Noto Sans", "Noto Sans Devanagari", "Noto Sans Bengali",
     "Noto Sans Arabic", "Noto Sans CJK SC", "Noto Sans SC", "Droid Sans Fallback", sans-serif;
-  --mono: "Cascadia Mono", "Consolas", ui-monospace, monospace;
+  /* Vazirmatn only carries Persian (unicode-range), so Latin keeps the mono face
+     and Persian letters and digits in these small texts are never left to chance. */
+  --mono: "Cascadia Mono", "Consolas", "Vazirmatn", ui-monospace, monospace;
 
   --fg: 255 255 255;       /* the colour of every hairline, wash and hover: white on dark */
   --island: #000;          /* the island's body */
@@ -92,6 +94,20 @@
   --bg: #f3f4f7;
 }
 
+/* The island's look (Settings → Island look; core/appearance.ts writes the three numbers):
+   the text scale, how solid the island's own surfaces are, and the corner scale. The
+   defaults (1, 1, 1) leave everything exactly as designed. Only the surfaces are
+   see-through: text, icons, menus and the controls on top of them stay fully visible. */
+:root {
+  --fs: 1;
+  --surface-a: 1;
+  --cr: 1;
+  --wf: 1;
+  --surface: color-mix(in srgb, var(--island) calc(var(--surface-a) * 100%), transparent);
+  --surface-card: color-mix(in srgb, var(--card) calc(var(--surface-a) * 100%), transparent);
+  --surface-flat: color-mix(in srgb, var(--card-flat) calc(var(--surface-a) * 100%), transparent);
+}
+
 /* Persian reads best a little larger, firmer and with room above and below the line. */
 html[lang="fa"], html[lang="fa"] body {
   font-feature-settings: normal;
@@ -107,6 +123,15 @@ html[lang="fa"] body, html[lang="fa"] .tr-text, html[lang="fa"] .bubble-result {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+}
+
+/* Form controls do not inherit the page font by themselves: without this, any
+   field or button that does not set its own font falls back to the system one. */
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
 }
 
 html,
@@ -151,6 +176,11 @@ body {
   border-radius: 0 0 14px 14px;
   overflow: visible;
   will-change: width, height, transform;
+}
+
+/* Only the open island is see-through: the capsule keeps its solid, readable face. */
+#island.open {
+  background: var(--surface);
 }
 
 #island.stage {
@@ -221,6 +251,56 @@ body {
   pointer-events: none;
 }
 
+/* Settings → Island look → Folded island: a drawing of the capsule at 60 % of its real size. */
+.look-preview {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 12px 12px 14px;
+  min-height: 78px;
+  background: rgb(var(--fg) / 0.05);
+}
+.look-capsule {
+  position: relative;
+  flex: 0 0 auto;
+  background: #000;
+  box-shadow: 0 0 0 1px rgb(var(--fg) / 0.14);
+  transition: width 0.12s ease-out, height 0.12s ease-out;
+  direction: ltr;
+}
+.look-capsule-ari {
+  position: absolute;
+  border-radius: 32%;
+  background: #f4f5f7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18%;
+}
+.look-capsule-ari i {
+  width: 14%;
+  height: 22%;
+  border-radius: 50%;
+  background: #14161a;
+}
+.look-capsule-clock {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  color: rgba(255, 255, 255, 0.82);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  font-family: var(--font);
+}
+.look-capsule-minis {
+  position: absolute;
+  display: grid;
+}
+.look-capsule-minis i {
+  border-radius: 34%;
+}
 /* ── Content shell (expanded) ───────────────────────────────────────────── */
 
 #content {
@@ -273,6 +353,50 @@ body {
   background: var(--tab-on);
   color: var(--ink-strong);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+/* Rearranging the tabs (views/tab-drag.ts). The dragged tab follows the pointer; the
+   others glide to their new places with a small overshoot, like a spring. */
+.tab {
+  touch-action: none;
+}
+
+.tabs.sorting,
+.tabs.sorting .tab {
+  cursor: grabbing;
+}
+
+.tabs.sorting .tab {
+  transition: transform 0.28s cubic-bezier(0.34, 1.45, 0.5, 1), background 0.14s, color 0.14s, box-shadow 0.28s;
+}
+
+.tabs.sorting .tab.dragging {
+  position: relative;
+  z-index: 3;
+  transition: none;
+  /* Solid, so the tab it slides over never shows through its label. */
+  background: var(--tab-on);
+  color: var(--ink-strong);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5), 0 0 0 1px rgb(var(--fg) / 0.22);
+}
+
+.tabs.sorting .tab.dropping {
+  position: relative;
+  z-index: 3;
+}
+
+.tabs.no-anim .tab {
+  transition: none !important;
+}
+
+:root[data-theme="light"] .tabs.sorting .tab.dragging {
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.22), 0 0 0 1px rgb(var(--fg) / 0.12);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tabs.sorting .tab {
+    transition-duration: 0.01s;
+  }
 }
 
 .header-actions {
@@ -343,8 +467,8 @@ body {
 .card {
   position: relative;
   height: 100%;
-  border-radius: 20px;
-  background: var(--card);
+  border-radius: calc(20px * var(--cr, 1));
+  background: var(--surface-card);
   border: 1px solid var(--hairline);
   overflow: hidden;
 }
@@ -376,7 +500,7 @@ body {
 /* ── Buttons ────────────────────────────────────────────────────────────── */
 
 .btn {
-  font: 500 12.5px var(--font);
+  font: 500 calc(12.5px * var(--fs, 1)) var(--font);
   padding: 7px 13px;
   border: 0;
   border-radius: 999px;
@@ -406,7 +530,7 @@ body {
 }
 
 .btn .kbd {
-  font-size: 10.5px;
+  font-size: calc(10.5px * var(--fs, 1));
   padding: 0 4px;
   border-radius: 4px;
   opacity: 0.55;
@@ -423,7 +547,7 @@ body {
 .link-btn {
   border: 0;
   background: transparent;
-  font: 500 11px var(--font);
+  font: 500 calc(11px * var(--fs, 1)) var(--font);
   cursor: default;
 }
 
@@ -475,7 +599,7 @@ body {
   left: 0;
   right: 0;
   text-align: center;
-  font: 600 10px var(--font);
+  font: 600 calc(10px * var(--fs, 1)) var(--font);
   color: var(--dim-3);
   white-space: nowrap;
   overflow: hidden;
@@ -518,16 +642,16 @@ body {
 /* ── Generic text blocks ────────────────────────────────────────────────── */
 
 .title {
-  font: 600 15px var(--font);
+  font: 600 calc(15px * var(--fs, 1)) var(--font);
 }
 
 .sub {
-  font: 400 13px var(--font);
+  font: 400 calc(13px * var(--fs, 1)) var(--font);
   color: var(--dim);
 }
 
 .detail {
-  font: 400 12px var(--font);
+  font: 400 calc(12px * var(--fs, 1)) var(--font);
   color: var(--red-text);
 }
 
@@ -535,17 +659,17 @@ body {
   display: flex;
   align-items: center;
   gap: 7px;
-  font: 400 12px var(--font);
+  font: 400 calc(12px * var(--fs, 1)) var(--font);
   color: var(--dim-2);
 }
 
 .who-row .n {
-  font: 600 12px var(--font);
+  font: 600 calc(12px * var(--fs, 1)) var(--font);
   color: var(--ink);
 }
 
 .code {
-  font: 400 12px var(--mono);
+  font: 400 calc(12px * var(--fs, 1)) var(--mono);
   color: var(--ink-2);
   background: rgb(var(--fg) / 0.07);
   border: 1px solid rgb(var(--fg) / 0.06);
@@ -581,7 +705,7 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font: 400 11px var(--font);
+  font: 400 calc(11px * var(--fs, 1)) var(--font);
   color: var(--dim-2);
 }
 
@@ -597,7 +721,7 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
-  font: 400 12.5px var(--font);
+  font: 400 calc(12.5px * var(--fs, 1)) var(--font);
   color: var(--ink-2);
 }
 
@@ -647,7 +771,7 @@ input[type="range"]::-webkit-slider-thumb {
   width: 11px;
   height: 11px;
   border-radius: 50%;
-  background: #fff;
+  background: var(--ink-strong); /* white on the dark island, black on the light one */
 }
 
 .seg {
@@ -657,7 +781,7 @@ input[type="range"]::-webkit-slider-thumb {
 }
 
 .seg button {
-  font: 400 11px var(--font);
+  font: 400 calc(11px * var(--fs, 1)) var(--font);
   padding: 3px 7px;
   border: 0;
   border-radius: 999px;
@@ -697,14 +821,14 @@ input[type="range"]::-webkit-slider-thumb {
 }
 
 .wardrobe-title {
-  font: 600 12px var(--font);
+  font: 600 calc(12px * var(--fs, 1)) var(--font);
   color: var(--ink);
   flex: 0 0 auto;
 }
 
 .wardrobe-note {
   margin-inline-start: auto;
-  font: 400 11px var(--font);
+  font: 400 calc(11px * var(--fs, 1)) var(--font);
   color: var(--dim-2);
   white-space: nowrap;
   overflow: hidden;

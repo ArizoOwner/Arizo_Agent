@@ -17,6 +17,16 @@ use crate::platform::{self, cursor_physical};
 /// Logical size of the full window — the largest island view.
 pub const PANEL_W: f64 = 920.0;
 pub const PANEL_H: f64 = 640.0;
+/// What the page may ask the window to be: never smaller than the default island needs,
+/// never so large that a mistake could cover the screen.
+pub const PANEL_MAX_W: f64 = 2000.0;
+pub const PANEL_MAX_H: f64 = 1400.0;
+
+pub fn clamp_panel((w, h): (f64, f64)) -> (f64, f64) {
+    let ok = |v: f64, lo: f64, hi: f64| if v.is_finite() { v.clamp(lo, hi) } else { lo };
+    (ok(w, PANEL_W, PANEL_MAX_W).round(), ok(h, PANEL_H, PANEL_MAX_H).round())
+}
+
 /// Logical size of the invisible strip that wakes the island when it is hidden.
 pub const STRIP_W: f64 = 240.0;
 pub const STRIP_H: f64 = 6.0;
@@ -59,6 +69,9 @@ pub struct PollGate {
     cv: Condvar,
     pub collapsed: AtomicBool,
     pub rect: Mutex<IslandRect>,
+    /// The full-size window, in logical px: PANEL_W×PANEL_H until the page, which owns
+    /// the island's geometry, says it needs more room (a wider or taller island).
+    pub panel: Mutex<(f64, f64)>,
     /// Mirrors the window flag so we only call into the OS when it changes.
     ignoring: AtomicBool,
 }
@@ -70,12 +83,26 @@ impl PollGate {
             cv: Condvar::new(),
             collapsed: AtomicBool::new(true),
             rect: Mutex::new(IslandRect::default()),
+            panel: Mutex::new((PANEL_W, PANEL_H)),
             ignoring: AtomicBool::new(false),
         }
     }
 
     pub fn set_rect(&self, rect: IslandRect) {
         *self.rect.lock().unwrap() = rect;
+    }
+
+    /// Stores the full-size window's size; false when it did not change.
+    pub fn set_panel(&self, size: (f64, f64)) -> bool {
+        let mut p = self.panel.lock().unwrap();
+        let size = clamp_panel(size);
+        let changed = (p.0 - size.0).abs() > 0.5 || (p.1 - size.1).abs() > 0.5;
+        *p = size;
+        changed
+    }
+
+    pub fn panel_size(&self) -> (f64, f64) {
+        *self.panel.lock().unwrap()
     }
 
     /// Forces the next poll tick to re-apply the flag (after a window resize).
@@ -226,6 +253,31 @@ fn target_monitor(app: &AppHandle, pref: &str) -> Option<Monitor> {
 mod display_tests {
     use super::*;
 
+    #[test]
+    fn only_the_island_shape_counts_as_the_island() {
+        let r = IslandRect { x: 300.0, y: 10.0, w: 320.0, h: 40.0 };
+        assert!(on_island_shape(r, 400.0, 30.0));
+        assert!(on_island_shape(r, 300.0 - HIT_MARGIN, 30.0), "the margin counts");
+        assert!(!on_island_shape(r, 100.0, 300.0), "empty click-through part of the window");
+        assert!(!on_island_shape(r, 400.0, 400.0));
+        assert!(!on_island_shape(IslandRect::default(), 0.0, 0.0), "no shape pushed yet");
+    }
+
+    #[test]
+    fn the_window_is_never_smaller_than_the_default_or_absurdly_large() {
+        assert_eq!(clamp_panel((920.0, 640.0)), (PANEL_W, PANEL_H));
+        assert_eq!(clamp_panel((100.0, 50.0)), (PANEL_W, PANEL_H), "never below what the default island needs");
+        assert_eq!(clamp_panel((1180.4, 820.6)), (1180.0, 821.0));
+        assert_eq!(clamp_panel((99999.0, 99999.0)), (PANEL_MAX_W, PANEL_MAX_H));
+        assert_eq!(clamp_panel((f64::NAN, f64::NAN)), (PANEL_W, PANEL_H), "not a number: the default");
+        assert_eq!(clamp_panel((f64::INFINITY, f64::INFINITY)), (PANEL_W, PANEL_H), "infinity is not a size either");
+        let gate = PollGate::new();
+        assert_eq!(gate.panel_size(), (PANEL_W, PANEL_H));
+        assert!(gate.set_panel((1100.0, 700.0)), "a new size is a change");
+        assert!(!gate.set_panel((1100.2, 700.0)), "the same size again is not");
+        assert_eq!(gate.panel_size(), (1100.0, 700.0));
+    }
+
     fn d(name: &str, x: i32, y: i32, w: i32, h: i32) -> DisplayId {
         DisplayId { name: name.into(), x, y, w, h }
     }
@@ -291,14 +343,16 @@ pub fn apply_geometry(app: &AppHandle, pref: &str, collapsed: bool) {
     let mp = *m.position();
     let ms = *m.size();
 
-    let (lw, lh) = if collapsed { (STRIP_W, STRIP_H) } else { (PANEL_W, PANEL_H) };
+    let (lw, lh) = if collapsed { (STRIP_W, STRIP_H) } else { crate::panel_size(app) };
     let pw = (lw * scale).round().max(1.0) as u32;
     let ph = (lh * scale).round().max(1.0) as u32;
     let x = mp.x + (ms.width as i32 - pw as i32) / 2;
     let y = mp.y;
 
-    let _ = win.set_size(PhysicalSize::new(pw, ph));
-    let _ = win.set_position(PhysicalPosition::new(x, y));
+    if !platform::place_window(&win, x, y, pw, ph) {
+        let _ = win.set_size(PhysicalSize::new(pw, ph));
+        let _ = win.set_position(PhysicalPosition::new(x, y));
+    }
     let (lx, ly) = logical_origin(&m);
     platform::pin_to_monitor(&win, lx, ly);
     // Moving across displays can rescale the window: re-assert the physical size.
@@ -313,6 +367,34 @@ fn current_screen_key(app: &AppHandle) -> Option<(i32, i32, u32, u32, u64)> {
     let p = m.position();
     let size = m.size();
     Some((p.x, p.y, size.width, size.height, m.scale_factor().to_bits()))
+}
+
+/// Whether the window-logical point `(x, y)` is on the island shape `r`, within
+/// `HIT_MARGIN`. An empty shape (not pushed yet) is never hit.
+pub(crate) fn on_island_shape(r: IslandRect, x: f64, y: f64) -> bool {
+    r.w > 0.0
+        && x >= r.x - HIT_MARGIN
+        && x <= r.x + r.w + HIT_MARGIN
+        && y >= r.y - HIT_MARGIN
+        && y <= r.y + r.h + HIT_MARGIN
+}
+
+/// Whether the physical screen point `(x, y)` is on the island, for the global
+/// mouse hook. Collapsed, the island is the whole strip window; otherwise only
+/// the shape the page drew counts, as the rest of the full-size window is click-through.
+pub(crate) fn cursor_on_island(win: &WebviewWindow, gate: &PollGate, x: i32, y: i32) -> bool {
+    if !win.is_visible().unwrap_or(false) {
+        return false;
+    }
+    let Ok(origin) = win.outer_position() else { return false };
+    if gate.collapsed.load(Ordering::Relaxed) {
+        let Ok(size) = win.outer_size() else { return false };
+        return x >= origin.x && x <= origin.x + size.width as i32 && y >= origin.y && y <= origin.y + size.height as i32;
+    }
+    let scale = win.scale_factor().unwrap_or(1.0);
+    let lx = (x - origin.x) as f64 / scale;
+    let ly = (y - origin.y) as f64 / scale;
+    on_island_shape(*gate.rect.lock().unwrap(), lx, ly)
 }
 
 /// Emits `cursor` (window-logical coordinates) at ~60 Hz while the island is
@@ -359,12 +441,7 @@ pub fn spawn_cursor_poll(app: AppHandle, gate: Arc<PollGate>) {
                 // Click-through: the window only takes the mouse over the island
                 // shape. A small entry margin means the flag is already off by the
                 // time a moving cursor reaches a button.
-                let r = *gate.rect.lock().unwrap();
-                let on_island = r.w > 0.0
-                    && x >= r.x - HIT_MARGIN
-                    && x <= r.x + r.w + HIT_MARGIN
-                    && y >= r.y - HIT_MARGIN
-                    && y <= r.y + r.h + HIT_MARGIN;
+                let on_island = on_island_shape(*gate.rect.lock().unwrap(), x, y);
 
                 if gate.ignoring.load(Ordering::Relaxed) == on_island {
                     gate.ignoring.store(!on_island, Ordering::Relaxed);

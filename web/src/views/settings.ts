@@ -6,6 +6,7 @@ import { ICONS } from "./icons";
 import { card } from "./parts";
 import { enhanceSelect } from "./select";
 import { applyTheme } from "../core/theme";
+import { toast } from "../core/toast";
 import { Bridge, type Language as Lang } from "../core/bridge";
 import { recordKey, accelParts } from "../core/hotkey";
 import {
@@ -20,9 +21,10 @@ import { State, mergeSettings, type SettingsPatch, type Tone } from "../core/sta
 import { language, resolveLanguage, setLanguage, t, tl } from "../i18n/i18n";
 import { OUTFIT_SELECTIONS, OUTFIT_KEYS, parseOutfit, resolveOutfit, seasonalOutfit } from "../ari/wardrobe";
 import { drawWardrobeIcon } from "../ari/outfits";
+import { buildLookSettings } from "./look-settings";
 import type { ViewActions, ViewHost } from "./views";
 
-type Category = "general" | "shortcuts" | "languages" | "engine" | "sound" | "wardrobe";
+type Category = "general" | "look" | "shortcuts" | "languages" | "engine" | "sound" | "wardrobe";
 
 export function buildSettingsView(actions: ViewActions): ViewHost {
   let activeTab: Category = "general";
@@ -38,6 +40,7 @@ export function buildSettingsView(actions: ViewActions): ViewHost {
 
   const tabs: { id: Category; labelKey: string; icon: string }[] = [
     { id: "general", labelKey: "General", icon: ICONS.gear },
+    { id: "look", labelKey: "Island look", icon: ICONS.eye },
     { id: "shortcuts", labelKey: "Shortcuts", icon: ICONS.timer },
     { id: "languages", labelKey: "Languages", icon: ICONS.swap },
     { id: "engine", labelKey: "AI Engine", icon: ICONS.spark },
@@ -53,13 +56,50 @@ export function buildSettingsView(actions: ViewActions): ViewHost {
     const span = h("span", { text: t(tab.labelKey) });
     const btn = h(
       "button",
-      { class: "settings-nav-btn", type: "button", onclick: () => switchTab(tab.id) },
+      { class: "settings-nav-btn", type: "button", title: t(tab.labelKey), onclick: () => switchTab(tab.id) },
       svg(tab.icon, 13, { stroke: 2 }),
       span,
     ) as HTMLButtonElement;
     tabButtons.set(tab.id, { btn, span });
     navBar.append(btn);
   }
+
+  // Liquid-glass pill that glides to the active tab.
+  const glass = h("div", { class: "settings-glass", "aria-hidden": "true" });
+  navBar.prepend(glass);
+  let glassPlaced = false;
+  let glassFrom = -1;
+
+  function moveGlass() {
+    const target = tabButtons.get(activeTab)?.btn;
+    if (!target || !target.offsetWidth) {
+      requestAnimationFrame(moveGlass);
+      return;
+    }
+    const x = target.offsetLeft;
+    const w = target.offsetWidth;
+    glass.style.width = `${w}px`;
+    glass.style.transform = `translateX(${x}px)`;
+    if (!glassPlaced) {
+      glassPlaced = true;
+      glassFrom = x;
+      requestAnimationFrame(() => glass.classList.add("ready"));
+      return;
+    }
+    if (x !== glassFrom) {
+      glass.classList.remove("moving");
+      void glass.offsetWidth;
+      glass.classList.add("moving");
+      glassFrom = x;
+      target.scrollIntoView({ block: "nearest", inline: "nearest", behavior: "smooth" });
+    }
+  }
+  glass.addEventListener("animationend", () => glass.classList.remove("moving"));
+  new ResizeObserver(() => {
+    glass.classList.remove("ready");
+    glassPlaced = false;
+    moveGlass();
+  }).observe(navBar);
 
   // Content body
   const bodyEl = h("div", { class: "settings-panel" });
@@ -80,6 +120,11 @@ export function buildSettingsView(actions: ViewActions): ViewHost {
     State.settings = mergeSettings(State.settings, patch);
     actions.blip();
     const res = await Bridge.saveSettings(patch, opts);
+    if (res && res.ok === false) {
+      // Nothing was stored (no settings come back): keep the typed key on screen.
+      toast(t("Could not save. Try again."));
+      return res;
+    }
     if (res?.settings) {
       State.settings = mergeSettings(State.settings, res.settings);
     }
@@ -92,6 +137,7 @@ export function buildSettingsView(actions: ViewActions): ViewHost {
     }
     State.notify();
     render();
+    return res;
   }
 
   // ── Helper controls ─────────────────────────────────────────────────────────
@@ -131,7 +177,26 @@ export function buildSettingsView(actions: ViewActions): ViewHost {
       h("span", { class: "set-label", text: label }),
       hint ? h("span", { class: "set-hint", text: hint }) : null,
     );
-    return h("div", { class: "set-row" }, left, control, extra ?? null);
+    return h("div", { class: "set-row" }, left, h("div", { class: "set-row-control" }, control, extra ?? null));
+  }
+
+  /** A titled card that groups related rows, so each tab reads as a few clear blocks. */
+  function section(title: string, icon: string, ...rows: (Node | null)[]): HTMLElement {
+    return h(
+      "section",
+      { class: "set-group" },
+      h("div", { class: "set-group-head" },
+        h("span", { class: "set-group-icon" }, svg(icon, 12, { stroke: 2 })),
+        h("span", { class: "set-group-title", text: title }),
+      ),
+      h("div", { class: "set-group-body" }, ...rows),
+    );
+  }
+
+  /** Dims a row whose option only matters while another one is on. */
+  function dependsOn(row: HTMLElement, on: boolean): HTMLElement {
+    row.classList.toggle("set-row-off", !on);
+    return row;
   }
 
   // ── Render Category Content ─────────────────────────────────────────────────
@@ -139,9 +204,11 @@ export function buildSettingsView(actions: ViewActions): ViewHost {
   function renderGeneral(): HTMLElement {
     const s = State.settings;
     const content = h("div", { class: "set-content-scroll" });
+    const rows: HTMLElement[] = [];
+    const collect = { append: (...n: HTMLElement[]) => rows.push(...n) };
 
     // 1. Language
-    content.append(
+    collect.append(
       settingRow(
         t("Interface language"),
         t("Language for menus and controls"),
@@ -157,7 +224,7 @@ export function buildSettingsView(actions: ViewActions): ViewHost {
     );
 
     // 2. Theme
-    content.append(
+    collect.append(
       settingRow(
         t("Theme"),
         t("Light, dark, or follow Windows"),
@@ -174,7 +241,7 @@ export function buildSettingsView(actions: ViewActions): ViewHost {
     );
 
     // 3. Autostart
-    content.append(
+    collect.append(
       settingRow(
         t("Launch at startup"),
         t("Start silently in tray with Windows"),
@@ -183,7 +250,7 @@ export function buildSettingsView(actions: ViewActions): ViewHost {
     );
 
     // 4. Hide on blur
-    content.append(
+    collect.append(
       settingRow(
         t("Hide when I click elsewhere"),
         t("Automatically collapse island when clicking other windows"),
@@ -192,7 +259,7 @@ export function buildSettingsView(actions: ViewActions): ViewHost {
     );
 
     // 5. Floating bubble
-    content.append(
+    collect.append(
       settingRow(
         t("Floating bubble"),
         t("A small button near selected text in any app"),
@@ -201,7 +268,7 @@ export function buildSettingsView(actions: ViewActions): ViewHost {
     );
 
     // 6. Auto-copy
-    content.append(
+    collect.append(
       settingRow(
         t("Copy automatically"),
         t("Copy translated text to clipboard immediately"),
@@ -210,7 +277,7 @@ export function buildSettingsView(actions: ViewActions): ViewHost {
     );
 
     // 7. Restore clipboard
-    content.append(
+    collect.append(
       settingRow(
         t("Restore the clipboard after replacing"),
         t("Restore previous clipboard content after in-place translation"),
@@ -218,7 +285,7 @@ export function buildSettingsView(actions: ViewActions): ViewHost {
       ),
     );
 
-    content.append(
+    collect.append(
       settingRow(
         t("Spotify player"),
         t("See and control your Spotify playback from the island"),
@@ -226,17 +293,17 @@ export function buildSettingsView(actions: ViewActions): ViewHost {
       ),
     );
 
-    content.append(
+    collect.append(
       settingRow(
         t("Football"),
         t("Live scores, fixtures and a goal celebration for your favourite team"),
         toggle(s.footballEnabled, (val) => void save({ footballEnabled: val })),
       ),
-      settingRow(
+      dependsOn(settingRow(
         t("Team kit on Ari"),
         t("Ari wears your team's shirt in the Football section"),
         toggle(s.footballKit, (val) => void save({ footballKit: val })),
-      ),
+      ), s.footballEnabled),
       settingRow(
         t("Crypto prices"),
         t("Live prices and a 1-minute chart, read through your own exchange API"),
@@ -259,15 +326,27 @@ export function buildSettingsView(actions: ViewActions): ViewHost {
       void save({ historyLimit: num });
     });
 
-    content.append(
+    collect.append(
       settingRow(
         t("Save history"),
         t("Keep past translations saved locally"),
         toggle(s.saveHistory, (val) => void save({ saveHistory: val })),
-        h("div", { class: "set-subrow" }, limitInput, h("span", { class: "set-hint", text: t("translations kept") })),
       ),
+      dependsOn(settingRow(
+        t("History size"),
+        t("translations kept"),
+        limitInput,
+      ), s.saveHistory),
     );
 
+    // rows: 0 lang, 1 theme, 2 startup, 3 hide, 4 bubble, 5 copy, 6 restore,
+    //       7 spotify, 8 football, 9 kit, 10 crypto, 11 history, 12 size
+    content.append(
+      section(t("Appearance"), ICONS.eye, rows[0], rows[1]),
+      section(t("Behavior"), ICONS.gear, rows[2], rows[3], rows[4]),
+      section(t("Clipboard & history"), ICONS.clipboard, rows[5], rows[6], rows[11], rows[12]),
+      section(t("Island widgets"), ICONS.stack, rows[7], rows[8], rows[9], rows[10]),
+    );
     return content;
   }
 
@@ -277,16 +356,14 @@ export function buildSettingsView(actions: ViewActions): ViewHost {
 
     content.append(
       h("div", { class: "set-banner", text: t("Work from any app. Click a shortcut, then press the new keys. Esc cancels.") }),
+      section(
+        t("Keyboard shortcuts"),
+        ICONS.key,
+        makeHotkeyRow(t("Translate the selection"), t("Opens the island with selected text"), "hotkey", s.hotkey),
+        makeHotkeyRow(t("Translate in place"), t("Replaces text directly in chat or apps"), "inlineHotkey", s.inlineHotkey),
+        makeHotkeyRow(t("Hide the island completely"), t("Press again to bring it back; works while folded too"), "hideHotkey", s.hideHotkey),
+      ),
     );
-
-    // Island hotkey
-    content.append(makeHotkeyRow(t("Translate the selection"), t("Opens the island with selected text"), "hotkey", s.hotkey));
-
-    // In-place hotkey
-    content.append(makeHotkeyRow(t("Translate in place"), t("Replaces text directly in chat or apps"), "inlineHotkey", s.inlineHotkey));
-
-    // Hide completely
-    content.append(makeHotkeyRow(t("Hide the island completely"), t("Press again to bring it back; works while folded too"), "hideHotkey", s.hideHotkey));
 
     return content;
   }
@@ -310,12 +387,14 @@ export function buildSettingsView(actions: ViewActions): ViewHost {
       if (r.kind === "wait") return;
       if (r.kind === "cancel") return stop();
       if (r.kind === "invalid") {
-        keyBtn.textContent = r.reason === "needsModifier" ? t("Hold Ctrl, Alt or Shift") : t("Invalid key");
+        keyBtn.textContent = r.reason === "needsModifier" ? t("Hold Ctrl or Alt") : t("Invalid key");
         return;
       }
       stop();
       keyBtn.textContent = accelParts(r.accelerator).join(" + ");
-      await save({ [keyName]: r.accelerator });
+      const res = await save({ [keyName]: r.accelerator });
+      const ok = keyName === "hotkey" ? res?.hotkeyOk : keyName === "inlineHotkey" ? res?.inlineHotkeyOk : res?.hideHotkeyOk;
+      if (res && ok === false) toast(t("Unavailable, the previous one was kept"));
     }
 
     keyBtn.addEventListener("click", () => {
@@ -356,18 +435,19 @@ export function buildSettingsView(actions: ViewActions): ViewHost {
     };
 
     content.append(
-      settingRow(
-        t("My first language"),
-        t("Your primary language (e.g. Persian)"),
-        makeSelect(s.nativeLang, (v) => void save({ nativeLang: v })),
-      ),
-    );
-
-    content.append(
-      settingRow(
-        t("My second language"),
-        t("Default translation target language"),
-        makeSelect(s.secondLang, (v) => void save({ secondLang: v })),
+      section(
+        t("Translation languages"),
+        ICONS.swap,
+        settingRow(
+          t("My first language"),
+          t("Your primary language (e.g. Persian)"),
+          makeSelect(s.nativeLang, (v) => void save({ nativeLang: v })),
+        ),
+        settingRow(
+          t("My second language"),
+          t("Default translation target language"),
+          makeSelect(s.secondLang, (v) => void save({ secondLang: v })),
+        ),
       ),
     );
 
@@ -378,9 +458,12 @@ export function buildSettingsView(actions: ViewActions): ViewHost {
     const s = State.settings;
     const a = s.aphra;
     const content = h("div", { class: "set-content-scroll" });
+    const engineRows: HTMLElement[] = [];
+    const connRows: HTMLElement[] = [];
+    const styleRows: HTMLElement[] = [];
 
     // Default engine
-    content.append(
+    engineRows.push(
       settingRow(
         t("Default engine"),
         t("Choose default translation engine"),
@@ -411,6 +494,13 @@ export function buildSettingsView(actions: ViewActions): ViewHost {
     }) as HTMLInputElement;
 
     presetSelect.addEventListener("change", () => {
+      // "Custom" is not a place to go to: it is what a hand-edited URL already is.
+      if (presetSelect.value === "custom") {
+        presetSelect.value = providerForUrl(urlInput.value);
+        urlInput.focus();
+        urlInput.select();
+        return;
+      }
       const next = applyPreset(presetSelect.value as ProviderId, { baseUrl: urlInput.value, model: "" });
       urlInput.value = next.baseUrl;
       customModelMode = false;
@@ -428,11 +518,8 @@ export function buildSettingsView(actions: ViewActions): ViewHost {
       void save({ aphra: { baseUrl: urlInput.value.trim() } });
     });
 
-    content.append(
+    connRows.push(
       settingRow(t("AI Provider"), t("Preset or custom OpenAI-compatible endpoint"), presetSelect),
-    );
-
-    content.append(
       settingRow(t("Base URL"), t("Endpoint address"), urlInput),
     );
 
@@ -450,14 +537,17 @@ export function buildSettingsView(actions: ViewActions): ViewHost {
         modelStatusText = "";
         modelStatusOk = null;
         render();
+        const reqUrl = urlInput.value.trim();
         try {
-          const res = await Bridge.fetchModels({ baseUrl: urlInput.value.trim(), model: a.model });
+          const res = await Bridge.fetchModels({ baseUrl: reqUrl, model: a.model });
           if (res?.ok && res.models?.length) {
-            saveCachedModels(urlInput.value.trim(), res.models);
+            saveCachedModels(reqUrl, res.models);
             modelStatusText = t("✓ {n} models loaded", { n: res.models.length });
             modelStatusOk = true;
             customModelMode = false;
-            if (!res.models.some((m) => m.id === a.model)) {
+            // The settings may have moved to another endpoint or model while the request ran.
+            const cur = State.settings.aphra;
+            if (cur.baseUrl.trim() === reqUrl && !res.models.some((m) => m.id === cur.model)) {
               void save({ aphra: { model: res.models[0].id } });
             }
           } else {
@@ -554,23 +644,23 @@ export function buildSettingsView(actions: ViewActions): ViewHost {
       const textCol = modelRow.querySelector(".set-row-text");
       if (textCol) textCol.append(badge);
     }
-    content.append(modelRow);
+    connRows.push(modelRow);
 
-    // API Key input with eye & save & remove
+    // API key: one field with the eye inside, a status dot, and context actions.
     let keyRevealed = false;
     const keyInput = h("input", {
       type: "password",
-      class: "set-text-input ltr",
+      class: "set-key-input ltr",
       autocomplete: "off",
       spellcheck: false,
-      placeholder: a.hasApiKey ? t("Key is saved (stored in Windows)") : t("API key (sk-...)"),
+      placeholder: a.hasApiKey ? "••••••••••••••••" : t("API key (sk-...)"),
     }) as HTMLInputElement;
 
     const eyeBtn = h(
       "button",
       {
         type: "button",
-        class: "set-icon-btn",
+        class: "set-key-eye",
         title: t("Show or hide the key"),
         onclick: () => {
           keyRevealed = !keyRevealed;
@@ -582,33 +672,61 @@ export function buildSettingsView(actions: ViewActions): ViewHost {
       svg(ICONS.eye, 14, { stroke: 2 }),
     );
 
-    const saveKeyBtn = h("button", {
-      type: "button",
-      class: "btn primary set-btn-action",
-      text: t("Save key"),
-      onclick: async () => {
-        const val = keyInput.value.trim();
-        if (!val) return;
-        await save({}, { apiKey: val });
-        keyInput.value = "";
+    const saveKeyBtn = h(
+      "button",
+      {
+        type: "button",
+        class: "set-key-save",
+        title: t("Save key"),
+        onclick: async () => {
+          const val = keyInput.value.trim();
+          if (!val) return;
+          const res = await save({}, { apiKey: val });
+          if (res?.ok !== false) keyInput.value = "";
+        },
       },
+      svg(ICONS.check, 13, { stroke: 2.4 }),
+      h("span", { text: t("Save key") }),
+    ) as HTMLButtonElement;
+
+    const removeKeyBtn = a.hasApiKey
+      ? h(
+          "button",
+          {
+            type: "button",
+            class: "set-key-remove",
+            title: t("Remove key"),
+            onclick: async () => {
+              await save({}, { clearApiKey: true });
+              keyInput.value = "";
+            },
+          },
+          svg(ICONS.trash, 13, { stroke: 2 }),
+        )
+      : null;
+
+    const syncKeyState = () => {
+      const has = keyInput.value.trim().length > 0;
+      saveKeyBtn.classList.toggle("show", has);
+    };
+    keyInput.addEventListener("input", syncKeyState);
+    keyInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") saveKeyBtn.click();
     });
 
-    const removeKeyBtn = h("button", {
-      type: "button",
-      class: "btn secondary danger set-btn-action",
-      text: t("Remove key"),
-      style: a.hasApiKey ? "" : "display:none",
-      onclick: async () => {
-        await save({}, { clearApiKey: true });
-        keyInput.value = "";
-      },
-    });
-
-    const keyActions = h("div", { class: "set-key-wrap" }, keyInput, eyeBtn, saveKeyBtn, removeKeyBtn);
-    content.append(
-      settingRow(t("API Key"), t("Saved securely in Windows Credential Manager"), keyActions),
+    const keyStatus = h(
+      "span",
+      { class: `set-key-status ${a.hasApiKey ? "ok" : "none"}` },
+      h("i"),
+      h("span", { text: a.hasApiKey ? t("Key is saved (stored in Windows)") : t("No key yet") }),
     );
+
+    const keyField = h("div", { class: "set-key-field" }, svg(ICONS.key, 13, { stroke: 2 }), keyInput, eyeBtn);
+    const keyActions = h("div", { class: "set-key-wrap" }, keyField, saveKeyBtn, removeKeyBtn);
+    const keyRow = settingRow(t("API Key"), t("Saved securely in Windows Credential Manager"), keyActions);
+    keyRow.classList.add("set-row-stack");
+    keyRow.querySelector(".set-row-text")?.append(keyStatus);
+    connRows.push(keyRow);
 
     // Tone selector
     const toneSelect = enhanceSelect(h("select", { class: "set-select" }) as HTMLSelectElement);
@@ -625,10 +743,10 @@ export function buildSettingsView(actions: ViewActions): ViewHost {
       void save({ aphra: { tone: toneSelect.value as Tone } });
     });
 
-    content.append(settingRow(t("Translation Tone"), t("Nuance and style control"), toneSelect));
+    styleRows.push(settingRow(t("Translation Tone"), t("Nuance and style control"), toneSelect));
 
     // Idiom breakdown toggle
-    content.append(
+    styleRows.push(
       settingRow(
         t("Idiom breakdown"),
         t("Show cultural notes and expression breakdown"),
@@ -676,8 +794,13 @@ export function buildSettingsView(actions: ViewActions): ViewHost {
       );
     }
 
-    content.append(settingRow(t("Test connection"), t("Verify API credentials"), testWrap));
+    connRows.push(settingRow(t("Test connection"), t("Verify API credentials"), testWrap));
 
+    content.append(
+      section(t("Engine"), ICONS.bolt, ...engineRows),
+      section(t("Connection"), ICONS.key, ...connRows),
+      section(t("Translation style"), ICONS.pen, ...styleRows),
+    );
     return content;
   }
 
@@ -686,12 +809,10 @@ export function buildSettingsView(actions: ViewActions): ViewHost {
     const content = h("div", { class: "set-content-scroll" });
 
     // Sound toggle
-    content.append(
-      settingRow(
-        t("Sound effects"),
-        t("Play subtle audio feedback on actions"),
-        toggle(s.soundEnabled, () => actions.toggleSound()),
-      ),
+    const soundRow = settingRow(
+      t("Sound effects"),
+      t("Play subtle audio feedback on actions"),
+      toggle(s.soundEnabled, () => actions.toggleSound()),
     );
 
     // Volume slider
@@ -703,15 +824,20 @@ export function buildSettingsView(actions: ViewActions): ViewHost {
       class: "set-range",
       value: String(s.soundVolume),
     }) as HTMLInputElement;
+    // Saving rebuilds the view, so the drag only previews; the value is stored on release.
     volInput.addEventListener("input", () => {
+      actions.previewVolume(Number(volInput.value));
+    });
+    volInput.addEventListener("change", () => {
       actions.setVolume(Number(volInput.value));
     });
 
-    content.append(settingRow(t("Sound volume"), t("Adjust audio loudness"), volInput));
+    const volRow = dependsOn(settingRow(t("Sound volume"), t("Adjust audio loudness"), volInput), s.soundEnabled);
+    content.append(section(t("Sound"), ICONS.speakerOn, soundRow, volRow));
 
     // Auto-close interval
     content.append(
-      settingRow(
+      section(t("Timer"), ICONS.timer, settingRow(
         t("Auto-close timer"),
         t("Seconds before inactive island folds back to compact"),
         segmented(
@@ -723,7 +849,7 @@ export function buildSettingsView(actions: ViewActions): ViewHost {
           String(Math.round(s.autoCloseInterval)),
           (val) => actions.setAutoClose(Number(val)),
         ),
-      ),
+      )),
     );
 
     return content;
@@ -782,7 +908,7 @@ export function buildSettingsView(actions: ViewActions): ViewHost {
       grid.append(btn);
     }
 
-    content.append(grid);
+    content.append(section(t("Wardrobe"), ICONS.star, grid));
     return content;
   }
 
@@ -795,10 +921,14 @@ export function buildSettingsView(actions: ViewActions): ViewHost {
     }
 
     clear(bodyEl);
+    requestAnimationFrame(moveGlass);
 
     switch (activeTab) {
       case "general":
         bodyEl.append(renderGeneral());
+        break;
+      case "look":
+        bodyEl.append(buildLookSettings(actions, { section, settingRow, toggle }));
         break;
       case "shortcuts":
         bodyEl.append(renderShortcuts());
@@ -834,6 +964,8 @@ export function buildSettingsView(actions: ViewActions): ViewHost {
    * click never landed, and wiped a key typed but not yet saved.
    */
   let drawn = "";
+  // A look slider being dragged is previewed on the island but is not part of what the panel
+  // shows: redrawing it mid-drag would replace the slider under the pointer.
   const signature = () =>
     JSON.stringify([language(), State.settings, loaded, new Date().toDateString()]);
 
@@ -841,6 +973,9 @@ export function buildSettingsView(actions: ViewActions): ViewHost {
     el,
     sync() {
       void loadLanguages();
+      // A look slider is being dragged: the island shows the preview, the panel stays as it is,
+      // or the slider under the pointer would be replaced and letting go would save nothing.
+      if (State.lookPreview) return;
       const next = signature();
       if (next === drawn) return;
       drawn = next;

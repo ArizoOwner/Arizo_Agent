@@ -1,5 +1,5 @@
 // SoundEngine — port of SoundEngine.swift.
-// The 30 WAVs are synthesized by scripts/gen-sounds.mjs (`npm run sounds`) and served at
+// The 33 WAVs are synthesized by scripts/gen-sounds.mjs (`npm run sounds`) and served at
 // /sounds/<name>.wav. Several sounds may overlap.
 
 export const SOUND_NAMES = [

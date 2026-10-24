@@ -251,14 +251,15 @@ async function speak() {
   if (res && res.ok && res.audio) {
     audio = new Audio(`data:audio/mpeg;base64,${res.audio}`);
     audio.onended = audio.onerror = () => { stopAudio(); startTimer(CARD_MS); };
-    audio.play().catch(() => stopAudio());
+    audio.play().catch(() => { stopAudio(); startTimer(CARD_MS); });
   } else if (typeof SpeechSynthesisUtterance !== "undefined") {
     const u = new SpeechSynthesisUtterance(shown);
     u.lang = target || "en";
-    u.onend = () => { stopAudio(); startTimer(CARD_MS); };
+    u.onend = u.onerror = () => { stopAudio(); startTimer(CARD_MS); };
     speechSynthesis.speak(u);
   } else {
     stopAudio();
+    startTimer(CARD_MS);
   }
 }
 
@@ -274,9 +275,9 @@ openBtn.addEventListener("click", () => {
 speakBtn.addEventListener("click", () => void speak());
 copyBtn.addEventListener("click", async () => {
   if (!shown) return;
-  await Bridge.copyText(shown);
+  const copied = await Bridge.copyText(shown);
   stopTimer();
-  (copyBtn.firstElementChild as HTMLElement).textContent = t("Copied");
+  (copyBtn.firstElementChild as HTMLElement).textContent = copied === false ? t("Could not copy") : t("Copied");
   window.setTimeout(() => dismiss(), 900);
 });
 replaceBtn.addEventListener("click", async () => {

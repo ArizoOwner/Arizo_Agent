@@ -84,6 +84,15 @@ export function translateHeight(cardPx: number): number {
   return Math.min(PANEL_H, Math.max(TRANSLATE_MIN_H, wanted));
 }
 
+/**
+ * The least height the translate view can have without cutting a card off: what the cards
+ * need plus the island's chrome, with no resting minimum. A shorter island (Settings → Island
+ * look) may go down to this, never below.
+ */
+export function translateNeed(cardPx: number): number {
+  return Math.min(PANEL_H, Math.round(Math.max(0, cardPx)) + ISLAND_CHROME_PX);
+}
+
 export const VIEW_LAYOUTS: Record<IslandViewName, ViewLayout> = {
   // The two-card translator: source on the left, result on the right. Ari sits
   // beside the source text, like in the chat of the app this look comes from.
@@ -115,6 +124,67 @@ export function islandSize(
         ? { w: translateW, h: translateH }
         : { w: view === "greeting" ? GREETING_ISLAND_W : EXPANDED_W, h: VIEW_LAYOUTS[view].height };
   }
+}
+
+/** What the user may change about the folded capsule (Settings > Island look). */
+export interface CompactLook {
+  uiCompactWidth: number;
+  uiCompactHeight: number;
+  uiCompactScale: number;
+}
+
+/** The mini Aris in the capsule sit in a grid of two columns: each is `MINI` px across. */
+const MINI = 13;
+const MINI_GAP = 3;
+const gridHeight = (rows: number) => MINI * rows + MINI_GAP * (rows - 1);
+
+/** The folded island's box: the design stretched by its width and height, then zoomed. */
+export function compactSize(look: CompactLook): { w: number; h: number } {
+  const z = look.uiCompactScale / 100;
+  return {
+    w: Math.round(COMPACT_W * (look.uiCompactWidth / 100) * z),
+    h: Math.round(NOTCH_H * (look.uiCompactHeight / 100) * z),
+  };
+}
+
+/**
+ * Where everything in the capsule goes, whatever the look: Ari at the left, the clock in the
+ * middle, the mini Aris at the right. Everything is drawn at the zoom `k`, which is the zoom the
+ * user chose but never more than the capsule's height lets the mini grid take: a short capsule
+ * shrinks what is in it instead of cutting it off. Its width follows the zoom too, so the three
+ * never meet. At the default look this is exactly the design (Ari 20 px at 40, minis at 40 from the right).
+ */
+export interface CompactLayout {
+  w: number;
+  h: number;
+  /** The zoom of what is drawn in it. */
+  k: number;
+  /** Ari's centre from the island's left edge and top, and his body's diameter. */
+  ariCx: number;
+  ariCy: number;
+  ariD: number;
+  /** The mini grid's centre from the island's right edge, and its size. */
+  inset: number;
+  gridW: number;
+  gridH: number;
+}
+
+export function compactLayout(look: CompactLook, rows = 2): CompactLayout {
+  const box = compactSize(look);
+  const exactH = NOTCH_H * (look.uiCompactHeight / 100) * (look.uiCompactScale / 100);
+  const fit = exactH / (gridHeight(rows) + 3);
+  const k = Math.max(0.3, Math.min(look.uiCompactScale / 100, fit));
+  return {
+    w: box.w,
+    h: box.h,
+    k,
+    ariCx: 40 * k,
+    ariCy: box.h / 2,
+    ariD: 20 * k,
+    inset: 40 * k,
+    gridW: (MINI * 2 + MINI_GAP) * k,
+    gridH: gridHeight(rows) * k,
+  };
 }
 
 export interface BotPlacement {

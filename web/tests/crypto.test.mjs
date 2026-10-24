@@ -50,6 +50,7 @@ test("formatChange formats percentage with sign and polarity", () => {
   assert.deepEqual(C.formatChange(3.456), { text: "+3.46%", positive: true });
   assert.deepEqual(C.formatChange(-2.1), { text: "-2.10%", positive: false });
   assert.deepEqual(C.formatChange(0), { text: "0.00%", positive: true });
+  assert.deepEqual(C.formatChange(-0.004), { text: "0.00%", positive: true });
 });
 
 test("formatVolume scales with B, M, K suffixes", () => {

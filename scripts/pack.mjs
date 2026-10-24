@@ -21,7 +21,7 @@ const installers = (() => {
   }
 })();
 if (installers.length === 0) {
-  console.error(`No *-setup.exe in ${bundle} — run \`npm run tauri build\` first.`);
+  console.error(`No *-setup.exe in ${bundle} — run \`npm run build\` first.`);
   process.exit(1);
 }
 const built = installers

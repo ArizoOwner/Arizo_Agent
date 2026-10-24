@@ -35,6 +35,8 @@ test("a combination is recorded as Mod+Mod+Key", () => {
 test("a function key needs no modifier, a letter does", () => {
   assert.deepEqual(recordKey(ev("F9", "F9")), { kind: "ok", accelerator: "F9" });
   assert.deepEqual(recordKey(ev("KeyD", "d")), { kind: "invalid", reason: "needsModifier" });
+  assert.deepEqual(recordKey(ev("KeyD", "D", { shiftKey: true })), { kind: "invalid", reason: "needsModifier" }, "Shift alone is not a shortcut");
+  assert.deepEqual(recordKey(ev("F5", "F5", { shiftKey: true })), { kind: "ok", accelerator: "Shift+F5" });
 });
 
 test("Esc cancels, a modifier alone waits, an odd key is refused", () => {

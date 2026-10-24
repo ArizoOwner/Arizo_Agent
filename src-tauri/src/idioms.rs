@@ -232,9 +232,11 @@ pub fn enhance_fa_to_en(english: &str, original_fa: &str) -> String {
     static SPACE_COMMA: OnceLock<Regex> = OnceLock::new();
     static SPACE_DOT: OnceLock<Regex> = OnceLock::new();
     static MULTI: OnceLock<Regex> = OnceLock::new();
-    let result = SPACE_COMMA.get_or_init(|| re(r"\s+,")).replace_all(&result, ",").into_owned();
-    let result = SPACE_DOT.get_or_init(|| re(r"\s+\.")).replace_all(&result, ".").into_owned();
-    let result = MULTI.get_or_init(|| re(r"\s{2,}")).replace_all(&result, " ").into_owned();
+    // Horizontal whitespace only, so paragraph breaks survive; a dot loses its
+    // leading space only when it ends a sentence, not in ".env" or ".NET".
+    let result = SPACE_COMMA.get_or_init(|| re(r"[^\S\r\n]+,")).replace_all(&result, ",").into_owned();
+    let result = SPACE_DOT.get_or_init(|| re(r"[^\S\r\n]+\.(\s|$)")).replace_all(&result, ".$1").into_owned();
+    let result = MULTI.get_or_init(|| re(r"[^\S\r\n]{2,}")).replace_all(&result, " ").into_owned();
     result.trim().to_string()
 }
 
@@ -251,11 +253,15 @@ pub fn enhance_en_to_fa(persian: &str, original_en: &str) -> String {
     // Persian typography. Spaces go after the Persian marks only: «.» and «!» are left
     // alone so decimals, domains and abbreviations survive.
     static BEFORE: OnceLock<Regex> = OnceLock::new();
+    static BEFORE_END: OnceLock<Regex> = OnceLock::new();
     static AFTER: OnceLock<Regex> = OnceLock::new();
     static MULTI: OnceLock<Regex> = OnceLock::new();
-    let result = BEFORE.get_or_init(|| re(r"\s+([،؛.؟!])")).replace_all(&result, "$1").into_owned();
+    // Horizontal whitespace only, so paragraph breaks survive; «.» and «!» lose
+    // their leading space only at the end of a sentence (".env" keeps it).
+    let result = BEFORE.get_or_init(|| re(r"[^\S\r\n]+([،؛؟])")).replace_all(&result, "$1").into_owned();
+    let result = BEFORE_END.get_or_init(|| re(r"[^\S\r\n]+([.!])(\s|$)")).replace_all(&result, "$1$2").into_owned();
     let result = AFTER.get_or_init(|| re(r"([،؛؟])([^\s،؛.؟!])")).replace_all(&result, "$1 $2").into_owned();
-    let result = MULTI.get_or_init(|| re(r"\s{2,}")).replace_all(&result, " ").into_owned();
+    let result = MULTI.get_or_init(|| re(r"[^\S\r\n]{2,}")).replace_all(&result, " ").into_owned();
     result.trim().to_string()
 }
 
@@ -311,6 +317,15 @@ mod tests {
     fn persian_typography_leaves_urls_and_decimals_alone() {
         assert_eq!(enhance_en_to_fa("به google.com برو", "go to google.com"), "به google.com برو");
         assert_eq!(enhance_en_to_fa("عدد 3.14 است", "x"), "عدد 3.14 است");
+    }
+
+    #[test]
+    fn cleanup_keeps_paragraph_breaks_and_dotted_tokens() {
+        assert_eq!(enhance_fa_to_en("First .\n\nSecond  point ,ok", "x"), "First.\n\nSecond point,ok");
+        assert_eq!(enhance_fa_to_en("Edit the .env file .", "x"), "Edit the .env file.");
+        assert_eq!(enhance_en_to_fa("بند اول\n\nبند دوم", "x"), "بند اول\n\nبند دوم");
+        assert_eq!(enhance_en_to_fa("فایل .gitignore را ببین .", "x"), "فایل .gitignore را ببین.");
+        assert_eq!(enhance_en_to_fa("سلام ،دنیا !", "x"), "سلام، دنیا!");
     }
 
     #[test]

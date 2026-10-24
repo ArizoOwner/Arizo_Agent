@@ -12,7 +12,7 @@ use regex::Regex;
 use reqwest::{Client, Response};
 use serde_json::{json, Value};
 
-use crate::langs::{detect, get_language, language_name, normalize_code, resolve_target};
+use crate::langs::{ambiguous_latin_guess, detect, get_language, language_name, normalize_code, resolve_target};
 use crate::model::{BreakdownItem, TranslationData};
 
 pub const DEFAULT_BASE_URL: &str = "https://openrouter.ai/api/v1";
@@ -21,6 +21,9 @@ const GEMINI_HOST: &str = "generativelanguage.googleapis.com";
 const GEMINI_OPENAI_URL: &str = "https://generativelanguage.googleapis.com/v1beta/openai";
 const GEMINI_DEFAULT: &str = "gemini-3.8-flash";
 const REQUEST_TIMEOUT: Duration = Duration::from_secs(15);
+const LONG_REQUEST_TIMEOUT: Duration = Duration::from_secs(45); // a whole non-streamed answer
+const STREAM_IDLE_TIMEOUT: Duration = Duration::from_secs(20);
+const CHAT_DEADLINE: Duration = Duration::from_secs(45); // after this the ladder stops trying more models
 const LONG_TEXT_THRESHOLD: usize = 700; // above this the (slow) idiom breakdown is skipped
 
 pub fn tone_text(tone: &str) -> &'static str {
@@ -114,11 +117,13 @@ fn retired_gemini() -> &'static Regex {
 pub fn normalize_model(model: &str, base_url: &str) -> String {
     let m = {
         let t = model.trim();
-        let t = if t.len() >= 7 && t[..7].eq_ignore_ascii_case("models/") { &t[7..] } else { t };
+        let t = match t.get(..7) {
+            Some(p) if p.eq_ignore_ascii_case("models/") => &t[7..],
+            _ => t,
+        };
         if t.is_empty() { DEFAULT_MODEL.to_string() } else { t.to_string() }
     };
-    let is_gemini = is_gemini_url(base_url) || m.to_lowercase().starts_with("gemini");
-    if is_gemini && (retired_gemini().is_match(&m) || m == "gemini") {
+    if is_gemini_url(base_url) && (retired_gemini().is_match(&m) || m == "gemini") {
         // Older generations are retired; use the active, high-quota one.
         return GEMINI_DEFAULT.to_string();
     }
@@ -128,7 +133,7 @@ pub fn normalize_model(model: &str, base_url: &str) -> String {
 pub fn candidate_models(base_url: &str, model: &str) -> Vec<String> {
     let url = normalize_base_url(base_url);
     let clean = normalize_model(model, &url);
-    let family: &[&str] = if is_gemini_url(&url) || clean.to_lowercase().starts_with("gemini") {
+    let family: &[&str] = if is_gemini_url(&url) {
         &["gemini-3.8-flash", "gemini-3.8-pro", "gemini-3.5-flash", "gemini-3-flash"]
     } else if url.contains("openrouter.ai") {
         &["deepseek/deepseek-chat", "google/gemini-3.8-flash", "openai/gpt-4o-mini", "meta-llama/llama-3.3-70b-instruct"]
@@ -147,6 +152,18 @@ pub fn candidate_models(base_url: &str, model: &str) -> Vec<String> {
 fn is_short(text: &str) -> bool {
     let t = text.trim();
     t.chars().count() <= 80 || t.split_whitespace().count() <= 8
+}
+
+/// The answer budget grows with the text; word counts are useless for CJK or Thai.
+fn max_tokens_for(text: &str) -> u32 {
+    let n = text.trim().chars().count();
+    if n <= 80 {
+        160
+    } else if n > 500 {
+        2048
+    } else {
+        1024
+    }
 }
 
 pub fn build_prompts(text: &str, src: &str, tgt: &str, tone: &str, show_breakdown: bool) -> (String, String) {
@@ -373,9 +390,10 @@ fn json_mode_unsupported() -> &'static Mutex<HashSet<String>> {
 async fn read_sse(mut res: Response, mut on_data: impl FnMut(&str)) -> Result<(), AiError> {
     let mut buf: Vec<u8> = Vec::new();
     loop {
-        let chunk = res
-            .chunk()
+        // No whole-body deadline: a long answer may take a while, but it must keep flowing.
+        let chunk = tokio::time::timeout(STREAM_IDLE_TIMEOUT, res.chunk())
             .await
+            .map_err(|_| AiError::new("NETWORK", 0, true, "stream interrupted"))?
             .map_err(|_| AiError::new("NETWORK", 0, true, "stream interrupted"))?;
         let Some(chunk) = chunk else { break };
         buf.extend_from_slice(&chunk);
@@ -412,6 +430,20 @@ struct Call<'a> {
     max_tokens: Option<u32>,
 }
 
+/// Sends a chat request. reqwest's own timeout also covers reading the body, which
+/// would cut a long streamed answer off, so a stream only gets a deadline for the
+/// response headers (the body is guarded per chunk in `read_sse`).
+async fn send_chat(req: reqwest::RequestBuilder, call: &Call<'_>, base_url: &str, gemini: bool) -> Result<Response, AiError> {
+    if call.stream {
+        return match tokio::time::timeout(REQUEST_TIMEOUT, req.send()).await {
+            Ok(r) => r.map_err(|e| net_error(&e, base_url, gemini)),
+            Err(_) => Err(AiError::new("TIMEOUT", 0, true, "timeout")),
+        };
+    }
+    let limit = if call.max_tokens.unwrap_or(0) > 256 { LONG_REQUEST_TIMEOUT } else { REQUEST_TIMEOUT };
+    req.timeout(limit).send().await.map_err(|e| net_error(&e, base_url, gemini))
+}
+
 async fn call_gemini(
     client: &Client,
     cfg: &AiConfig,
@@ -439,8 +471,13 @@ async fn call_gemini(
     }
 
     let mut payload = json!({ "contents": contents, "generationConfig": { "temperature": 0.3 } });
-    // No thinking tokens: sub-second answers.
-    if !model.to_lowercase().starts_with("gemini-1.") {
+    // As little thinking as the model allows: Gemini 2.x takes a zero budget,
+    // Gemini 3+ only a level ("minimal", else "low").
+    let lower = model.to_lowercase();
+    let gen3 = !lower.starts_with("gemini-1.") && !lower.starts_with("gemini-2");
+    if gen3 {
+        payload["generationConfig"]["thinkingConfig"] = json!({ "thinkingLevel": "minimal" });
+    } else if !lower.starts_with("gemini-1.") {
         payload["generationConfig"]["thinkingConfig"] = json!({ "thinkingBudget": 0 });
     }
     if call.json_mode {
@@ -453,11 +490,15 @@ async fn call_gemini(
         payload["generationConfig"]["maxOutputTokens"] = json!(n);
     }
 
-    let send = |p: &Value| client.post(&url).header("x-goog-api-key", key).json(p).timeout(REQUEST_TIMEOUT).send();
-    let mut res = send(&payload).await.map_err(|e| net_error(&e, "", true))?;
+    let send = |p: &Value| send_chat(client.post(&url).header("x-goog-api-key", key).json(p), call, "", true);
+    let mut res = send(&payload).await?;
+    if res.status().as_u16() == 400 && gen3 {
+        payload["generationConfig"]["thinkingConfig"] = json!({ "thinkingLevel": "low" });
+        res = send(&payload).await?;
+    }
     if res.status().as_u16() == 400 && payload["generationConfig"].get("thinkingConfig").is_some() {
         payload["generationConfig"].as_object_mut().map(|o| o.remove("thinkingConfig"));
-        res = send(&payload).await.map_err(|e| net_error(&e, "", true))?;
+        res = send(&payload).await?;
     }
     if !res.status().is_success() {
         let status = res.status().as_u16();
@@ -532,12 +573,11 @@ async fn call_openai(
         .post(format!("{base_url}/chat/completions"))
         .header("HTTP-Referer", "https://github.com/ArizoOwner/Arizo_Agent")
         .header("X-Title", "Arizo-Agent")
-        .json(&body)
-        .timeout(REQUEST_TIMEOUT);
+        .json(&body);
     if !cfg.api_key.trim().is_empty() {
         req = req.bearer_auth(cfg.api_key.trim());
     }
-    let res = req.send().await.map_err(|e| net_error(&e, base_url, false))?;
+    let res = send_chat(req, call, base_url, false).await?;
     if !res.status().is_success() {
         let status = res.status().as_u16();
         return Err(describe_http_error(status, &read_provider_error(res).await));
@@ -581,8 +621,7 @@ async fn chat_once(
     call: &Call<'_>,
     on_content: &mut (dyn FnMut(&str) + Send),
 ) -> Result<String, AiError> {
-    let gemini = is_gemini_url(base_url) || model.to_lowercase().starts_with("gemini");
-    if gemini && !cfg.api_key.trim().is_empty() {
+    if is_gemini_url(base_url) && !cfg.api_key.trim().is_empty() {
         return call_gemini(client, cfg, model, call, on_content).await;
     }
     call_openai(client, cfg, base_url, model, call, on_content).await
@@ -598,9 +637,11 @@ async fn chat(
     json_mode: bool,
     max_tokens: Option<u32>,
     on_content: &mut (dyn FnMut(&str) + Send),
-) -> Result<String, AiError> {
+) -> Result<(String, String), AiError> {
     let base_url = normalize_base_url(&cfg.base_url);
     let mut last: Option<AiError> = None;
+    let started = std::time::Instant::now();
+    let mut timeouts = 0;
 
     for model in candidate_models(&base_url, &cfg.model) {
         let key = format!("{base_url}|{model}");
@@ -610,7 +651,7 @@ async fn chat(
         for attempt in 0..2 {
             let call = Call { messages, stream: stream_now, json_mode: json_mode_now, max_tokens };
             match chat_once(client, cfg, &base_url, &model, &call, on_content).await {
-                Ok(text) => return Ok(text),
+                Ok(text) => return Ok((text, model)),
                 Err(err) => {
                     let rejected = json_mode_now
                         && err.status == 400
@@ -640,6 +681,19 @@ async fn chat(
                 }
             }
         }
+        // Another model cannot fix a bad key or an unreachable host, and a hanging
+        // service would otherwise cost minutes before the Google fallback.
+        if let Some(err) = &last {
+            if matches!(err.status, 401 | 403) || err.code == "NETWORK" {
+                break;
+            }
+            if err.code == "TIMEOUT" {
+                timeouts += 1;
+            }
+        }
+        if timeouts > 1 || started.elapsed() > CHAT_DEADLINE {
+            break;
+        }
     }
     Err(last.unwrap_or_else(|| AiError::new("API_ERROR", 0, false, "no model")))
 }
@@ -663,8 +717,17 @@ pub async fn translate(
     let tone = known_tone(&cfg.tone).to_string();
     let src = detect(text);
     let tgt = resolve_target(&cfg.target_lang, &src, &cfg.native_lang, &cfg.second_lang);
-    let (system, user) = build_prompts(text, &src, &tgt, &tone, cfg.show_breakdown);
-    let max_tokens = if is_short(text) { 120 } else if text.chars().count() > 500 { 2048 } else { 1024 };
+    let (system, mut user) = build_prompts(text, &src, &tgt, &tone, cfg.show_breakdown);
+    if ambiguous_latin_guess(&src, &cfg.native_lang, &cfg.second_lang) && matches!(cfg.target_lang.as_str(), "" | "auto") {
+        // "en" is only the Latin-script guess: let the model correct the direction.
+        let alt = resolve_target("auto", &tgt, &cfg.native_lang, &cfg.second_lang);
+        user.push_str(&format!(
+            "\n\nIf the text is actually already written in {}, translate it into {} instead.",
+            language_name(&tgt),
+            language_name(&alt)
+        ));
+    }
+    let max_tokens = max_tokens_for(text);
 
     let mut last_partial = String::new();
     let mut on_content = |acc: &str| {
@@ -684,7 +747,8 @@ pub async fn translate(
         Some(max_tokens),
         &mut on_content,
     )
-    .await?;
+    .await?
+    .0;
 
     if raw.trim().is_empty() {
         return Err(AiError::new("EMPTY", 0, false, ""));
@@ -701,9 +765,9 @@ pub async fn test_connection(client: &Client, cfg: &AiConfig) -> Result<(u64, St
     check_config(cfg)?;
     let started = std::time::Instant::now();
     let base = normalize_base_url(&cfg.base_url);
-    let model = normalize_model(&cfg.model, &base);
+    let wanted = normalize_model(&cfg.model, &base);
     let mut ignore = |_: &str| {};
-    chat(
+    let (_, answered) = chat(
         client,
         cfg,
         &[("user".into(), "Reply with the single word: pong".into())],
@@ -713,7 +777,11 @@ pub async fn test_connection(client: &Client, cfg: &AiConfig) -> Result<(u64, St
         &mut ignore,
     )
     .await?;
-    Ok((started.elapsed().as_millis() as u64, model))
+    // A fallback model answering means the configured one does not work: say so.
+    if answered != wanted {
+        return Err(AiError::new("NOT_FOUND", 404, false, wanted));
+    }
+    Ok((started.elapsed().as_millis() as u64, answered))
 }
 
 /// The models a provider offers: Gemini's `models` (only those that can
@@ -874,10 +942,15 @@ mod tests {
 
     #[test]
     fn retired_models_are_replaced_and_prefixes_stripped() {
-        assert_eq!(normalize_model("models/gemini-3.8-flash", "gemini"), "gemini-3.8-flash");
+        let g = "https://generativelanguage.googleapis.com/v1beta/openai";
+        assert_eq!(normalize_model("models/gemini-3.8-flash", g), "gemini-3.8-flash");
         for old in ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-pro", "gemini"] {
-            assert_eq!(normalize_model(old, "gemini"), "gemini-3.8-flash", "{old}");
+            assert_eq!(normalize_model(old, g), "gemini-3.8-flash", "{old}");
         }
+        // A Gemini-named model behind another provider's URL is left alone.
+        assert_eq!(normalize_model("gemini-2.5-flash", "https://openrouter.ai/api/v1"), "gemini-2.5-flash");
+        // A non-ASCII name must not be sliced off a char boundary.
+        assert_eq!(normalize_model("گوگل", "https://x"), "گوگل");
         assert_eq!(
             normalize_model("models/gemini-1.5-pro", "https://generativelanguage.googleapis.com/v1"),
             "gemini-3.8-flash"
@@ -895,6 +968,13 @@ mod tests {
         }
         assert_eq!(m.iter().filter(|x| *x == "gemini-3.8-flash").count(), 1, "no duplicates");
         assert_eq!(candidate_models("http://localhost:11434/v1", "qwen2.5:7b"), vec!["qwen2.5:7b".to_string()]);
+    }
+
+    #[test]
+    fn the_token_budget_follows_length_not_word_count() {
+        assert_eq!(max_tokens_for("hi"), 160);
+        assert_eq!(max_tokens_for(&"字".repeat(300)), 1024, "unspaced CJK text is not 'short'");
+        assert_eq!(max_tokens_for(&"字".repeat(3000)), 2048);
     }
 
     #[test]

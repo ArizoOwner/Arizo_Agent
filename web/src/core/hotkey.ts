@@ -52,7 +52,9 @@ export function recordKey(e: KeyLike): HotkeyResult {
   const key = keyName(e.code);
   if (!key) return { kind: "invalid", reason: "unsupportedKey" };
   const mods = modifiers(e);
-  if (!mods.length && !/^F\d/.test(key)) return { kind: "invalid", reason: "needsModifier" };
+  // The backend needs Ctrl, Alt or Super with the key (or an F-key alone): Shift by itself is not a shortcut.
+  const strong = e.ctrlKey || e.altKey || e.metaKey;
+  if (!strong && !/^F\d/.test(key)) return { kind: "invalid", reason: "needsModifier" };
   return { kind: "ok", accelerator: [...mods, key].join("+") };
 }
 

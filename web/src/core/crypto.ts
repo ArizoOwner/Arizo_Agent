@@ -1,5 +1,6 @@
 // Live prices read through the user's own exchange, as the backend reports them.
-// The page never touches the network and never holds a token: it asks the backend
+// The page never fetches data and never holds a token (the coin icons are the only
+// images the webview loads from the network): it asks the backend
 // (src-tauri/src/crypto.rs) to connect, and mirrors the `crypto` event, which carries
 // only prices. Nothing is shown until the exchange has accepted the credentials, and
 // there is no demo data: when a read fails the backend says so and the page keeps what
@@ -385,10 +386,12 @@ export function formatAxisPrice(price: number, quote: CryptoQuote = "USDT"): str
 }
 
 export function formatChange(change: number): { text: string; positive: boolean } {
-  const sign = change > 0 ? "+" : "";
+  // Round first: a tiny negative change must not read "-0.00%" in the down colour.
+  const v = Number(change.toFixed(2)) || 0;
+  const sign = v > 0 ? "+" : "";
   return {
-    text: `${sign}${change.toFixed(2)}%`,
-    positive: change >= 0,
+    text: `${sign}${v.toFixed(2)}%`,
+    positive: v >= 0,
   };
 }
 

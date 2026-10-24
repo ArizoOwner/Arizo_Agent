@@ -91,7 +91,7 @@ body.bubble-page {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font: 600 11px var(--font);
+  font: 600 calc(11px * var(--fs, 1)) var(--font);
   color: var(--dim);
   background: var(--card-flat);
   border: 1px solid rgb(var(--fg) / 0.12);
@@ -121,7 +121,7 @@ body.bubble-page {
 }
 
 .src-preview {
-  font: 400 11.5px/1.4 var(--font);
+  font: 400 calc(11.5px * var(--fs, 1))/1.4 var(--font);
   color: var(--dim-2);
   background: rgb(var(--fg) / 0.04);
   border: 1px solid rgb(var(--fg) / 0.05);
@@ -135,7 +135,7 @@ body.bubble-page {
 }
 
 .bubble-result {
-  font: 450 13.5px/1.6 var(--font);
+  font: 450 calc(13.5px * var(--fs, 1))/1.6 var(--font);
   color: var(--ink);
   min-height: 40px;
   max-height: 120px;
@@ -149,11 +149,11 @@ body.bubble-page {
 
 .bubble-result.err {
   color: var(--red-text);
-  font-size: 12.5px;
+  font-size: calc(12.5px * var(--fs, 1));
 }
 
 .bubble-loading {
-  font: 500 12px var(--font);
+  font: 500 calc(12px * var(--fs, 1)) var(--font);
   padding: 6px 0;
 }
 
@@ -169,7 +169,7 @@ body.bubble-page {
 .bubble-foot .btn {
   flex: 0 0 auto;
   padding: 5px 12px;
-  font-size: 12px;
+  font-size: calc(12px * var(--fs, 1));
   gap: 5px;
   cursor: pointer;
   white-space: nowrap;

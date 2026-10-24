@@ -1375,10 +1375,10 @@ export function drawWardrobeIcon(ctx: Ctx, size: number, selection: OutfitSelect
   ctx.fillStyle = "#FFFFFF";
   // A longer translation of "AUTO" gets a smaller font rather than overflowing the badge.
   let fontPx = 4.2;
-  ctx.font = `600 ${fontPx}px system-ui, "Segoe UI", ${SCRIPT_FONTS}, sans-serif`;
+  ctx.font = `600 ${fontPx}px "Vazirmatn", system-ui, "Segoe UI", ${SCRIPT_FONTS}, sans-serif`;
   while (ctx.measureText(autoLabel).width > bw - 2 && fontPx > 2.6) {
     fontPx -= 0.2;
-    ctx.font = `600 ${fontPx}px system-ui, "Segoe UI", ${SCRIPT_FONTS}, sans-serif`;
+    ctx.font = `600 ${fontPx}px "Vazirmatn", system-ui, "Segoe UI", ${SCRIPT_FONTS}, sans-serif`;
   }
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";

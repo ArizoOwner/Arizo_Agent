@@ -559,21 +559,28 @@ pub async fn football_logo(id: String) -> Option<String> {
         return (!hit.is_empty()).then(|| hit.clone());
     }
     let url = format!("{LOGO}?img=/i/teamlogos/soccer/500/{id}.png&w=72&h=72");
-    let data = async {
-        let res = http().get(&url).send().await.ok()?;
-        if !res.status().is_success() || res.content_length().is_some_and(|n| n as usize > LOGO_LIMIT) {
-            return None;
+    // The flag says whether the answer is final: a failed transfer or a 5xx/429 may pass.
+    let (data, definitive) = async {
+        let Ok(res) = http().get(&url).send().await else { return (None, false) };
+        let status = res.status();
+        if !status.is_success() {
+            return (None, !(status.is_server_error() || status.as_u16() == 429));
         }
-        let bytes = res.bytes().await.ok()?;
-        if bytes.len() > LOGO_LIMIT { None } else { crate::spotify::data_url(&bytes) }
+        if res.content_length().is_some_and(|n| n as usize > LOGO_LIMIT) {
+            return (None, true);
+        }
+        let Ok(bytes) = res.bytes().await else { return (None, false) };
+        if bytes.len() > LOGO_LIMIT { (None, true) } else { (crate::spotify::data_url(&bytes), true) }
     }
     .await;
-    let mut s = SHARED.lock().unwrap();
-    if s.logos.len() >= 80 {
-        s.logos.clear();
+    if definitive {
+        let mut s = SHARED.lock().unwrap();
+        if s.logos.len() >= 80 {
+            s.logos.clear();
+        }
+        // A missing crest is remembered too, so it is not asked for again.
+        s.logos.insert(id, data.clone().unwrap_or_default());
     }
-    // A missing crest is remembered too, so it is not asked for again.
-    s.logos.insert(id, data.clone().unwrap_or_default());
     data
 }
 

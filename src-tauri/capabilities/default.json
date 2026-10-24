@@ -3,5 +3,5 @@
   "identifier": "default",
   "description": "What Arizo-Agent's windows are allowed to do. Everything that touches the OS goes through the app's own commands.",
   "windows": ["island", "settings", "bubble"],
-  "permissions": ["core:default", "autostart:default"]
+  "permissions": ["core:default"]
 }

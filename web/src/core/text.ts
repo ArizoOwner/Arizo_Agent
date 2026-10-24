@@ -58,16 +58,20 @@ export function autoTarget(detected: string, nativeLang: string, secondLang: str
 
 /** True when the text looks like it was copied from a PDF (hard line breaks, hyphenation). */
 export function hasPdfLineBreaks(text: string): boolean {
-  if (!text || text.length <= 25) return false;
-  return /(\w+)-\s*[\r\n]+\s*(\w+)/.test(text) || (text.includes("\n") && !text.includes("\n\n\n"));
+  if (!text || text.trim().length <= 25) return false;
+  const t = text.replace(/\r\n?/g, "\n").trim();
+  // A lone line break inside a paragraph (not a blank-line paragraph break).
+  return /\S-[ \t]*\n[ \t]*\S/.test(t) || /[^\n][ \t]*\n(?![ \t]*\n)/.test(t);
 }
 
 /** Joins the hard-wrapped lines of PDF text and keeps the paragraphs. */
 export function cleanPdfText(text: string): string {
   if (!text) return "";
   return text
-    .replace(/(\w+)-\s*[\r\n]+\s*(\w+)/g, "$1$2")
-    .replace(/\r\n/g, "\n")
+    .replace(/\r\n?/g, "\n")
+    // Only a word broken across lines is re-glued: lower-case letters on both sides, one line break
+    // (never a number range like "10-\n12", never across a blank line).
+    .replace(/(\p{Ll})-[ \t]*\n[ \t]*(\p{Ll})/gu, "$1$2")
     .replace(/\n\s*\n+/g, "<<<PARAGRAPH>>>")
     .replace(/\n+/g, " ")
     .replace(/<<<PARAGRAPH>>>/g, "\n\n")

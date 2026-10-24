@@ -26,6 +26,7 @@ mod textutil;
 mod translator;
 mod tts;
 
+use std::collections::HashMap;
 use std::str::FromStr;
 use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::{Arc, Mutex};
@@ -51,12 +52,19 @@ use island::WINDOW_LABEL as ISLAND;
 const BUBBLE: &str = "bubble";
 const MAX_TEXT: usize = 8000;
 
+/// The bubble's translator numbers its requests from 1_000_000 (web/src/bubble/main.ts),
+/// the island's from 0: that tells the two windows' translations apart.
+fn is_bubble_request(request_id: u64) -> bool {
+    request_id >= 1_000_000
+}
+
 pub struct AppState {
     store: Store,
     translator: Translator,
     client: reqwest::Client,
-    /// The translation in flight; a new one cancels it.
-    active: Mutex<Option<tokio::task::AbortHandle>>,
+    /// The translation in flight per window (see `is_bubble_request`); a new one
+    /// in the same window cancels it, one in the other window leaves it alone.
+    active: Mutex<HashMap<bool, tokio::task::AbortHandle>>,
     hotkey: Mutex<Option<Shortcut>>,
     inline_hotkey: Mutex<Option<Shortcut>>,
     hide_hotkey: Mutex<Option<Shortcut>>,
@@ -70,7 +78,12 @@ pub(crate) fn log(line: &str) {
     use std::io::Write;
     let dir = store::config_dir();
     let _ = std::fs::create_dir_all(&dir);
-    if let Ok(mut f) = std::fs::OpenOptions::new().create(true).append(true).open(dir.join("arizo.log")) {
+    let path = dir.join("arizo.log");
+    // Keep one previous generation so the log cannot grow without bound.
+    if std::fs::metadata(&path).map(|m| m.len()).unwrap_or(0) > 1_000_000 {
+        let _ = std::fs::rename(&path, dir.join("arizo.log.1"));
+    }
+    if let Ok(mut f) = std::fs::OpenOptions::new().create(true).append(true).open(&path) {
         let _ = writeln!(f, "{} {line}", store::iso_now());
     }
 }
@@ -103,7 +116,7 @@ pub fn screen_pref(app: &AppHandle) -> String {
 /// click-through (island.rs), so showing the island is the page's doing.
 fn show_island(app: &AppHandle, text: &str) {
     let st = state(app);
-    st.hidden.store(false, Ordering::Relaxed);
+    let was_hidden = st.hidden.swap(false, Ordering::Relaxed);
     if let Some(win) = island(app) {
         let _ = win.unminimize();
         let _ = win.show();
@@ -117,6 +130,9 @@ fn show_island(app: &AppHandle, text: &str) {
         let _ = app.emit("tray", "open".to_string());
     } else {
         let _ = app.emit("captured-text", text.to_string());
+    }
+    if was_hidden {
+        refresh_tray(app);
     }
 }
 
@@ -213,7 +229,7 @@ fn toggle_island_hidden(app: &AppHandle) {
     refresh_tray(app);
 }
 
-/// The island shortcut: open it on the selected text, or close it if it is the one in front.
+/// The island shortcut: open it on the selected text.
 fn on_hotkey(app: &AppHandle) {
     let st = state(app);
     let settings = st.store.settings();
@@ -322,15 +338,18 @@ fn show_bubble(app: &AppHandle, b: &WebviewWindow, x: i32, y: i32) {
     // Order matters: the page is told to start over BEFORE the window shows, so
     // the previous card is never flashed at the new place.
     let _ = app.emit_to(BUBBLE, "bubble-init", json!({ "text": "" }));
-    let _ = b.set_size(PhysicalSize::new(size as u32, size as u32));
+    // Position first: moving across displays can rescale the window, so the
+    // size is set after the move and once more after the show.
     let _ = b.set_position(PhysicalPosition::new(px, py));
+    let _ = b.set_size(PhysicalSize::new(size as u32, size as u32));
     let _ = b.set_always_on_top(true);
     let _ = b.show(); // the window never takes the focus
+    let _ = b.set_size(PhysicalSize::new(size as u32, size as u32));
 }
 
 fn handle_mouse(app: &AppHandle, event: input::MouseEvent, x: i32, y: i32) {
     let st = state(app);
-    let inside_island = island(app).is_some_and(|i| cursor_inside(&i, x, y));
+    let inside_island = island(app).is_some_and(|i| island::cursor_on_island(&i, &st.gate, x, y));
     let inside_bubble = bubble(app).is_some_and(|b| cursor_inside(&b, x, y));
 
     // When clicking outside with the mouse while the island is expanded, smoothly collapse it to compact
@@ -634,7 +653,7 @@ async fn translate(app: AppHandle, st: State<'_, Arc<AppState>>, params: Transla
     });
     {
         let mut active = state.active.lock().unwrap();
-        if let Some(previous) = active.replace(handle.abort_handle()) {
+        if let Some(previous) = active.insert(is_bubble_request(request_id), handle.abort_handle()) {
             previous.abort();
         }
     }
@@ -646,8 +665,8 @@ async fn translate(app: AppHandle, st: State<'_, Arc<AppState>>, params: Transla
 }
 
 #[tauri::command]
-fn translate_cancel(st: State<'_, Arc<AppState>>) {
-    if let Some(active) = st.active.lock().unwrap().take() {
+fn translate_cancel(st: State<'_, Arc<AppState>>, request_id: u64) {
+    if let Some(active) = st.active.lock().unwrap().remove(&is_bubble_request(request_id)) {
         active.abort();
     }
 }
@@ -823,6 +842,26 @@ fn set_island_rect(st: State<'_, Arc<AppState>>, x: f64, y: f64, width: f64, hei
     st.gate.set_rect(IslandRect { x, y, w: width, h: height });
 }
 
+/// The size of the full window, in logical px: the page owns the island's geometry, so a
+/// wider or taller island (Settings → Look) asks the window for the room it needs. The
+/// shape the page pushes is relative to the window's top-left, so it is pushed again after.
+#[tauri::command]
+fn set_panel_size(app: AppHandle, st: State<'_, Arc<AppState>>, width: f64, height: f64) {
+    if !st.gate.set_panel((width, height)) {
+        return;
+    }
+    let collapsed = st.gate.collapsed.load(Ordering::Relaxed);
+    if !collapsed {
+        island::apply_geometry(&app, &st.store.settings().screen, false);
+        island::refresh_click_through(&app, &st.gate);
+    }
+}
+
+/// The full window's size now (the default, or what the page last asked for).
+pub(crate) fn panel_size(app: &AppHandle) -> (f64, f64) {
+    state(app).gate.panel_size()
+}
+
 #[tauri::command]
 fn focus_window(app: AppHandle, focused: bool) {
     let Some(win) = island(&app) else { return };
@@ -863,6 +902,7 @@ fn quit_app(app: AppHandle) {
 
 #[tauri::command]
 fn log_line(message: String) {
+    let message: String = message.chars().take(500).collect();
     log(&format!("ui  {message}"));
 }
 
@@ -967,7 +1007,7 @@ pub fn run() {
         store: loaded,
         translator: Translator::default(),
         client: reqwest::Client::builder().connect_timeout(Duration::from_secs(10)).build().unwrap_or_default(),
-        active: Mutex::new(None),
+        active: Mutex::new(HashMap::new()),
         hotkey: Mutex::new(None),
         inline_hotkey: Mutex::new(None),
         hide_hotkey: Mutex::new(None),
@@ -1026,6 +1066,7 @@ pub fn run() {
             open_island_with_text,
             set_collapsed,
             set_island_rect,
+            set_panel_size,
             focus_window,
             reposition,
             list_monitors,
@@ -1086,7 +1127,13 @@ pub fn run() {
             let hide_ok = set_hotkey(&handle, &st.hide_hotkey, &[&st.hotkey, &st.inline_hotkey], &settings.hide_hotkey);
             apply_mouse_monitor(&handle, true);
             if !(main_ok && inline_ok && hide_ok) {
-                let (h, lang, keys) = (handle.clone(), settings.app_language.clone(), settings.hotkey.clone());
+                // Name the shortcut(s) that really failed, not always the main one.
+                let failed: Vec<&str> = [(main_ok, &settings.hotkey), (inline_ok, &settings.inline_hotkey), (hide_ok, &settings.hide_hotkey)]
+                    .into_iter()
+                    .filter(|(ok, _)| !*ok)
+                    .map(|(_, key)| key.as_str())
+                    .collect();
+                let (h, lang, keys) = (handle.clone(), settings.app_language.clone(), failed.join(", "));
                 thread::spawn(move || {
                     thread::sleep(Duration::from_millis(1500));
                     let msg = if lang == "en" {
@@ -1117,6 +1164,14 @@ mod bubble_tests {
     use super::*;
 
     const SCREEN: (i32, i32, i32, i32) = (0, 0, 1920, 1080);
+
+    #[test]
+    fn the_two_windows_translations_have_separate_slots() {
+        assert!(!is_bubble_request(0));
+        assert!(!is_bubble_request(37));
+        assert!(is_bubble_request(1_000_000));
+        assert!(is_bubble_request(1_000_042));
+    }
 
     #[test]
     fn the_bubble_sits_above_and_beside_the_cursor() {

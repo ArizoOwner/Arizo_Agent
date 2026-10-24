@@ -34,7 +34,7 @@ select.dd:focus-visible {
   background: var(--menu-bg);
   border: 1px solid rgb(var(--fg) / 0.14);
   box-shadow: 0 14px 34px rgba(0, 0, 0, 0.42), 0 2px 6px rgba(0, 0, 0, 0.25);
-  font: 500 12.5px/1.35 var(--font);
+  font: 500 calc(12.5px * var(--fs, 1))/1.35 var(--font);
   color: var(--ink);
   user-select: none;
   opacity: 0;

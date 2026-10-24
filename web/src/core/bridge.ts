@@ -142,6 +142,9 @@ export const Bridge = {
   saveSettings: (settings: SettingsPatch, opts: SaveOptions = {}) =>
     call<SaveResult>("save_settings", { settings, ...opts }),
 
+  /** The room the island needs (logical px): the window grows past its default for a wider or taller island. */
+  setPanelSize: (width: number, height: number) => call<void>("set_panel_size", { width, height }),
+
   /** Shrink the window down to the invisible wake strip (hidden) or back to full. */
   setCollapsed: (collapsed: boolean) => call<void>("set_collapsed", { collapsed }),
 
@@ -171,7 +174,7 @@ export const Bridge = {
   getLanguages: () => call<Language[]>("get_languages"),
   /** Rejects with the backend's message when the call itself fails. */
   translate: (params: TranslateParams) => callOrThrow<TranslateResult>("translate", { params }),
-  translateCancel: () => call<void>("translate_cancel"),
+  translateCancel: (requestId: number) => call<void>("translate_cancel", { requestId }),
   /** Base64 mp3 of the text read aloud. */
   tts: (text: string, lang: string) => call<{ ok: boolean; audio?: string }>("tts", { text, lang }),
   testAi: (cfg: AiConfig) => callOrThrow<TestAiResult>("test_ai", { cfg }),
@@ -215,7 +218,7 @@ export const Bridge = {
   toggleFavoriteItem: (id: string) => call<void>("toggle_favorite_item", { id }),
 
   // ── Clipboard and the app in front ────────────────────────────────────────
-  copyText: (text: string) => call<void>("copy_text", { text }),
+  copyText: (text: string) => call<boolean>("copy_text", { text }),
   readClipboardText: () => call<string>("read_clipboard_text"),
   /** Pastes the translation over the selection in the app that was in front. */
   replaceText: (text: string) => call<void>("replace_text", { text }),

@@ -17,7 +17,7 @@ import {
   autoTarget, cleanPdfText, detectLanguageClient, ellipsize, formatDuration, hasPdfLineBreaks,
   langLabel,
 } from "../core/text";
-import { HISTORY_PANE_H, translateHeight, translateWidth } from "../core/layout";
+import { HISTORY_PANE_H, translateHeight, translateNeed, translateWidth } from "../core/layout";
 import { buildHistory } from "./history";
 import { N_, language, t, tl } from "../i18n/i18n";
 import type { ViewHost } from "./views";
@@ -35,6 +35,8 @@ export interface TranslateHost extends ViewHost {
   typing(): boolean;
   /** Streamed text from the backend for request `requestId`. */
   partial(requestId: number, text: string): void;
+  /** The text size or the island's size changed: measure the cards again. */
+  refit(): void;
 }
 
 export interface TranslateActions {
@@ -126,7 +128,7 @@ export function buildTranslate(actions: TranslateActions): TranslateHost {
     svg(ICONS.clock, 12, { stroke: 2.2 }),
     h("span", { text: tl("History") }),
   );
-  const srcBar = h("div", { class: "src-bar" }, counter, h("div", { class: "grow" }), cleanChip, historyBtn, pasteBtn, clearBtn);
+  const srcBar = h("div", { class: "src-bar" }, counter, h("div", { class: "grow" }), cleanChip, h("div", { class: "src-btns" }, historyBtn, pasteBtn, clearBtn));
   const srcBody = h("div", { class: "src-body" }, langRow, input, srcBar);
   const left = card(null, srcBody);
 
@@ -174,6 +176,7 @@ export function buildTranslate(actions: TranslateActions): TranslateHost {
   const meta = h("div", { class: "res-meta" }, metaDot, metaText);
 
   const copyBtn = btn(tl("Copy"), "primary", () => copyAndClose(), "↵");
+  copyBtn.classList.add("copy-btn");
   const replaceBtn = btn(tl("Replace in app"), "secondary", () => replaceInApp(), "^↵");
   replaceBtn.classList.add("replace-btn");
   replaceBtn.setAttribute("title", t("Replace in app"));
@@ -190,7 +193,7 @@ export function buildTranslate(actions: TranslateActions): TranslateHost {
     svg(ICONS.columns, 13, { stroke: 2 }),
     h("span", { text: tl("Bilingual") }),
   );
-  const footer = h("div", { class: "res-footer" }, copyBtn, replaceBtn, h("div", { class: "grow" }), speakBtn, dualBtn);
+  const footer = h("div", { class: "res-footer" }, copyBtn, replaceBtn, h("div", { class: "res-tools" }, speakBtn, dualBtn));
   const resBody = h("div", { class: "res-body" }, topRow, resScroll, meta, footer);
   const right = card(null, resBody);
 
@@ -211,6 +214,16 @@ export function buildTranslate(actions: TranslateActions): TranslateHost {
     h("div", { class: "right" }, right),
     history.el,
   );
+
+  // The cards wrap their text to the island's width, and a list that overflows while the island is
+  // still growing keeps its scrollbar (which narrows it, so its text needs more room than it would
+  // without). So the cards are measured again whenever the island's size changes, up to its last
+  // step. fit() does not depend on the island's current size, so this settles after one pass.
+  if (typeof ResizeObserver !== "undefined") {
+    new ResizeObserver(() => {
+      if (State.mode === "expanded" && State.view === "translate") fit();
+    }).observe(el);
+  }
 
   function setHistory(open: boolean) {
     if (historyOpen === open) return;
@@ -271,7 +284,9 @@ export function buildTranslate(actions: TranslateActions): TranslateHost {
     else srcChip.textContent = langName(translator.result && resultSource ? resultSource : detected);
     counter.textContent = clean ? String(text.length) : "";
     clearBtn.style.display = text ? "" : "none";
-    cleanChip.style.display = hasPdfLineBreaks(text) ? "" : "none";
+    const pdf = hasPdfLineBreaks(text);
+    cleanChip.style.display = pdf ? "" : "none";
+    srcBar.classList.toggle("crowded", pdf);
     updateAutoLabel();
   }
 
@@ -321,15 +336,17 @@ export function buildTranslate(actions: TranslateActions): TranslateHost {
     const needed = Math.max(srcNeed, resNeed) + 4;
     // The history pane covers both cards and wants its own room.
     const next = Math.max(translateHeight(needed), historyOpen ? HISTORY_PANE_H : 0);
+    const floor = Math.max(translateNeed(needed), historyOpen ? HISTORY_PANE_H : 0);
     // The width follows the longer of what is typed and what came back. With
     // nothing typed the old result is gone, so the island returns to its base width.
     const typed = input.value.trim().length;
     const hasPdf = hasPdfLineBreaks(input.value);
     const charCount = typed === 0 ? 0 : Math.max(typed, shown.trim().length, hasPdf ? 60 : 0);
     const nextW = translateWidth(charCount);
-    if (next !== State.translateH || nextW !== State.translateW) {
+    if (next !== State.translateH || nextW !== State.translateW || floor !== State.translateNeedH) {
       State.translateH = next;
       State.translateW = nextW;
+      State.translateNeedH = floor;
       actions.heightChanged();
     }
     syncFade();
@@ -344,7 +361,7 @@ export function buildTranslate(actions: TranslateActions): TranslateHost {
   function scheduleRun() {
     if (debounce != null) window.clearTimeout(debounce);
     // The smart engine costs money per call: it waits for a real pause.
-    debounce = window.setTimeout(() => void run(), State.engine === "aphra" ? 400 : 250);
+    debounce = window.setTimeout(() => void run(), State.engine === "aphra" ? 300 : 250);
   }
 
   input.addEventListener("input", () => {
@@ -382,8 +399,7 @@ export function buildTranslate(actions: TranslateActions): TranslateHost {
       State.compactPreview = ellipsize(shown, 60);
       setMood("idle");
       if (State.settings.autoCopy && shown) {
-        void Bridge.copyText(shown);
-        toast(t("Copied automatically"));
+        void Bridge.copyText(shown).then((ok) => toast(ok === false ? t("Could not copy") : t("Copied automatically")));
       }
     } else if (translator.phase === "error") {
       fail();
@@ -520,7 +536,7 @@ export function buildTranslate(actions: TranslateActions): TranslateHost {
       metaText.textContent = `${engineName(data.engine)} · ${res?.cached ? t("cached") : `⁦${formatDuration(translator.ms)}⁩`}`;
     }
 
-    const can = phase === "done" && shown.length > 0;
+    const can = canAct();
     for (const b of [copyBtn, replaceBtn, speakBtn, dualBtn]) b.classList.toggle("off", !can);
     renderCopyLabel();
     renderPills();
@@ -545,12 +561,16 @@ export function buildTranslate(actions: TranslateActions): TranslateHost {
   }
 
   function canAct(): boolean {
-    return translator.phase === "done" && shown.length > 0;
+    // The input may have moved on while the debounce has not yet fired: the shown translation is then stale.
+    return translator.phase === "done" && shown.length > 0 && translator.request?.text === input.value.trim();
   }
 
   async function copyAndClose() {
     if (!canAct()) return;
-    await Bridge.copyText(shown);
+    if (await Bridge.copyText(shown) === false) {
+      toast(t("Could not copy"));
+      return;
+    }
     copiedUntil = performance.now() + 600;
     renderCopyLabel();
     celebrate();
@@ -574,7 +594,10 @@ export function buildTranslate(actions: TranslateActions): TranslateHost {
 
   async function copyBoth() {
     if (!canAct() || !input.value.trim()) return;
-    await Bridge.copyText(`${input.value.trim()}\n\n${shown}`);
+    if (await Bridge.copyText(`${input.value.trim()}\n\n${shown}`) === false) {
+      toast(t("Could not copy"));
+      return;
+    }
     celebrate();
     toast(t("Both texts copied"));
   }
@@ -666,7 +689,7 @@ export function buildTranslate(actions: TranslateActions): TranslateHost {
     } else if (e.key === "Tab" && e.ctrlKey) {
       e.preventDefault();
       toggleEngine();
-    } else if ((e.key === "s" || e.key === "S") && e.ctrlKey && !e.altKey) {
+    } else if ((e.code === "KeyS" || e.key === "s" || e.key === "S") && e.ctrlKey && !e.altKey) {
       e.preventDefault();
       swapLanguages();
     } else if (e.key === "Enter" && !e.shiftKey && !typing && tag !== "BUTTON") {
@@ -732,6 +755,7 @@ export function buildTranslate(actions: TranslateActions): TranslateHost {
       input.focus();
     },
     typing: isTyping,
+    refit: fit,
     setCaptured(text: string) {
       if (historyOpen) setHistory(false);
       const clean = (text || "").trim();

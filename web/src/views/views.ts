@@ -18,13 +18,26 @@ import { FOOTBALL_COLOR, FOOTBALL_ID } from "../core/football";
 import { CRYPTO_COLOR, CRYPTO_ID } from "../core/crypto";
 import type { HistoryItem } from "../core/history-logic";
 import type { Outfit, OutfitSelection } from "../ari/wardrobe";
-import { tl } from "../i18n/i18n";
+import { isRtl, tl } from "../i18n/i18n";
+import { normalizeOrder, sameOrder, type FeatureId } from "../core/feature-order";
+import type { Look } from "../core/appearance";
+import type { SoundName } from "../core/sound";
+import { enableTabDrag } from "./tab-drag";
 
 export interface ViewActions {
   setView(v: IslandViewName): void;
+  /** A look slider is being dragged: show it at once without saving (null ends the preview). */
+  previewLook(patch: Partial<Look> | null): void;
+  /** A look setting was let go (or reset): save it and show it. */
+  setLook(patch: Partial<Look>): void;
+  /** The header's tabs were dragged into a new order: remember it. */
+  setFeatureOrder(order: FeatureId[]): void;
+  playSound(name: SoundName): void;
   collapse(): void;
   toggleSound(): void;
   setVolume(v: number): void;
+  /** Live feedback while a volume slider is dragged: no state change, no save. */
+  previewVolume(v: number): void;
   setAutoClose(seconds: number): void;
   openSettingsWindow(): void;
   blip(): void;
@@ -72,16 +85,38 @@ export function buildHeader(actions: ViewActions): ViewHost {
     actions.setView(v);
   }
 
+  const tabsEl = h("div", { class: "tabs", "aria-label": tl("Features") }, tabTranslate, tabSpotify, tabFootball, tabCrypto);
   const el = h(
     "div",
     { id: "header" },
-    h("div", { class: "tabs", "aria-label": tl("Features") }, tabTranslate, tabSpotify, tabFootball, tabCrypto),
+    tabsEl,
     h("div", { class: "header-actions" }, gearBtn, soundBtn),
   );
+
+  // The tabs can be dragged into any order (and moved with Alt+arrows); the order is a setting.
+  const byId: Record<FeatureId, HTMLElement> = {
+    translate: tabTranslate, spotify: tabSpotify, football: tabFootball, crypto: tabCrypto,
+  };
+  enableTabDrag({
+    container: tabsEl,
+    rtl: () => isRtl(),
+    onReorder: (order) => actions.setFeatureOrder(normalizeOrder(order)),
+    onCue: (cue) => actions.playSound(cue === "pickup" ? "pop" : cue === "swap" ? "tick" : "blip"),
+  });
+
+  /** Puts the tab buttons in the saved order (never while one is being dragged or settling). */
+  function applyOrder() {
+    if (tabsEl.classList.contains("sorting")) return;
+    const wanted = normalizeOrder(State.settings.featureOrder);
+    const have = Array.from(tabsEl.children).map((c) => (c as HTMLElement).dataset.view ?? "");
+    if (sameOrder(have, wanted)) return;
+    for (const id of wanted) tabsEl.append(byId[id]);
+  }
 
   return {
     el,
     sync() {
+      applyOrder();
       const v = State.view;
       tabTranslate.classList.toggle("on", v === "translate");
       tabSpotify.classList.toggle("on", v === "spotify");

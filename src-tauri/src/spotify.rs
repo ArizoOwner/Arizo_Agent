@@ -188,7 +188,7 @@ async fn poll(client_id: &str, generation: u64) -> (PlayerState, Duration) {
     let acc = account::account_state(client_id);
     let mut base = PlayerState {
         enabled: true, configured: acc.configured, connected: acc.connected, account_name: acc.name.clone(),
-        premium: acc.premium, installed: installed(), position_at: now_ms(), error: acc.error.clone(),
+        premium: acc.premium, installed: installed(), position_at: now_ms(), error: String::new(),
         ..PlayerState::default()
     };
     let mut floor = Duration::ZERO;
@@ -383,7 +383,7 @@ pub async fn spotify_control(app: AppHandle, action: String, value: Option<f64>)
         let result = local::control(&tx, &action, value).await;
         wake_poller();
         return result.map_err(|e| match e.as_str() {
-            "timeout" | "no_device" | "bad_action" => e,
+            "no_device" | "bad_action" => e,
             _ => "control_failed".to_string(),
         });
     }

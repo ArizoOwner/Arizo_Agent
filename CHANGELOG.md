@@ -1,5 +1,43 @@
 # Changelog
 
+## 3.4.0 — Make it yours
+
+- **Island look.** A new Settings page, *Island look*, sets how the island looks and each
+  setting has its own "back to default" button, plus one for all of them: **width** and
+  **height**, **transparency** (the body and the cards, never the text), **text size**,
+  **corner roundness**, and a **floating island** that hangs a chosen distance below the top
+  edge. Dragging a slider shows the change on the real island at once; letting go saves it.
+- **The folded island is yours too.** The capsule has its own **width**, **height** and **zoom**
+  (Ari, the clock and the mini Aris grow and shrink together and always keep their places), with
+  a small drawing of it above the sliders.
+- **Drag the tabs.** Pick up Translate, Spotify, Football or Crypto in the header and drop it
+  where you want it; the others slide aside, and the order is remembered (right to left in
+  Persian too).
+- **Any text size, no overlap.** Text from 80 % to 140 % at any island width and height: the
+  buttons, cards and rows wrap or share the room instead of leaving the island, overlapping or
+  being cut — in the translator, Crypto, Football, Spotify, the wardrobe and Settings, in
+  English and Persian.
+- **Fixed: dragging the width slider jittered.** The slider sat inside the island, which is
+  centred, so it slid away from under the pointer as the island widened. The island now grows
+  from the other edge while you drag, the window is resized once instead of on every step, and
+  its size and place are set in one call.
+- **Fixed: the language row of the translator** broke onto two lines: the target-language
+  menu dropped under the source chip and the swap button.
+- **Translation.** The Smart engine's token budget follows the text's length, not its word count;
+  MyMemory's error messages inside a 200 reply are no longer taken for translations; a
+  rate-limit (429) holds back later calls until the wait is over; sentences that were cut into
+  chunks are joined with a space again; paragraph breaks and dotted tokens survive the PDF
+  line cleaner; and a Latin-script guess is only called ambiguous next to another Latin language.
+- **In any app.** Terminals are recognised by their window class when you translate in place,
+  and the quick bubble and the island keep their own translation slots.
+- **History.** The cap keeps starred items, and a history full of stars still records the new
+  lookup.
+- **Crypto.** A Toman Tether market is no longer listed as a USDT row.
+- **Only the island is the island.** Clicks pass through everything but its shape, and the
+  window is never smaller than the default or absurdly large.
+- **README.** Every animation was recorded again from the app itself (`npm run readme-gifs`), in
+  English and Persian, and the new features have their own.
+
 ## 3.3.0 — Crypto
 
 - **Live crypto prices.** A new Crypto section shows the live price of any coin, a candlestick

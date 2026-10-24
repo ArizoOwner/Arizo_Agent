@@ -7,9 +7,9 @@ use reqwest::Client;
 use serde_json::Value;
 
 use crate::idioms::enhance_translation;
-use crate::langs::{detect, normalize_code, resolve_target};
+use crate::langs::{ambiguous_latin_guess, detect, normalize_code, resolve_target};
 use crate::model::{Alternative, TranslationData};
-use crate::textutil::split_text;
+use crate::textutil::{join_translations, split_text};
 
 const GOOGLE_ENDPOINT: &str = "https://translate.googleapis.com/translate_a/single";
 const GOOGLE_UA: &str = "GoogleTranslate/6.28.0.RC05.358249487 (Linux; U; Android 10; Pixel 4)";
@@ -94,6 +94,23 @@ fn parse_google(data: &Value) -> Parsed {
     }
 }
 
+async fn google_chunks(client: &Client, chunks: &[String], sl: &str, tl: &str) -> Result<Vec<Parsed>, String> {
+    let handles: Vec<_> = chunks
+        .iter()
+        .cloned()
+        .map(|c| {
+            let (client, sl, tl) = (client.clone(), sl.to_string(), tl.to_string());
+            tokio::spawn(async move { google_request(&client, c, &sl, &tl).await })
+        })
+        .collect();
+    let mut out = Vec::new();
+    for h in handles {
+        let v = h.await.map_err(|e| e.to_string())??;
+        out.push(parse_google(&v));
+    }
+    Ok(out)
+}
+
 /// Translate `text` into `target_lang` (`auto` picks native ⇄ second).
 pub async fn translate(
     client: &Client,
@@ -111,33 +128,34 @@ pub async fn translate(
         });
     }
 
-    let guess = detect(text);
-    let tl = resolve_target(target_lang, &guess, native, second);
-    let sl = guess.clone();
+    let mut guess = detect(text);
+    let mut tl = resolve_target(target_lang, &guess, native, second);
+    // "en" is only a Latin-script guess here: let Google detect the source and
+    // re-aim the target when it says the text is already in the language we picked.
+    let auto_target = target_lang.is_empty() || target_lang == "auto";
+    let ambiguous = auto_target && ambiguous_latin_guess(&guess, native, second);
 
     let chunks = split_text(text, GOOGLE_CHUNK);
     let single = chunks.len() == 1;
 
-    let attempt: Result<Vec<Parsed>, String> = async {
-        let handles: Vec<_> = chunks
-            .into_iter()
-            .map(|c| {
-                let (client, sl, tl) = (client.clone(), sl.clone(), tl.clone());
-                tokio::spawn(async move { google_request(&client, c, &sl, &tl).await })
-            })
-            .collect();
-        let mut out = Vec::new();
-        for h in handles {
-            let v = h.await.map_err(|e| e.to_string())??;
-            out.push(parse_google(&v));
+    let mut attempt = google_chunks(client, &chunks, if ambiguous { "" } else { &guess }, &tl).await;
+    if ambiguous {
+        let detected = attempt.as_ref().ok().map(|p| p[0].detected.clone()).unwrap_or_default();
+        if !detected.is_empty() {
+            let again = resolve_target(target_lang, &detected, native, second);
+            guess = detected;
+            if again != tl {
+                tl = again;
+                attempt = google_chunks(client, &chunks, "", &tl).await;
+            }
         }
-        Ok(out)
     }
-    .await;
+    let sl = guess.clone();
 
     match attempt {
         Ok(parsed) => {
-            let raw: String = parsed.iter().map(|p| p.translation.as_str()).collect::<String>().trim().to_string();
+            let translations: Vec<String> = parsed.iter().map(|p| p.translation.clone()).collect();
+            let raw = join_translations(&chunks, &translations).trim().to_string();
             if raw.is_empty() {
                 return fallback_mymemory(client, text, &tl, &guess).await;
             }
@@ -156,10 +174,19 @@ pub async fn translate(
     }
 }
 
+/// MyMemory reports quota and language errors inside an HTTP 200 answer, with the
+/// message as the "translation".
+fn mymemory_ok(json: &Value, translated: &str) -> bool {
+    let st = &json["responseStatus"];
+    let status = st.as_i64().or_else(|| st.as_str().and_then(|s| s.trim().parse().ok())).unwrap_or(200);
+    status == 200 && !translated.starts_with("MYMEMORY WARNING") && !translated.starts_with("PLEASE SELECT")
+}
+
 /// MyMemory accepts about 500 characters per request, so it chunks small.
 async fn fallback_mymemory(client: &Client, text: &str, target: &str, source: &str) -> Result<TranslationData, String> {
-    let mut out = String::new();
-    for chunk in split_text(text, MYMEMORY_CHUNK) {
+    let chunks = split_text(text, MYMEMORY_CHUNK);
+    let mut translated: Vec<String> = Vec::new();
+    for chunk in &chunks {
         let pair = format!("{source}|{target}");
         let url = reqwest::Url::parse_with_params(
             "https://api.mymemory.translated.net/get",
@@ -172,11 +199,12 @@ async fn fallback_mymemory(client: &Client, text: &str, target: &str, source: &s
         }
         let json: Value = res.json().await.map_err(|_| NETWORK_FAILED.to_string())?;
         let t = json["responseData"]["translatedText"].as_str().unwrap_or("").to_string();
-        if t.trim().is_empty() {
+        if t.trim().is_empty() || !mymemory_ok(&json, &t) {
             return Err(NETWORK_FAILED.into());
         }
-        out.push_str(&t);
+        translated.push(t);
     }
+    let out = join_translations(&chunks, &translated);
     let raw = out.trim();
     Ok(TranslationData {
         translation: enhance_translation(raw, text, source, target),
@@ -206,6 +234,17 @@ mod tests {
         assert_eq!(p.alternatives.len(), 1);
         assert_eq!(p.alternatives[0].pos, "noun");
         assert_eq!(p.alternatives[0].terms.len(), 6, "at most six terms per part of speech");
+    }
+
+    #[test]
+    fn mymemory_errors_inside_a_200_are_not_translations() {
+        assert!(mymemory_ok(&json!({ "responseStatus": 200 }), "سلام"));
+        assert!(mymemory_ok(&json!({ "responseStatus": "200" }), "سلام"));
+        assert!(mymemory_ok(&json!({}), "سلام"));
+        assert!(!mymemory_ok(&json!({ "responseStatus": 429 }), "x"));
+        assert!(!mymemory_ok(&json!({ "responseStatus": "403" }), "x"));
+        assert!(!mymemory_ok(&json!({ "responseStatus": 200 }), "MYMEMORY WARNING: YOU USED ALL AVAILABLE FREE TRANSLATIONS"));
+        assert!(!mymemory_ok(&json!({}), "PLEASE SELECT TWO DISTINCT LANGUAGES"));
     }
 
     #[test]

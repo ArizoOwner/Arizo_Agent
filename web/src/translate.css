@@ -33,12 +33,13 @@
 
 .translate > .left {
   flex: 1 1 50%;
-  min-width: 350px;
+  /* Follows a narrower island (Settings → Island look), so the two cards never overflow it. */
+  min-width: calc(350px * var(--wf, 1));
 }
 
 .translate > .right {
   flex: 1 1 50%;
-  min-width: 350px;
+  min-width: calc(350px * var(--wf, 1));
 }
 
 .settings-integrated > .card {
@@ -60,8 +61,9 @@
 
 .lang-row {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
+  gap: 6px 8px;
   min-width: 0;
 }
 
@@ -72,7 +74,7 @@
   padding: 4px 12px;
   border-radius: 999px;
   background: rgb(var(--fg) / 0.1);
-  font: 500 12px var(--font);
+  font: 500 calc(12px * var(--fs, 1)) var(--font);
   color: var(--ink-2);
   border: 1px solid rgb(var(--fg) / 0.14);
   min-width: 0;
@@ -84,12 +86,14 @@
 }
 
 select.chip {
-  min-width: 104px;
+  /* Takes what is left of the row after the source chip and the swap button, so the three sit on one line at the
+     default look; only when even this much does not fit (big text, a narrow island) does the select take a line of its own. */
+  min-width: min(calc(80px * var(--fs, 1)), 100%);
   padding-inline-end: 26px;
   appearance: none;
   -webkit-appearance: none;
   outline: none;
-  flex: 1 1 auto;
+  flex: 1 1 0;
   cursor: pointer;
 }
 
@@ -100,8 +104,7 @@ select.chip option {
 
 .src-chip {
   flex: 0 0 auto;
-  max-width: none;
-  overflow: visible;
+  max-width: 100%;
   padding-inline: 10px;
   background: transparent;
   color: var(--dim);
@@ -143,7 +146,7 @@ select.chip option {
   align-items: center;
   gap: 4px;
   padding: 3px 8px;
-  font: 500 11px var(--font);
+  font: 500 calc(11px * var(--fs, 1)) var(--font);
   border-radius: 999px;
   border: 0;
   background: rgb(var(--fg) / 0.08);
@@ -180,7 +183,7 @@ select.chip option {
   border-radius: 12px;
   padding: 8px 12px;
   color: var(--ink);
-  font: 400 13.5px/1.45 var(--font);
+  font: 400 calc(13.5px * var(--fs, 1))/1.45 var(--font);
   cursor: text;
   user-select: text;
   overflow-y: auto;
@@ -195,15 +198,25 @@ select.chip option {
 .src-bar {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px 5px;
   min-height: 26px;
-  flex-wrap: nowrap;
-  overflow-x: auto;
-  scrollbar-width: none;
+  flex-direction: row;
+  /* Wraps into a second line (the island grows to fit it) instead of cutting a button off. */
+  flex-wrap: wrap;
 }
 
-.src-bar::-webkit-scrollbar {
+.src-bar > * {
+  flex-shrink: 0;
+  max-width: 100%;
+}
+
+/* With the PDF chip visible, the other buttons drop their labels (icons + tooltips stay). */
+.src-bar.crowded :is(.history-btn, .paste-btn, .clear-btn) > span {
   display: none;
+}
+
+.src-bar.crowded :is(.history-btn, .paste-btn, .clear-btn) {
+  padding: 4px 7px;
 }
 
 .src-bar .grow {
@@ -211,15 +224,27 @@ select.chip option {
   min-width: 0;
 }
 
+/* History / Paste / Clear stay together: when the bar is too narrow the whole group moves to a
+   second line, still against the end edge, and only then wraps inside itself. */
+.src-btns {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px 5px;
+  margin-inline-start: auto;
+  min-width: 0;
+}
+
 .counter {
-  font: 400 11px var(--mono);
+  font: 400 calc(11px * var(--fs, 1)) var(--mono);
   color: var(--dim-4);
   flex-shrink: 0;
 }
 
 .clean-chip {
   padding: 4px 10px;
-  font-size: 11px;
+  font-size: calc(11px * var(--fs, 1));
   color: var(--ink-2);
   border-color: rgba(52, 211, 153, 0.5);
   background: rgba(52, 211, 153, 0.12);
@@ -252,15 +277,19 @@ select.chip option {
 
 .engine-pills {
   display: flex;
+  flex-wrap: wrap;
   gap: 6px;
-  flex: 0 0 auto;
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .pill.engine {
   /* As wide as its word needs (Persian "هوشمند" is wider than "Smart"), never narrower than 96px. */
   width: auto;
   min-width: 96px;
-  height: 32px;
+  height: auto;
+  min-height: 32px;
   flex: 0 0 auto;
   cursor: pointer;
   border-radius: 16px;
@@ -274,7 +303,7 @@ select.chip option {
 .pill.engine .lbl {
   position: static;
   flex: 1 1 auto;
-  font-size: 12px;
+  font-size: calc(12px * var(--fs, 1));
   font-weight: 500;
   text-align: center;
   overflow: visible;
@@ -288,10 +317,10 @@ select.chip option {
 }
 
 .tone-select {
-  flex: 1 1 110px;
-  max-width: 150px;
+  flex: 1 1 calc(110px * var(--fs, 1));
+  max-width: calc(150px * var(--fs, 1));
   margin-inline-start: auto;
-  font-size: 11.5px;
+  font-size: calc(11.5px * var(--fs, 1));
   padding: 4px 10px;
 }
 
@@ -310,18 +339,18 @@ select.chip option {
 }
 
 .res-placeholder {
-  font: 400 12.5px var(--font);
+  font: 400 calc(12.5px * var(--fs, 1)) var(--font);
   color: var(--dim-4);
   padding-top: 4px;
 }
 
 .res-loading {
-  font: 500 12.5px var(--font);
+  font: 500 calc(12.5px * var(--fs, 1)) var(--font);
   padding-top: 4px;
 }
 
 .res-text {
-  font: 400 14px/1.5 var(--font);
+  font: 400 calc(14px * var(--fs, 1))/1.5 var(--font);
   color: var(--ink);
   user-select: text;
   overflow-wrap: anywhere;
@@ -334,11 +363,11 @@ select.chip option {
 
 .res-text.err {
   color: var(--red-text);
-  font-size: 12.5px;
+  font-size: calc(12.5px * var(--fs, 1));
 }
 
 .res-translit {
-  font: 400 11.5px var(--mono);
+  font: 400 calc(11.5px * var(--fs, 1)) var(--mono);
   color: var(--dim-2);
   padding-top: 2px;
   user-select: text;
@@ -350,7 +379,7 @@ select.chip option {
   border-radius: 10px;
   background: rgba(245, 165, 36, 0.13);
   color: var(--amber-text);
-  font: 400 11px/1.4 var(--font);
+  font: 400 calc(11px * var(--fs, 1))/1.4 var(--font);
   display: flex;
   align-items: center;
   flex-wrap: wrap;
@@ -379,7 +408,7 @@ select.chip option {
 }
 
 .alt-pos {
-  font: 600 10px var(--font);
+  font: 600 calc(10px * var(--fs, 1)) var(--font);
   color: var(--dim-3);
   margin-inline-end: 2px;
 }
@@ -388,7 +417,7 @@ select.chip option {
   border: 1px solid rgb(var(--fg) / 0.14);
   background: var(--card-flat);
   color: var(--ink-2);
-  font: 400 11px var(--font);
+  font: 400 calc(11px * var(--fs, 1)) var(--font);
   padding: 1px 8px;
   border-radius: 999px;
   cursor: pointer;
@@ -415,7 +444,7 @@ select.chip option {
   border: 0;
   background: transparent;
   color: var(--dim);
-  font: 500 11px var(--font);
+  font: 500 calc(11px * var(--fs, 1)) var(--font);
   padding: 0;
   cursor: pointer;
 }
@@ -432,7 +461,7 @@ select.chip option {
 }
 
 .bk-item {
-  font: 400 11.5px/1.4 var(--font);
+  font: 400 calc(11.5px * var(--fs, 1))/1.4 var(--font);
   color: var(--ink-2);
   padding: 4px 8px;
   border-radius: 8px;
@@ -447,14 +476,14 @@ select.chip option {
 
 .bk-desc {
   color: var(--dim-2);
-  font-size: 11px;
+  font-size: calc(11px * var(--fs, 1));
 }
 
 .res-meta {
   display: flex;
   align-items: center;
   gap: 6px;
-  font: 400 10.5px var(--font);
+  font: 400 calc(10.5px * var(--fs, 1)) var(--font);
   color: var(--dim-3);
 }
 
@@ -469,13 +498,16 @@ select.chip option {
   display: flex;
   align-items: center;
   gap: 5px;
+  /* When the buttons do not fit side by side the last ones move to a second line (the island grows). */
   flex-wrap: wrap;
+  min-width: 0;
 }
 
 .res-footer .btn {
   flex: 0 0 auto;
+  max-width: 100%;
   padding: 6px 11px;
-  font-size: 12.5px;
+  font-size: calc(12.5px * var(--fs, 1));
   font-weight: 500;
   min-height: 32px;
   gap: 6px;
@@ -503,8 +535,10 @@ select.chip option {
 
 .hist-head {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
+  gap: 6px 8px;
+  min-width: 0;
 }
 
 .hist-head .seg {
@@ -512,7 +546,7 @@ select.chip option {
 }
 
 .seg-btn {
-  font: 400 11px var(--font);
+  font: 400 calc(11px * var(--fs, 1)) var(--font);
   padding: 3px 9px;
   border: 0;
   border-radius: 999px;
@@ -527,15 +561,15 @@ select.chip option {
 }
 
 .hist-search {
-  flex: 1 1 auto;
-  min-width: 0;
+  flex: 1 1 calc(120px * var(--fs, 1));
+  min-width: min(calc(120px * var(--fs, 1)), 100%);
   border: 0;
   outline: none;
   background: rgb(var(--fg) / 0.07);
   border-radius: 999px;
   padding: 4px 12px;
   color: var(--ink);
-  font: 400 12px var(--font);
+  font: 400 calc(12px * var(--fs, 1)) var(--font);
   cursor: text;
 }
 
@@ -574,7 +608,7 @@ select.chip option {
 }
 
 .hist-q {
-  font: 400 11.5px/1.35 var(--font);
+  font: 400 calc(11.5px * var(--fs, 1))/1.35 var(--font);
   color: var(--dim);
   white-space: nowrap;
   overflow: hidden;
@@ -582,7 +616,7 @@ select.chip option {
 }
 
 .hist-t {
-  font: 500 12.5px/1.4 var(--font);
+  font: 500 calc(12.5px * var(--fs, 1))/1.4 var(--font);
   color: var(--ink);
   white-space: nowrap;
   overflow: hidden;
@@ -593,10 +627,18 @@ select.chip option {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  font: 400 10px var(--font);
+  flex-wrap: wrap;
+  gap: 2px 8px;
+  font: 400 calc(10px * var(--fs, 1)) var(--font);
   color: var(--dim-3);
   white-space: nowrap;
+}
+
+.hist-meta > :first-child {
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .row-actions {
@@ -634,7 +676,7 @@ select.chip option {
 }
 
 .hist-empty {
-  font: 400 12.5px var(--font);
+  font: 400 calc(12.5px * var(--fs, 1)) var(--font);
   color: var(--dim-3);
   padding: 14px 4px;
 }
@@ -645,7 +687,7 @@ select.chip option {
   left: 50%;
   transform: translateX(-50%);
   height: 16px;
-  font: 600 12.5px/16px var(--font);
+  font: 600 calc(12.5px * var(--fs, 1))/calc(16px * var(--fs, 1)) var(--font);
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.02em;
   color: var(--ink-2);
@@ -666,7 +708,7 @@ select.chip option {
   background: var(--island);
   border: 1px solid rgb(var(--fg) / 0.14);
   color: var(--ink-2);
-  font: 500 11.5px var(--font);
+  font: 500 calc(11.5px * var(--fs, 1)) var(--font);
   white-space: nowrap;
   opacity: 0;
   pointer-events: none;
@@ -719,21 +761,33 @@ html[data-dir="rtl"] .target-select {
   min-width: 0;
 }
 
+.settings-island-card {
+  container: setcard / inline-size;
+}
+
 .settings-nav {
   display: flex;
   align-items: center;
   gap: 6px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
   padding-bottom: 4px;
   flex: 0 0 auto;
+  min-width: 0;
+}
+.settings-nav::-webkit-scrollbar {
+  display: none;
 }
 
 .settings-nav-btn {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 5px 12px;
-  font-size: 12px;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px 13px;
+  font-size: calc(12.5px * var(--fs, 1));
   font-weight: 500;
   border-radius: 999px;
   border: 0;
@@ -741,16 +795,118 @@ html[data-dir="rtl"] .target-select {
   color: var(--dim);
   cursor: pointer;
   white-space: nowrap;
+  flex: 0 1 auto;
+  min-width: 0;
   transition: background 0.12s, color 0.12s;
+}
+.settings-nav-btn > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.settings-nav-btn svg {
+  flex: 0 0 auto;
 }
 .settings-nav-btn:hover {
   background: rgb(var(--fg) / 0.14);
   color: var(--ink);
 }
 .settings-nav-btn.on {
-  background: var(--tab-on);
+  background: transparent;
   color: var(--ink);
-  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.4);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* ── Liquid glass tab indicator ─────────────────────────────────────────── */
+.settings-nav {
+  position: relative;
+  isolation: isolate;
+}
+.settings-nav-btn {
+  position: relative;
+  z-index: 1;
+}
+.settings-glass {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: calc(100% - 4px);
+  border-radius: 999px;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0;
+  background:
+    radial-gradient(120% 90% at 30% 0%, rgb(255 255 255 / 0.28), transparent 55%),
+    linear-gradient(180deg, rgb(255 255 255 / 0.16), rgb(255 255 255 / 0.05));
+  backdrop-filter: blur(14px) saturate(180%);
+  -webkit-backdrop-filter: blur(14px) saturate(180%);
+  box-shadow:
+    inset 0 1px 0.5px rgb(255 255 255 / 0.45),
+    inset 0 -1px 1px rgb(255 255 255 / 0.08),
+    inset 0 0 0 0.5px rgb(255 255 255 / 0.18),
+    0 4px 14px rgb(0 0 0 / 0.35),
+    0 1px 3px rgb(0 0 0 / 0.25);
+  transform-origin: center;
+}
+.settings-glass.ready {
+  opacity: 1;
+  transition:
+    transform 0.55s cubic-bezier(0.34, 1.45, 0.5, 1),
+    width 0.5s cubic-bezier(0.34, 1.35, 0.5, 1),
+    opacity 0.2s;
+}
+/* While it travels the glass stretches and flattens, then settles like a drop. */
+.settings-glass.moving::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(60% 80% at 50% 50%, rgb(255 255 255 / 0.18), transparent 70%);
+  animation: glass-shine 0.55s ease-out;
+}
+.settings-glass.moving {
+  animation: glass-squish 0.55s cubic-bezier(0.3, 0.7, 0.4, 1);
+}
+@keyframes glass-squish {
+  0% { scale: 1 1; }
+  30% { scale: 1.14 0.82; }
+  60% { scale: 0.96 1.06; }
+  100% { scale: 1 1; }
+}
+@keyframes glass-shine {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+:root[data-theme="light"] .settings-glass {
+  background:
+    radial-gradient(120% 90% at 30% 0%, rgb(255 255 255 / 0.9), transparent 60%),
+    linear-gradient(180deg, rgb(255 255 255 / 0.75), rgb(255 255 255 / 0.45));
+  box-shadow:
+    inset 0 1px 0.5px rgb(255 255 255 / 1),
+    inset 0 0 0 0.5px rgb(15 23 42 / 0.08),
+    0 4px 12px rgb(15 23 42 / 0.12);
+}
+@media (prefers-reduced-motion: reduce) {
+  .settings-glass.ready { transition: opacity 0.2s; }
+  .settings-glass.moving, .settings-glass.moving::after { animation: none; }
+}
+.settings-nav-btn > * {
+  transition: transform 0.3s cubic-bezier(0.34, 1.5, 0.5, 1);
+}
+.settings-nav-btn:active > * {
+  transform: scale(0.92);
+}
+
+/* Not enough room for every label: inactive tabs become icons (the title
+   still names them); the active one keeps its word. */
+@container setcard (max-width: 640px) {
+  .settings-nav-btn:not(.on) > span {
+    display: none;
+  }
+  .settings-nav-btn:not(.on) {
+    padding-inline: 10px;
+    gap: 0;
+  }
 }
 
 .settings-panel {
@@ -765,28 +921,97 @@ html[data-dir="rtl"] .target-select {
 .set-content-scroll {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
+  padding-bottom: 4px;
 }
 
 .set-banner {
-  font-size: 11.5px;
+  font-size: calc(12px * var(--fs, 1));
   color: var(--dim);
   background: rgb(var(--fg) / 0.04);
   border-radius: 10px;
   padding: 8px 12px;
-  line-height: 1.45;
+  line-height: 1.7;
 }
 
 .set-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding: 6px 0;
+  gap: 14px;
+  padding: 9px 12px;
   border-bottom: 1px solid rgb(var(--fg) / 0.05);
+  transition: background 0.14s, opacity 0.18s;
 }
 .set-row:last-child {
   border-bottom: 0;
+}
+.set-row:hover {
+  background: rgb(var(--fg) / 0.03);
+}
+.set-row-off {
+  opacity: 0.45;
+}
+.set-row-control {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* Each tab is a few titled cards: related options live together. */
+.set-group {
+  background: rgb(var(--fg) / 0.035);
+  border: 1px solid rgb(var(--fg) / 0.07);
+  border-radius: calc(14px * var(--cr, 1));
+  overflow: hidden;
+  flex: 0 0 auto;
+  animation: set-group-in 0.22s ease both;
+}
+.set-group:nth-child(2) { animation-delay: 0.03s; }
+.set-group:nth-child(3) { animation-delay: 0.06s; }
+.set-group:nth-child(4) { animation-delay: 0.09s; }
+@keyframes set-group-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: none; }
+}
+.set-group-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgb(var(--fg) / 0.03);
+  border-bottom: 1px solid rgb(var(--fg) / 0.06);
+}
+.set-group-icon {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 7px;
+  background: rgba(99, 102, 241, 0.18);
+  color: #a5b4fc;
+  flex: 0 0 auto;
+}
+.set-group-title {
+  font-size: calc(12.5px * var(--fs, 1));
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--ink);
+}
+.set-group-body {
+  display: flex;
+  flex-direction: column;
+}
+.set-group-body > .set-wardrobe-grid {
+  padding: 10px 12px 12px;
+}
+:root[data-theme="light"] .set-group-icon {
+  color: #4f46e5;
+  background: rgba(99, 102, 241, 0.12);
 }
 
 .set-row-text {
@@ -797,12 +1022,14 @@ html[data-dir="rtl"] .target-select {
   flex: 1 1 auto;
 }
 .set-label {
-  font-size: 12.5px;
-  font-weight: 500;
+  font-size: calc(13px * var(--fs, 1));
+  font-weight: 600;
   color: var(--ink);
 }
 .set-hint {
-  font-size: 11px;
+  font-size: calc(11.5px * var(--fs, 1));
+  font-weight: 400;
+  line-height: 1.6;
   color: var(--dim-3);
 }
 
@@ -819,12 +1046,12 @@ html[data-dir="rtl"] .target-select {
   background: rgb(var(--fg) / 0.08);
   border: 1px solid rgb(var(--fg) / 0.12);
   color: var(--ink);
-  font-size: 12px;
+  font-size: calc(12px * var(--fs, 1));
 }
 
 .keycap-btn {
   font-family: var(--mono);
-  font-size: 12px;
+  font-size: calc(12px * var(--fs, 1));
   padding: 5px 12px;
   border-radius: 8px;
   background: rgb(var(--fg) / 0.09);
@@ -840,7 +1067,7 @@ html[data-dir="rtl"] .target-select {
 }
 
 .set-select, .set-text-input {
-  font-size: 12px;
+  font-size: calc(12px * var(--fs, 1));
   padding: 5px 10px;
   border-radius: 8px;
   background: rgb(var(--fg) / 0.08);
@@ -857,19 +1084,31 @@ html[data-dir="rtl"] .target-select {
   display: flex;
   align-items: center;
   gap: 6px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  min-width: 0;
+}
+.set-key-wrap > input,
+.set-model-wrap > :is(input, select, .sel, .select) {
+  flex: 1 1 120px;
+  min-width: 0;
+}
+.set-key-wrap > button,
+.set-model-wrap > button {
+  flex: 0 0 auto;
+  white-space: nowrap;
 }
 
 .set-model-wrap {
   display: flex;
   align-items: center;
   gap: 6px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  min-width: 0;
   justify-content: flex-end;
 }
 
 .set-model-badge {
-  font-size: 11px;
+  font-size: calc(11px * var(--fs, 1));
   padding: 3px 8px;
   border-radius: 6px;
   background: rgb(var(--fg) / 0.08);
@@ -898,7 +1137,7 @@ html[data-dir="rtl"] .target-select {
 
 .set-btn-action {
   padding: 5px 12px;
-  font-size: 11.5px;
+  font-size: calc(11.5px * var(--fs, 1));
   min-height: 28px;
   cursor: pointer;
 }
@@ -909,7 +1148,7 @@ html[data-dir="rtl"] .target-select {
   gap: 8px;
 }
 .set-test-badge {
-  font-size: 11px;
+  font-size: calc(11px * var(--fs, 1));
   padding: 3px 8px;
   border-radius: 6px;
   background: rgb(var(--fg) / 0.08);
@@ -937,7 +1176,74 @@ html[data-dir="rtl"] .target-select {
   width: 13px;
   height: 13px;
   border-radius: 50%;
-  background: #fff;
+  background: var(--ink-strong);
+}
+
+/* Settings → Island look: a slider, its readout and its own "default" button. */
+.look-control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.look-range {
+  width: 150px;
+  cursor: pointer;
+}
+.look-readout {
+  min-width: 42px;
+  text-align: center;
+  font: 600 calc(11.5px * var(--fs, 1)) var(--mono);
+  color: var(--ink);
+  direction: ltr;
+  unicode-bidi: isolate;
+  font-variant-numeric: tabular-nums;
+}
+.look-reset,
+.look-reset-all {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 0;
+  cursor: pointer;
+  color: var(--ink-2);
+  background: rgb(var(--fg) / 0.08);
+  transition: background 0.14s, opacity 0.14s, transform 0.08s;
+}
+.look-reset {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  flex: 0 0 auto;
+}
+.look-reset-all {
+  padding: 7px 14px;
+  border-radius: 999px;
+  font: 600 calc(12px * var(--fs, 1)) var(--font);
+}
+.look-reset:hover:not(:disabled),
+.look-reset-all:hover:not(:disabled) {
+  background: rgb(var(--fg) / 0.16);
+}
+.look-reset:active:not(:disabled),
+.look-reset-all:active:not(:disabled) {
+  transform: scale(0.94);
+}
+.look-reset:disabled,
+.look-reset-all:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.look-reset:focus-visible,
+.look-reset-all:focus-visible,
+.look-range:focus-visible {
+  outline: 2px solid rgba(129, 140, 248, 0.8);
+  outline-offset: 2px;
+}
+.look-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding-bottom: 4px;
 }
 
 .set-wardrobe-grid {
@@ -965,7 +1271,7 @@ html[data-dir="rtl"] .target-select {
   border-color: rgba(99, 102, 241, 0.5);
 }
 .set-outfit-lbl {
-  font-size: 10px;
+  font-size: calc(10px * var(--fs, 1));
   color: var(--dim);
 }
 
@@ -998,9 +1304,16 @@ html[data-dir="rtl"] .tab-chevron {
   row-gap: 6px;
 }
 
-.res-footer > .grow {
-  flex: 1 1 0;
+/* Speak and Bilingual travel as a pair: against the end edge, or together on a second line. */
+.res-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 5px;
+  margin-inline-start: auto;
   min-width: 0;
+  max-width: 100%;
 }
 
 .lang-row .chip {
@@ -1019,12 +1332,11 @@ html[data-dir="rtl"] .tab-chevron {
 }
 
 .set-row {
-  flex-wrap: wrap;
-  row-gap: 6px;
+  flex-wrap: nowrap;
 }
 
 .set-row-text {
-  min-width: 150px;
+  min-width: 110px;
 }
 
 .set-select,
@@ -1039,13 +1351,15 @@ html[data-dir="rtl"] .tab-chevron {
    its word. */
 .res-body {
   container: res / inline-size;
+  /* The container queries below are written in em: they read this size, so they move with the text size. */
+  font-size: calc(16px * var(--fs, 1));
 }
 
 .res-footer .btn svg {
   flex: 0 0 auto;
 }
 
-@container res (max-width: 459px) {
+@container res (max-width: calc(198px + 16.3em)) {
   .res-footer .replace-btn .kbd {
     display: none;
   }
@@ -1061,8 +1375,162 @@ html[data-dir="rtl"] .tab-chevron {
 /* The label of "Replace in app" always stays: a bare arrow does not say what it
    does. When the card is this narrow, the key hints go instead, and the row wraps
    (the island grows to fit it) rather than hiding a word. */
-@container res (max-width: 339px) {
+@container res (max-width: calc(131px + 13em)) {
   .res-footer .btn .kbd {
     display: none;
   }
+  .res-footer .btn:not(.replace-btn):not(.copy-btn) > span {
+    display: none;
+  }
+}
+
+/* ── Persian in Settings: crisp Vazirmatn, sized to read ──────────────────── */
+html[lang="fa"] .settings-integrated,
+html[lang="fa"] .settings-integrated :is(button, input, select, span, div) {
+  font-family: "Vazirmatn", "Inter", system-ui, sans-serif;
+  -webkit-text-stroke: 0;
+  letter-spacing: 0;
+}
+html[lang="fa"] .settings-integrated :is(.keycap-btn, .set-text-input.ltr, .set-key-input:not(:placeholder-shown)) {
+  font-family: var(--mono);
+}
+
+/* ── API key field ───────────────────────────────────────────────────────── */
+.set-row.set-row-stack {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+}
+.set-row-stack > .set-row-control {
+  justify-content: stretch;
+}
+.set-row-stack .set-key-wrap {
+  width: 100%;
+}
+.set-key-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 34px;
+  padding-inline: 11px 4px;
+  border-radius: 10px;
+  background: rgb(var(--fg) / 0.06);
+  border: 1px solid rgb(var(--fg) / 0.1);
+  color: var(--dim);
+  direction: ltr;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+}
+.set-key-field:focus-within {
+  border-color: rgba(129, 140, 248, 0.6);
+  background: rgb(var(--fg) / 0.08);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.18);
+}
+.set-key-field > svg {
+  flex: 0 0 auto;
+  opacity: 0.7;
+}
+.set-key-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--ink);
+  font: 500 calc(12.5px * var(--fs, 1)) var(--mono);
+  letter-spacing: 0.02em;
+  direction: ltr;
+  text-align: left;
+}
+.set-key-input::placeholder {
+  color: var(--dim-3);
+  font-family: var(--font);
+  letter-spacing: 0;
+}
+.set-key-eye,
+.set-key-remove {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--dim);
+  cursor: pointer;
+  transition: background 0.14s, color 0.14s;
+}
+.set-key-eye:hover {
+  background: rgb(var(--fg) / 0.1);
+  color: var(--ink);
+}
+.set-key-remove {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: rgba(244, 80, 94, 0.1);
+  color: var(--red-text);
+}
+.set-key-remove:hover {
+  background: rgba(244, 80, 94, 0.2);
+}
+.set-key-save {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+  height: 34px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #818cf8, #6366f1);
+  color: #fff;
+  font-size: calc(12px * var(--fs, 1));
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(99, 102, 241, 0.35);
+  animation: key-save-in 0.25s cubic-bezier(0.34, 1.5, 0.5, 1);
+}
+.set-key-save.show {
+  display: inline-flex;
+}
+.set-key-save:hover {
+  filter: brightness(1.08);
+}
+@keyframes key-save-in {
+  from { opacity: 0; transform: scale(0.85); }
+  to { opacity: 1; transform: none; }
+}
+.set-key-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  margin-top: 4px;
+  padding: 2px 9px 2px 8px;
+  border-radius: 999px;
+  font-size: calc(11px * var(--fs, 1));
+  font-weight: 500;
+}
+.set-key-status > i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.set-key-status.ok {
+  background: rgba(34, 197, 94, 0.12);
+  color: var(--green-text);
+}
+.set-key-status.ok > i {
+  box-shadow: 0 0 6px currentColor;
+}
+.set-key-status.none {
+  background: rgba(245, 165, 36, 0.12);
+  color: var(--amber-text);
 }

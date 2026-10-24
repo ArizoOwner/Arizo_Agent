@@ -3,10 +3,12 @@
 import { Tracked, Spring, clamp } from "../core/anim";
 import { Bridge, IS_TAURI } from "../core/bridge";
 import {
-  EXPANDED_CORNER, NOTCH_W, PANEL_H, PANEL_W,
-  ROUNDED_CORNER, botGlowColor, botGlowOpacity, botPosition, islandSize,
+  EXPANDED_CORNER, EXPANDED_W, NOTCH_W, PANEL_H, PANEL_W, TRANSLATE_MAX_W, VIEW_LAYOUTS,
+  ROUNDED_CORNER, botGlowColor, botGlowOpacity, botPosition, compactLayout, compactSize, islandSize,
+  type CompactLayout,
   type BotEmoteName, type IslandMode, type IslandViewName,
 } from "../core/layout";
+import { DEFAULT_LOOK, LOOK, PANEL_STEP, applyLookVars, cornerRadius, floatOffset, lookOf, panelFor, scaledIsland, type IslandExtent, type Look } from "../core/appearance";
 import { onEmote } from "../core/mood";
 import { Sound } from "../core/sound";
 import { State } from "../core/state";
@@ -34,7 +36,22 @@ const BOT_SIDE = 24;
 /** Margin around the island that still counts as "on" it (the backend uses the same). */
 const HIT_MARGIN = 14;
 
+/** Room the island's shadow wants on each side of it inside the window. */
+const SHADOW_ROOM = 20;
+/** How long a shrinking window waits for the island to finish shrinking first. */
+const PANEL_SHRINK_DELAY_MS = 700;
+
 const modeOrder = (m: IslandMode) => (m === "hidden" ? 0 : m === "compact" ? 1 : 2);
+
+/** The biggest the island can be at the default look: the translator at its widest and tallest, and the tallest fixed view. */
+const LARGEST: readonly IslandExtent[] = [
+  { w: TRANSLATE_MAX_W, h: PANEL_H, fitsContent: true },
+  {
+    w: EXPANDED_W,
+    h: Math.max(...Object.entries(VIEW_LAYOUTS).filter(([name]) => name !== "translate" && name !== "greeting").map(([, v]) => v.height)),
+    fitsContent: false,
+  },
+];
 
 export class Island {
   readonly fsm = new IslandStateMachine();
@@ -49,6 +66,10 @@ export class Island {
   private greetingCanvas!: HTMLCanvasElement;
   private miniGrid!: HTMLElement;
   private capsuleText!: HTMLElement;
+  /** The rows of mini Aris in the capsule (two columns), and the clock's line height: both set the capsule's layout. */
+  private miniRows = 2;
+  private clockH = 16;
+  private compactStyleKey = "";
   private toastEl!: HTMLElement;
   private countdown!: HTMLElement;
   private wakeStrip!: HTMLElement;
@@ -60,6 +81,15 @@ export class Island {
   private width = new Tracked(NOTCH_W);
   private height = new Tracked(0);
   private radius = new Tracked(ROUNDED_CORNER);
+  /** How far the island hangs below the top edge (0 unless it floats: Settings → Island look). */
+  private top = new Tracked(0);
+  /**
+   * While a width slider is dragged the slider sits inside the island, which is centred: as the island
+   * widens the slider would slide away from under the pointer. So the edge the slider is near stays where
+   * it was and the island grows from the other one; letting go eases it back to the centre.
+   */
+  private anchor: { w0: number; rtl: boolean } | null = null;
+  private shiftX = new Tracked(0);
   private botCx = new Spring(46);
   private botCy = new Spring(16);
   private botSize = new Spring(10);
@@ -80,6 +110,13 @@ export class Island {
   private wasInIsland = false;
   /** Last shape handed to the backend for the click-through test. */
   private pushedRect = { x: -1, y: -1, w: -1, h: -1 };
+
+  /** The island's look (Settings → Island look) and the size of the window it needs. */
+  private look: Look = DEFAULT_LOOK;
+  private lookKey = "";
+  /** The size of the window as the backend has it now (the default until the look needs more). */
+  private panel = { w: PANEL_W, h: PANEL_H };
+  private panelTimer: number | null = null;
 
   // Bot hover → love
   private botHovering = false;
@@ -133,6 +170,29 @@ export class Island {
         void Bridge.saveSettings({ soundVolume: v });
         State.notify();
       },
+      previewVolume: (v) => Sound.setVolume(v),
+      previewLook: (patch) => {
+        if (patch && "uiWidth" in patch && !this.anchor) {
+          this.anchor = { w0: this.width.value, rtl: isRtl() };
+          this.updatePanel();
+        }
+        State.lookPreview = patch;
+        this.applyLook();
+      },
+      setLook: (patch) => {
+        this.releaseAnchor();
+        State.lookPreview = null;
+        State.settings = { ...State.settings, ...patch };
+        void Bridge.saveSettings(patch);
+        this.applyLook();
+        State.notify();
+      },
+      setFeatureOrder: (order) => {
+        State.settings.featureOrder = order;
+        void Bridge.saveSettings({ featureOrder: order });
+        State.notify();
+      },
+      playSound: (name) => void Sound.play(name),
       setAutoClose: (s) => {
         State.settings.autoCloseInterval = s;
         this.fsm.homeToPetitDelay = s;
@@ -282,7 +342,7 @@ export class Island {
   }
 
   private viewHeight(view: IslandViewName): number {
-    return islandSize("expanded", view, State.translateH, State.translateW).h;
+    return this.sizeOf("expanded", view).h;
   }
 
   collapse() {
@@ -291,7 +351,9 @@ export class Island {
     // Drive the state machine rather than the mode: setting the mode behind its
     // back would leave it thinking the island was still open, and a click on
     // the compact island would then do nothing.
-    this.fsm.forcePetit();
+    // Any outside click lands here: only an open island has anything to fold, or
+    // a hidden one would reappear and the compact one lose its hide timer.
+    if (State.mode === "expanded") this.fsm.forcePetit();
   }
 
   /** A copy or replace is done: the island folds (the window is click-through, nothing to give back). */
@@ -303,6 +365,8 @@ export class Island {
   alert(view: IslandViewName) {
     this.fsm.pinned = State.isPinned;
     this.fsm.forceHome();
+    // Already home: forceHome cleared the countdown and onTransition will not re-arm it.
+    if (!this.wasInIsland) this.fsm.mouseLeft();
     this.expand(view);
   }
 
@@ -360,7 +424,7 @@ export class Island {
     layer.className = "tone-" + style.tone;
     layer.replaceChildren();
     void layer.offsetWidth; // restart the CSS animations
-    const drops = style.rain === "none" ? [] : makeRain(style.rain === "party" ? 46 : 26, PANEL_W - 140, 20261017 + style.priority, style.ms);
+    const drops = style.rain === "none" ? [] : makeRain(style.rain === "party" ? 46 : 26, this.panel.w - 140, 20261017 + style.priority, style.ms);
     const word = t(style.word) + (e.count > 1 ? " ×" + e.count : "");
     const who = [e.player, e.minute].filter(Boolean).join("  ");
     layer.append(
@@ -462,29 +526,31 @@ export class Island {
 
   // ── Geometry ────────────────────────────────────────────────────────────────
 
-  private targetSize(): { w: number; h: number; r: number } {
-    const { w, h } = islandSize(State.mode, State.view, State.translateH, State.translateW);
-    const r = State.mode === "expanded" ? EXPANDED_CORNER : ROUNDED_CORNER;
-    return { w, h, r };
+  private targetSize(): { w: number; h: number; r: number; t: number } {
+    const { w, h } = this.sizeOf(State.mode, State.view);
+    const r = cornerRadius(State.mode === "expanded" ? EXPANDED_CORNER : ROUNDED_CORNER, this.look);
+    return { w, h, r, t: floatOffset(this.look, State.mode === "hidden") };
   }
 
   /** The size to draw now: the target, stretched toward the stage while a goal is celebrated. */
   private drawnSize(w: number, h: number): { w: number; h: number } {
     return this.celebrationLevelNow > 0.001
-      ? celebrationSize({ w, h }, this.celebrationLevelNow, { w: PANEL_W, h: PANEL_H }, styleOf(this.celebration).stage)
+      ? celebrationSize({ w, h }, this.celebrationLevelNow, this.panel, styleOf(this.celebration).stage)
       : { w, h };
   }
 
   private animateGeometry(shrinking: boolean) {
-    const { w, h, r } = this.targetSize();
+    const { w, h, r, t } = this.targetSize();
     if (shrinking) {
       this.width.curveTowards(w);
       this.height.curveTowards(h);
       this.radius.curveTowards(r);
+      this.top.curveTowards(t);
     } else {
       this.width.springTo(w);
       this.height.springTo(h);
       this.radius.springTo(r);
+      this.top.springTo(t);
     }
     this.ensureRunning();
   }
@@ -493,21 +559,29 @@ export class Island {
     const shown = this.drawnSize(this.width.value, this.height.value);
     const w = shown.w;
     const hh = shown.h;
-    const r = this.celebrationLevelNow > 0.001 ? Math.max(this.radius.value, EXPANDED_CORNER) : this.radius.value;
+    const r = this.celebrationLevelNow > 0.001 ? Math.max(this.radius.value, cornerRadius(EXPANDED_CORNER, this.look)) : this.radius.value;
     this.islandEl.style.width = `${w}px`;
     this.islandEl.style.height = `${hh}px`;
-    this.islandEl.style.borderRadius = `0 0 ${r}px ${r}px`;
-    this.islandEl.style.transform = `translateX(-50%)`;
+    // Floating: the island hangs below the edge, so its top corners round off as it comes down.
+    const top = Math.max(0, this.top.value);
+    const hang = this.look.uiFloatGap > 0 ? Math.min(1, top / this.look.uiFloatGap) : 0;
+    const tr = Math.round(r * hang);
+    this.islandEl.style.top = `${top}px`;
+    this.islandEl.style.borderRadius = `${tr}px ${tr}px ${r}px ${r}px`;
+    this.islandEl.classList.toggle("floating", top > 0.5);
+    this.islandEl.style.transform = `translateX(calc(-50% + ${this.islandLeft(w) - (this.panel.w - w) / 2}px))`;
     // These follow the island as it resizes, so they belong here rather than in
     // the state-driven DOM sync.
-    this.miniGrid.style.left = `${w - 40 - 14.5}px`;
-    this.miniGrid.style.top = `${hh / 2 - 14.5}px`;
-    this.capsuleText.style.top = `${hh / 2 - 8}px`;
+    const c = this.compact();
+    this.sizeCompactParts(c);
+    this.miniGrid.style.left = `${w - c.inset - c.gridW / 2}px`;
+    this.miniGrid.style.top = `${hh / 2 - c.gridH / 2}px`;
+    this.capsuleText.style.top = `${hh / 2 - this.clockH / 2}px`;
     this.greetingCanvas.style.left = `${(w - GREETING_W) / 2}px`;
 
-    const rect = { x: (PANEL_W - w) / 2, y: 0, w, h: hh };
+    const rect = { x: this.islandLeft(w), y: top, w, h: hh };
     const p = this.pushedRect;
-    if (Math.abs(p.x - rect.x) > 0.5 || Math.abs(p.w - rect.w) > 0.5 || Math.abs(p.h - rect.h) > 0.5) {
+    if (Math.abs(p.x - rect.x) > 0.5 || Math.abs(p.y - rect.y) > 0.5 || Math.abs(p.w - rect.w) > 0.5 || Math.abs(p.h - rect.h) > 0.5) {
       this.pushedRect = rect;
       void Bridge.setIslandRect(rect.x, rect.y, rect.w, rect.h);
     }
@@ -518,7 +592,27 @@ export class Island {
     const shown = this.drawnSize(this.width.value, this.height.value);
     const w = shown.w;
     const hh = shown.h;
-    return { x: (PANEL_W - w) / 2, y: 0, w, h: hh };
+    return { x: this.islandLeft(w), y: Math.max(0, this.top.value), w, h: hh };
+  }
+
+  /** The island's left edge in window coordinates: centred, or held to one side while a width slider is dragged. */
+  private islandLeft(w: number): number {
+    const centred = (this.panel.w - w) / 2;
+    let shift = this.shiftX.value;
+    if (this.anchor) shift = this.anchor.rtl ? (w - this.anchor.w0) / 2 : (this.anchor.w0 - w) / 2;
+    return Math.min(Math.max(centred + shift, 0), Math.max(0, this.panel.w - w));
+  }
+
+  /** The slider was let go: the island eases from where it hangs back to the centre. */
+  private releaseAnchor() {
+    if (!this.anchor) return;
+    const w = this.drawnSize(this.width.value, this.height.value).w;
+    const shift = this.islandLeft(w) - (this.panel.w - w) / 2;
+    this.anchor = null;
+    this.shiftX.jump(shift);
+    this.shiftX.curveTowards(0, 320);
+    this.updatePanel();
+    this.ensureRunning();
   }
 
   // ── Window collapse (hidden → tiny wake strip, zero polling) ────────────────
@@ -594,10 +688,10 @@ export class Island {
       if (e.key === "Escape" && State.mode === "expanded") {
         e.preventDefault();
         this.close();
-      } else if ((e.key === "m" || e.key === "M") && e.ctrlKey && !e.altKey) {
+      } else if ((e.code === "KeyM" || e.key === "m" || e.key === "M") && e.ctrlKey && !e.altKey) {
         e.preventDefault();
         this.toggleCompact();
-      } else if (e.key === "," && e.ctrlKey && State.mode === "expanded") {
+      } else if ((e.code === "Comma" || e.key === ",") && e.ctrlKey && State.mode === "expanded") {
         e.preventDefault();
         this.setView("settings");
       }
@@ -722,6 +816,8 @@ export class Island {
     this.width.step(dt, nowMs);
     this.height.step(dt, nowMs);
     this.radius.step(dt, nowMs);
+    this.top.step(dt, nowMs);
+    this.shiftX.step(dt, nowMs);
     this.stepCelebration(nowMs);
     this.applyGeometry();
 
@@ -755,12 +851,14 @@ export class Island {
     // alive either: the island must cost nothing while hidden. Geometry still
     // has to finish retracting.
     const settling =
-      this.width.animating || this.height.animating || this.radius.animating;
+      this.width.animating || this.height.animating || this.radius.animating || this.top.animating || this.shiftX.animating;
     const busy = State.mode === "hidden"
       ? settling
       : settling ||
         !this.botCx.settled || !this.botCy.settled || !this.botSize.settled ||
-        greetingActive || this.engine.busy || viewAnimating || this.celebration != null;
+        greetingActive || this.engine.busy || viewAnimating || this.celebration != null ||
+        // The auto-collapse bar is drawn from this loop; it runs only while the countdown is armed.
+        (State.mode === "expanded" && !State.isPinned && this.fsm.homeCollapseDueAt != null);
 
     if (busy) {
       requestAnimationFrame(this.frame);
@@ -774,8 +872,15 @@ export class Island {
     const shown = this.drawnSize(this.width.value, this.height.value);
     const p = botPosition(
       State.mode, State.view, shown.h, isRtl(),
-      this.celebrationLevelNow > 0.001 ? shown.w : islandSize(State.mode, State.view, State.translateH, State.translateW).w,
+      this.celebrationLevelNow > 0.001 ? shown.w : this.sizeOf(State.mode, State.view).w,
     );
+    // The folded island is the user's to size: Ari follows its layout.
+    if (State.mode === "compact") {
+      const c = this.compact();
+      p.cx = c.ariCx;
+      p.cy = c.ariCy;
+      p.diameter = c.ariD;
+    }
     // While celebrating, Ari moves to the middle of the stage and grows — from the
     // folded capsule too, where he starts small beside the clock.
     if (this.celebrationLevelNow > 0.001 && (State.mode === "expanded" || State.mode === "compact")) {
@@ -899,6 +1004,7 @@ export class Island {
     this.greetingCanvas.style.display = greetingActive ? "block" : "none";
     // The intro is a night scene: the island is black for it, in either theme.
     this.islandEl.classList.toggle("stage", greetingActive);
+    this.islandEl.classList.toggle("open", expanded);
 
     // Leaving the greeting, however it ends, lets its sound fade out.
     if (this.greetingShown && !greetingActive) this.greeting.leave();
@@ -946,12 +1052,14 @@ export class Island {
     this.miniGrid.style.opacity = showGrid ? "1" : "0";
     this.capsuleText.style.opacity = showGrid ? "1" : "0";
     if (showGrid) {
-      const key = tasks.map((x) => `${x.id}:${x.color}`).join("|");
+      this.miniRows = Math.max(2, Math.ceil(tasks.length / 2));
+      const c = this.compact();
+      const key = tasks.map((x) => `${x.id}:${x.color}`).join("|") + `@${c.k.toFixed(2)}`;
       if (this.miniGrid.dataset.key !== key) {
         this.miniGrid.dataset.key = key;
         this.miniGrid.replaceChildren();
         for (const task of tasks) {
-          this.miniGrid.append(createMiniBot(task, 13,
+          this.miniGrid.append(createMiniBot(task, 13 * c.k,
             task.id === SPOTIFY_ID ? () => musicPlaying(Spotify.state) : undefined));
         }
         pruneMiniBots();
@@ -996,10 +1104,107 @@ export class Island {
     Sound.setEnabled(State.settings.soundEnabled);
     Sound.setVolume(State.settings.soundVolume);
     this.fsm.homeToPetitDelay = State.settings.autoCloseInterval;
+    this.applyLook();
     State.notify();
   }
 
+  // ── Look: size, transparency, text size, corners (Settings → Island look) ──────
+
+  /** The look now: the saved one, with whatever a slider being dragged shows on top. */
+  private currentLook(): Look {
+    return lookOf({ ...State.settings, ...State.lookPreview });
+  }
+
+  /** The island's size for a mode and view, with the look applied (open views only; the capsule and the intro keep theirs). */
+  private sizeOf(mode: IslandMode, view: IslandViewName): { w: number; h: number } {
+    const base = islandSize(mode, view, State.translateH, State.translateW);
+    if (mode === "compact") return compactSize(this.look);
+    if (mode !== "expanded" || view === "greeting") return base;
+    return scaledIsland(base, view === "translate", this.look, this.screenLimit(), view === "translate" ? State.translateNeedH : 0);
+  }
+
+  /** The most the island may take: the screen it is on, less a margin. */
+  private screenLimit(): { w: number; h: number } {
+    const s = typeof window !== "undefined" ? window.screen : undefined;
+    return { w: Math.max(PANEL_W, (s?.width ?? 1920) - 24), h: Math.max(PANEL_H, (s?.height ?? 1080) - 48) };
+  }
+
+  /** The folded capsule at the current look: its box, and where and how big Ari, the clock and the minis are. */
+  private compact(): CompactLayout {
+    return compactLayout(this.look, this.miniRows);
+  }
+
+  /** The capsule's clock and mini grid at the capsule's zoom (only when it changes: this runs every frame). */
+  private sizeCompactParts(c: CompactLayout) {
+    const fs = this.look.uiFontScale / 100;
+    const key = `${c.k.toFixed(3)}|${this.miniRows}|${fs}`;
+    if (key === this.compactStyleKey) return;
+    this.compactStyleKey = key;
+    const mini = 13 * c.k;
+    const g = this.miniGrid.style;
+    g.width = `${c.gridW}px`;
+    g.height = `${c.gridH}px`;
+    g.gridTemplateColumns = `${mini}px ${mini}px`;
+    g.gridAutoRows = `${mini}px`;
+    g.gap = `${3 * c.k}px`;
+    this.clockH = 16 * c.k * fs;
+    const t = this.capsuleText.style;
+    t.fontSize = `${12.5 * c.k * fs}px`;
+    t.lineHeight = `${this.clockH}px`;
+    t.height = `${this.clockH}px`;
+  }
+
+  /** Applies a changed look at once: the text scale and surfaces through CSS, the size through the island's springs. */
+  applyLook() {
+    const look = this.currentLook();
+    const key = JSON.stringify(look);
+    if (key === this.lookKey) return;
+    const before = this.sizeOf(State.mode, State.view);
+    this.lookKey = key;
+    this.look = look;
+    applyLookVars(document.documentElement, look);
+    this.updatePanel();
+    // The cards are measured again at the new text size, so the translator is exactly as tall as they need.
+    this.translate.refit();
+    const after = this.sizeOf(State.mode, State.view);
+    this.animateGeometry(after.w < before.w || after.h < before.h);
+    this.dirty = true;
+    this.ensureRunning();
+  }
+
+  /**
+   * The window grows before the island does and shrinks after it has shrunk, so the island is
+   * never cut off by its own window. At the default look it is exactly the default panel.
+   */
+  private updatePanel() {
+    // While a width slider is dragged the window is opened once for the widest island and left alone: resizing it
+    // on every step moves the island under the pointer (the window is centred, and its size and place change in turn).
+    const forPanel = this.anchor ? { ...this.look, uiWidth: LOOK.uiWidth.max } : this.look;
+    const wanted = panelFor(forPanel, { w: PANEL_W, h: PANEL_H }, LARGEST, SHADOW_ROOM, this.screenLimit());
+    if (this.anchor) {
+      // One edge stays where it was and the island grows from the other: it must be able to reach its widest
+      // without that edge meeting the window's (the window is centred, so the room needed is 2 x widest - start).
+      const widest = wanted.w - SHADOW_ROOM * 2;
+      wanted.w = Math.max(wanted.w, Math.ceil((2 * widest - this.anchor.w0 + SHADOW_ROOM * 2) / PANEL_STEP) * PANEL_STEP);
+    }
+    if (this.panelTimer != null) {
+      window.clearTimeout(this.panelTimer);
+      this.panelTimer = null;
+    }
+    if (wanted.w === this.panel.w && wanted.h === this.panel.h) return;
+    const apply = () => {
+      this.panelTimer = null;
+      this.panel = wanted;
+      this.pushedRect = { x: -1, y: -1, w: -1, h: -1 };
+      void Bridge.setPanelSize(wanted.w, wanted.h);
+      this.dirty = true;
+      this.ensureRunning();
+    };
+    if (wanted.w >= this.panel.w && wanted.h >= this.panel.h) apply();
+    else this.panelTimer = window.setTimeout(apply, PANEL_SHRINK_DELAY_MS);
+  }
+
   get panelSize() {
-    return { w: PANEL_W, h: PANEL_H };
+    return { ...this.panel };
   }
 }

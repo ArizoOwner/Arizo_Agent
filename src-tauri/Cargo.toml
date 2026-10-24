@@ -1,6 +1,6 @@
 [package]
 name = "arizo-agent"
-version = "3.3.0"
+version = "3.4.0"
 description = "Arizo-Agent — a Dynamic Island translator and Spotify companion for Windows"
 authors = ["ArizoOwner"]
 edition = "2021"

@@ -175,7 +175,8 @@ export function buildCrypto(): ViewHost {
     renderView();
   }
 
-  const setupCard = h("div", { class: "cp-setup-card" },
+  // The card scrolls on its own when the form is taller than the island (always at a large text size).
+  const setupCard = h("div", { class: "cp-setup-card", "data-scroll": true },
     h("div", { class: "cp-setup-badge-row" }, setupBadge, h("div", { class: "cp-setup-title", text: tl("Connect Exchange API") })),
     setupHint,
     h("div", { class: "cp-setup-form" },
@@ -441,9 +442,9 @@ export function buildCrypto(): ViewHost {
   const ohlcHigh = h("b", { text: "-" });
   const ohlcLow = h("b", { text: "-" });
   const ohlcClose = h("b", { text: "-" });
+  const ohlcPair = (label: string, value: HTMLElement) => h("span", { class: "cp-ohlc-item" }, h("span", { text: label }), value);
   const ohlcBar = h("div", { class: "cp-ohlc-bar" },
-    h("span", { text: "O: " }), ohlcOpen, h("span", { text: " H: " }), ohlcHigh,
-    h("span", { text: " L: " }), ohlcLow, h("span", { text: " C: " }), ohlcClose);
+    ohlcPair("O:", ohlcOpen), ohlcPair("H:", ohlcHigh), ohlcPair("L:", ohlcLow), ohlcPair("C:", ohlcClose));
 
   const chartTop = h("div", { class: "cp-chart-top" },
     h("div", { class: "cp-chart-toolbar" }, tfDropdownEl, btnCandles, btnLine),

@@ -31,6 +31,9 @@ const CONNECT_TIMEOUT: Duration = Duration::from_secs(180);
 const IMAGE_LIMIT: usize = 3 * 1024 * 1024;
 
 static CANCEL: AtomicBool = AtomicBool::new(false);
+/// Until when Spotify asked us to stay away (429 Retry-After). Web API calls honour
+/// it; the code exchange of a connect does not, so connecting is never blocked.
+static RATE_UNTIL: Mutex<Option<Instant>> = Mutex::new(None);
 
 /// What the page may know about the account: never a token.
 #[derive(Serialize, Clone, Debug, Default, PartialEq)]
@@ -207,7 +210,7 @@ pub fn authorize_url(client_id: &str, challenge: &str, state: &str) -> String {
 #[derive(Debug, PartialEq)]
 pub enum Callback {
     Code { code: String, state: String },
-    Denied,
+    Denied { state: Option<String> },
     Other,
 }
 
@@ -232,7 +235,7 @@ pub fn parse_callback(request: &str) -> Callback {
         }
     }
     if error {
-        return Callback::Denied;
+        return Callback::Denied { state };
     }
     match (code, state) {
         (Some(code), Some(state)) if !code.is_empty() => Callback::Code { code, state },
@@ -282,7 +285,8 @@ fn wait_for_code(listener: TcpListener, expected_state: &str, deadline: Instant)
                 respond(&mut stream, "200 OK", true);
                 return Ok(code);
             }
-            Callback::Denied => {
+            // Only Spotify's own redirect carries the state: a web page cannot abort the flow.
+            Callback::Denied { state } if state.as_deref() == Some(expected_state) => {
                 respond(&mut stream, "200 OK", false);
                 return Err(ApiError::Denied);
             }
@@ -302,9 +306,25 @@ async fn token_request(form: &[(&str, &str)]) -> Result<Value, ApiError> {
     match status {
         200 => Ok(body),
         400 | 401 => Err(ApiError::Auth),
-        429 => Err(ApiError::Rate(retry)),
+        429 => Err(note_rate(retry)),
         s => Err(ApiError::Http(s)),
     }
+}
+
+/// Records a 429 so no call goes out before Retry-After has passed.
+fn note_rate(secs: u64) -> ApiError {
+    *RATE_UNTIL.lock().unwrap() = Some(Instant::now() + Duration::from_secs(secs.min(3600)));
+    ApiError::Rate(secs)
+}
+
+/// The seconds still to wait, if a 429 is in force.
+fn rate_wait() -> Option<u64> {
+    let mut until = RATE_UNTIL.lock().unwrap();
+    let left = until.and_then(|t| t.checked_duration_since(Instant::now()));
+    if left.is_none() {
+        *until = None;
+    }
+    left.map(|d| d.as_secs_f64().ceil() as u64)
 }
 
 fn retry_after(res: &reqwest::Response) -> u64 {
@@ -354,6 +374,9 @@ async fn access_token(client_id: &str) -> Result<String, ApiError> {
 // ── The Web API ───────────────────────────────────────────────────────────────
 
 async fn api(client_id: &str, method: Method, path: &str, query: &[(&str, String)]) -> Result<Value, ApiError> {
+    if let Some(left) = rate_wait() {
+        return Err(ApiError::Rate(left.max(1)));
+    }
     for attempt in 0..2 {
         let token = access_token(client_id).await?;
         let url = Url::parse_with_params(&format!("https://api.spotify.com/v1{path}"), query)
@@ -378,7 +401,7 @@ async fn api(client_id: &str, method: Method, path: &str, query: &[(&str, String
                 return Err(classify_forbidden(body["error"]["message"].as_str().unwrap_or("")));
             }
             404 => return Err(ApiError::NoDevice),
-            429 => return Err(ApiError::Rate(retry_after(&res))),
+            429 => return Err(note_rate(retry_after(&res))),
             s => return Err(ApiError::Http(s)),
         }
     }
@@ -529,6 +552,8 @@ async fn connect_inner(client_id: &str) -> Result<(), ApiError> {
     ])
     .await?;
     store_tokens(client_id, &tokens, None)?;
+    // A fresh approval: its first profile read must not be refused by an old 429.
+    *RATE_UNTIL.lock().unwrap() = None;
     if let Err(e) = load_profile(client_id).await {
         forget(client_id);
         return Err(e);
@@ -593,7 +618,11 @@ mod tests {
             parse_callback("GET /callback?code=AQB%2Fx&state=S1 HTTP/1.1\r\nHost: 127.0.0.1\r\n\r\n"),
             Callback::Code { code: "AQB/x".into(), state: "S1".into() }
         );
-        assert_eq!(parse_callback("GET /callback?error=access_denied&state=S1 HTTP/1.1"), Callback::Denied);
+        assert_eq!(
+            parse_callback("GET /callback?error=access_denied&state=S1 HTTP/1.1"),
+            Callback::Denied { state: Some("S1".into()) }
+        );
+        assert_eq!(parse_callback("GET /callback?error=x HTTP/1.1"), Callback::Denied { state: None });
         assert_eq!(parse_callback("GET /favicon.ico HTTP/1.1"), Callback::Other);
         assert_eq!(parse_callback("GET /callback HTTP/1.1"), Callback::Other);
         assert_eq!(parse_callback("GET /callbackx?code=1&state=2 HTTP/1.1"), Callback::Other);
@@ -626,6 +655,16 @@ mod tests {
         for bad in ["http://i.scdn.co/x", "https://evil.example/i.scdn.co", "https://scdn.co.evil.example/x", "https://127.0.0.1/x", "file:///c:/x", "i.scdn.co"] {
             assert!(!is_cover_host(bad), "{bad}");
         }
+    }
+
+    #[test]
+    fn a_429_blocks_later_calls_until_retry_after_has_passed() {
+        assert_eq!(rate_wait(), None);
+        assert_eq!(note_rate(30), ApiError::Rate(30));
+        let left = rate_wait().expect("blocked");
+        assert!((1..=30).contains(&left));
+        *RATE_UNTIL.lock().unwrap() = None;
+        assert_eq!(rate_wait(), None);
     }
 
     #[test]

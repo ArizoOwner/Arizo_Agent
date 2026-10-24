@@ -84,6 +84,15 @@ impl Translator {
         .to_string();
 
         if let Some(hit) = self.cache_get(&cache_key) {
+            // A repeat lookup still counts (add_history skips it when history is off).
+            store.add_history(HistoryItem {
+                query: clean.clone(),
+                translation: hit.translation.clone(),
+                detected_lang: hit.detected_lang.clone(),
+                target_lang: hit.target_lang.clone(),
+                engine: hit.engine.clone(),
+                ..Default::default()
+            });
             reply.success = true;
             reply.cached = true;
             reply.data = Some(hit);

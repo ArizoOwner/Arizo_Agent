@@ -4,6 +4,8 @@ import { TRANSLATE_MIN_H, TRANSLATE_MIN_W, type BotEmoteName, type BotStateName,
 import type { EyeShape } from "../ari/engine";
 import { DEFAULT_ENGINE, PILLS, parseEngine, pillState, type Engine, type EnginePillId } from "./pills";
 import { DEFAULT_OUTFIT, type Outfit } from "../ari/wardrobe";
+import { DEFAULT_FEATURE_ORDER, type FeatureId } from "./feature-order";
+import { DEFAULT_LOOK, type Look } from "./appearance";
 
 export type Theme = "dark" | "light" | "system";
 export type AppLanguage = "fa" | "en";
@@ -63,6 +65,21 @@ export interface Settings {
   cryptoFavorites: string[];
   cryptoDefaultAsset: string;
   autoCloseInterval: number;
+  /** The order of the header's feature tabs, rearranged by dragging them. */
+  featureOrder: FeatureId[];
+  /** The island's look as a percentage of its design (see core/appearance.ts): size, see-through, text, corners. */
+  uiWidth: number;
+  uiHeight: number;
+  uiTransparency: number;
+  uiFontScale: number;
+  uiCorner: number;
+  /** Floating: the island hangs `uiFloatGap` px below the top edge instead of touching it. */
+  uiFloating: boolean;
+  uiFloatGap: number;
+  /** The folded capsule: its width and height as a percentage of the design, and the zoom of the whole of it. */
+  uiCompactWidth: number;
+  uiCompactHeight: number;
+  uiCompactScale: number;
   /** Ari's outfit: "auto" (dresses for the season), "none" or an outfit id. */
   ariOutfit: string;
   /** Kept for the backend; the interface language is `appLanguage`. */
@@ -111,6 +128,8 @@ export const DEFAULT_SETTINGS: Settings = {
   cryptoFavorites: [],
   cryptoDefaultAsset: "",
   autoCloseInterval: 15,
+  featureOrder: [...DEFAULT_FEATURE_ORDER],
+  ...DEFAULT_LOOK,
   ariOutfit: DEFAULT_OUTFIT,
   language: "",
   aphra: DEFAULT_APHRA,
@@ -161,6 +180,8 @@ class AppState {
   translateH = TRANSLATE_MIN_H;
   /** Width of the translate view: follows the text (see translateWidth). */
   translateW = TRANSLATE_MIN_W;
+  /** The least height its cards need (see translateNeed): a shorter look setting never goes below it. */
+  translateNeedH = 0;
 
   isPinned = false;
   noteMessage: string | null = null;
@@ -169,6 +190,9 @@ class AppState {
 
   /** Outfit shown on Ari while the pointer rests on a wardrobe button. */
   wardrobePreview: Outfit | null = null;
+
+  /** The look while a slider is being dragged: shown at once, saved when it is let go (never in `settings`). */
+  lookPreview: Partial<Look> | null = null;
 
   lastActivity = performance.now();
   settings: Settings = { ...DEFAULT_SETTINGS };

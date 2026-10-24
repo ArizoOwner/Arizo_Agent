@@ -6,7 +6,7 @@ The [MIT License](LICENSE) covers the **source code** of this repository. It doe
 cover the brand and the artwork listed here, which remain the property of ArizoOwner:
 
 - the names **"Arizo-Agent"** and **"Arizo Agent"**, and the Arizo logo;
-- the **app icon** and **tray icon** (`assets/icons/`, `src-tauri/icons/`), and the script
+- the **app icon** and **tray icon** (`src-tauri/icons/`), and the script
   that draws them (`scripts/gen-icons.mjs`) as an artwork;
 - the **sounds** (`web/public/sounds/`), synthesized from scratch by `scripts/gen-sounds.mjs`;
 - the **screenshots and media** in `docs/media/`.

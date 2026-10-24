@@ -4,8 +4,10 @@
 // Everything here calls Win32 directly — no helper process, no PowerShell. The
 // clipboard is never polluted: a capture only looks at the clipboard sequence
 // number to know whether the copy really happened, and the user's own clipboard
-// (text and image) is put back afterwards.
+// (an image, else copied files, else text) is put back afterwards, and only if
+// something changed it.
 
+use std::path::PathBuf;
 use std::sync::atomic::{AtomicBool, AtomicI32, AtomicIsize, AtomicU32, AtomicU64, Ordering};
 use std::sync::mpsc::{channel, Sender};
 use std::sync::{Mutex, OnceLock};
@@ -14,7 +16,7 @@ use std::time::{Duration, Instant};
 
 use arboard::{Clipboard, ImageData};
 use windows::Win32::Foundation::{HWND, LPARAM, LRESULT, POINT, WPARAM};
-use windows::Win32::System::DataExchange::GetClipboardSequenceNumber;
+use windows::Win32::System::DataExchange::{CountClipboardFormats, GetClipboardSequenceNumber};
 use windows::Win32::System::Threading::{AttachThreadInput, GetCurrentProcessId, GetCurrentThreadId};
 use windows::Win32::UI::Input::KeyboardAndMouse::{
     GetAsyncKeyState, MapVirtualKeyW, SendInput, INPUT, INPUT_0, INPUT_KEYBOARD, KEYBDINPUT,
@@ -301,13 +303,18 @@ pub fn restore_target_window() {
 
 // ── Clipboard ─────────────────────────────────────────────────────────────────
 
-/// What the user had on the clipboard: text and a picture. (Rich HTML / RTF is not
-/// kept — the clipboard crate does not expose it — so a copied web snippet comes
-/// back as its plain text.)
+/// What the user had on the clipboard: a picture, copied files, or text. (Rich HTML /
+/// RTF is not kept — the clipboard crate does not expose it — so a copied web snippet
+/// comes back as its plain text, and an image copied together with its text comes
+/// back as the image only.) `seq` is the clipboard sequence number at that moment.
 #[derive(Default)]
 pub struct Snapshot {
     text: String,
     image: Option<ImageData<'static>>,
+    files: Vec<PathBuf>,
+    seq: u32,
+    /// The clipboard really held nothing, as opposed to a format we cannot keep.
+    empty: bool,
 }
 
 fn clipboard() -> Option<Clipboard> {
@@ -339,23 +346,38 @@ pub fn write_text(text: &str) -> bool {
 
 pub fn snapshot() -> Snapshot {
     let Some(mut c) = clipboard() else { return Snapshot::default() };
-    Snapshot { text: c.get_text().unwrap_or_default(), image: c.get_image().ok().map(|i| i.to_owned_img()) }
+    Snapshot {
+        text: c.get_text().unwrap_or_default(),
+        image: c.get_image().ok().map(|i| i.to_owned_img()),
+        files: c.get().file_list().unwrap_or_default(),
+        seq: sequence(),
+        empty: unsafe { CountClipboardFormats() } == 0,
+    }
 }
 
-/// Puts the snapshot back and checks that it really replaced what we wrote.
+/// Puts the snapshot back and checks that it really replaced what we wrote. Does
+/// nothing when the clipboard never changed, and leaves it alone when the snapshot
+/// holds only a format we could not keep.
 pub fn restore(snap: &Snapshot) -> bool {
+    if sequence() == snap.seq {
+        return true;
+    }
     // The program we copied from needs a moment to finish with the clipboard.
     sleep(70);
     for _ in 0..8 {
         if let Some(mut c) = clipboard() {
             let done = if let Some(img) = &snap.image {
                 c.set_image(img.clone()).is_ok()
+            } else if !snap.files.is_empty() {
+                c.set().file_list(&snap.files).is_ok()
             } else if !snap.text.is_empty() {
                 c.set_text(snap.text.clone()).is_ok()
-            } else {
+            } else if snap.empty {
                 c.clear().is_ok()
+            } else {
+                return false;
             };
-            if done && (snap.image.is_some() || c.get_text().unwrap_or_default() == snap.text) {
+            if done && (snap.image.is_some() || !snap.files.is_empty() || c.get_text().unwrap_or_default() == snap.text) {
                 return true;
             }
         }
@@ -380,22 +402,51 @@ fn clipboard_changed_since(before: u32, timeout_ms: u64) -> bool {
     sequence() != before
 }
 
+/// The classic console host, Windows Terminal, mintty and ConEmu. The VS Code integrated
+/// terminal is a Chromium window (Chrome_WidgetWin_1) and cannot be told apart from the
+/// editor, so Ctrl+C is still sent there.
+fn is_terminal_class(class: &str) -> bool {
+    matches!(
+        class,
+        "ConsoleWindowClass" | "CASCADIA_HOSTING_WINDOW_CLASS" | "mintty" | "VirtualConsoleClassMain" | "VirtualConsoleClass"
+    )
+}
+
+fn is_terminal_window(hwnd: HWND) -> bool {
+    if hwnd.0.is_null() {
+        return false;
+    }
+    let mut buf = [0u16; 64];
+    let n = unsafe { GetClassNameW(hwnd, &mut buf) };
+    is_terminal_class(&String::from_utf16_lossy(&buf[..n.max(0) as usize]))
+}
+
 /// Copies the selection and reports whether the clipboard really changed: no marker
 /// text is ever written, so nothing the user had is overwritten unless something was
 /// selected. Not every program obeys a synthetic Ctrl+C, so three ways are tried in
 /// turn, each given time to answer: Ctrl+C, Ctrl+Insert, then a direct WM_COPY.
 fn copy_and_wait(timeout_ms: u64) -> bool {
     let before = sequence();
-    send_copy();
-    if clipboard_changed_since(before, timeout_ms) {
-        return true;
-    }
-    send_copy_alt();
-    if clipboard_changed_since(before, timeout_ms / 2) {
-        crate::log("capture: Ctrl+C was ignored, Ctrl+Insert worked");
-        return true;
-    }
     let front = unsafe { GetForegroundWindow() };
+    // In a terminal Ctrl+C is an interrupt that kills the running process when nothing
+    // is selected, so only Ctrl+Insert and WM_COPY (which copy a selection and nothing
+    // else) are tried there.
+    if is_terminal_window(front) {
+        send_copy_alt();
+        if clipboard_changed_since(before, timeout_ms / 2) {
+            return true;
+        }
+    } else {
+        send_copy();
+        if clipboard_changed_since(before, timeout_ms) {
+            return true;
+        }
+        send_copy_alt();
+        if clipboard_changed_since(before, timeout_ms / 2) {
+            crate::log("capture: Ctrl+C was ignored, Ctrl+Insert worked");
+            return true;
+        }
+    }
     if !front.0.is_null() {
         send_clipboard_message(front, WM_COPY);
         if clipboard_changed_since(before, timeout_ms / 2) {
@@ -435,6 +486,10 @@ pub fn capture_text_or_field() -> String {
     crate::log(&format!("capture: selection copy gave {} chars", selected.chars().count()));
     if !selected.is_empty() {
         return selected;
+    }
+    // Ctrl+A in a terminal is "start of line", not select-all: there is no field to take.
+    if is_terminal_window(unsafe { GetForegroundWindow() }) {
+        return String::new();
     }
     if CAPTURING.swap(true, Ordering::AcqRel) {
         crate::log("capture: another capture is already running");
@@ -704,5 +759,15 @@ mod tests {
         }
         assert!(!is_system_ui("Chrome_RenderWidgetHostHWND"));
         assert!(!is_system_ui("Notepad"));
+    }
+
+    #[test]
+    fn terminals_are_told_by_their_window_class() {
+        for c in ["ConsoleWindowClass", "CASCADIA_HOSTING_WINDOW_CLASS", "mintty", "VirtualConsoleClassMain", "VirtualConsoleClass"] {
+            assert!(is_terminal_class(c));
+        }
+        assert!(!is_terminal_class("Notepad"));
+        assert!(!is_terminal_class("Chrome_WidgetWin_1"));
+        assert!(!is_terminal_class(""));
     }
 }

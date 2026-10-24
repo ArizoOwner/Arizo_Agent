@@ -64,23 +64,32 @@ async function main() {
   await onEvent<null>("screen-changed", () => void Bridge.reposition());
 
   // The settings window writes preferences; apply them here without a restart.
+  // Spotify and football are re-read only when something they show has changed.
+  const spotifyKey = (c: Settings) => `${c.spotifyEnabled}|${c.spotifyClientId}`;
+  const footballKey = (c: Settings) => `${c.footballEnabled}|${c.footballTeamId}|${c.footballTeamName}`;
+  let spotifySeen = spotifyKey(State.settings);
+  let footballSeen = footballKey(State.settings);
   await onEvent<Settings>("settings-changed", (s) => {
     State.settings = mergeSettings(State.settings, s);
+    const spotifyNow = spotifyKey(State.settings);
     if (!State.settings.spotifyEnabled) {
       Spotify.state = { ...IDLE_SPOTIFY };
       Spotify.artwork = null;
-    } else {
+    } else if (spotifyNow !== spotifySeen) {
       void Bridge.spotifyRefresh().then((state) => {
         if (state && State.settings.spotifyEnabled) { Spotify.state = state; State.notify(); }
       });
     }
+    spotifySeen = spotifyNow;
+    const footballNow = footballKey(State.settings);
     if (!State.settings.footballEnabled) {
       Football.state = { ...IDLE_FOOTBALL };
-    } else {
+    } else if (footballNow !== footballSeen) {
       void Bridge.footballRefresh().then((state) => {
         if (state && State.settings.footballEnabled) { setFootballState(state); State.notify(); }
       });
     }
+    footballSeen = footballNow;
     applyLanguage();
     applyTheme();
     island.applySettings();

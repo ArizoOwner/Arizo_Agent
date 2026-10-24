@@ -300,8 +300,9 @@ export function buildSpotify(): ViewHost {
     emptyAction.disabled = busy;
 
     if (hasTrack && s.track) {
-      title.textContent = s.track.title;
-      title.title = s.track.title;
+      const shownTitle = isAd(s.track) ? t("Advertisement") : s.track.title;
+      title.textContent = shownTitle;
+      title.title = shownTitle;
       artist.textContent = isAd(s.track) ? t("Advertisement") : s.track.artist;
       album.textContent = s.track.album;
       duration.textContent = formatTime(s.track.duration);

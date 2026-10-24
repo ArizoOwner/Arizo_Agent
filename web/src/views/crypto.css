@@ -28,7 +28,8 @@
   align-items: center;
   justify-content: space-between;
   min-height: 24px;
-  gap: 6px;
+  gap: 4px 6px;
+  flex-wrap: wrap;
   font-family: var(--font);
   flex-shrink: 0;
 }
@@ -36,8 +37,10 @@
 .cp-heading-left {
   display: flex;
   align-items: center;
-  gap: 8px;
+  flex-wrap: wrap;
+  gap: 4px 8px;
   min-width: 0;
+  max-width: 100%;
 }
 
 .cp-brand {
@@ -45,7 +48,7 @@
   align-items: center;
   gap: 6px;
   color: var(--amber, #f59e0b);
-  font-size: 13.5px;
+  font-size: calc(13.5px * var(--fs, 1));
   font-weight: 750;
   letter-spacing: -0.01em;
 }
@@ -58,7 +61,7 @@
   border-radius: 9999px;
   background: rgb(var(--fg) / 0.05);
   border: 1px solid rgb(var(--fg) / 0.09);
-  font-size: 10.5px;
+  font-size: calc(10.5px * var(--fs, 1));
   color: var(--dim);
 }
 
@@ -99,8 +102,12 @@
 .cp-heading-actions {
   display: flex;
   align-items: center;
-  gap: 6px;
-  flex-shrink: 0;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+  min-width: 0;
+  max-width: 100%;
+  margin-inline-start: auto;
 }
 
 .cp-btn-pill {
@@ -109,7 +116,7 @@
   color: var(--ink-2, #e5e7eb);
   padding: 3px 9px;
   border-radius: 8px;
-  font: 600 11px/1.2 var(--font);
+  font: 600 calc(11px * var(--fs, 1))/1.2 var(--font);
   cursor: pointer;
   transition: all 0.15s ease;
   display: flex;
@@ -148,7 +155,7 @@
 .cp-coin-badge.lg {
   width: 32px;
   height: 32px;
-  font-size: 16px;
+  font-size: calc(16px * var(--fs, 1));
 }
 
 /* ── Searchable Coin Picker Row ─────────────────────────────────────────── */
@@ -161,10 +168,12 @@
   z-index: 20;
   width: 100%;
   flex-shrink: 0;
+  flex-wrap: wrap;
 }
 
 .cp-dropdown {
-  flex: 1 1 auto;
+  /* Wide enough for the coin and its price; the star and Default drop to a second row only if they cannot fit beside it. */
+  flex: 1 1 calc(210px * var(--fs, 1));
   min-width: 0;
   position: relative;
 }
@@ -183,7 +192,9 @@
   transition: all 0.15s ease;
   min-height: 36px;
   box-sizing: border-box;
-  gap: 8px;
+  gap: 2px 8px;
+  flex-wrap: wrap;
+  text-align: start;
 }
 
 .cp-dropdown-trigger:hover,
@@ -197,7 +208,8 @@
   align-items: center;
   gap: 8px;
   min-width: 0;
-  flex: 1 1 auto;
+  /* The name gives way (ellipsis) first; the price drops under the coin only when even that is not enough. */
+  flex: 1 1 calc(80px * var(--fs, 1));
   overflow: hidden;
 }
 
@@ -211,13 +223,13 @@
 
 .cp-trigger-symbol {
   font-weight: 750;
-  font-size: 13px;
+  font-size: calc(13px * var(--fs, 1));
   color: var(--ink);
   flex-shrink: 0;
 }
 
 .cp-trigger-name {
-  font-size: 11.5px;
+  font-size: calc(11.5px * var(--fs, 1));
   color: var(--dim);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -229,11 +241,13 @@
   align-items: center;
   gap: 8px;
   flex-shrink: 0;
+  max-width: 100%;
+  margin-inline-start: auto;
 }
 
 .cp-trigger-price {
   font-family: var(--mono);
-  font-size: 12.5px;
+  font-size: calc(12.5px * var(--fs, 1));
   font-weight: 650;
   color: var(--ink);
   white-space: nowrap;
@@ -261,7 +275,7 @@
   color: var(--dim);
   border-radius: 10px;
   cursor: pointer;
-  font: 600 11px var(--font);
+  font: 600 calc(11px * var(--fs, 1)) var(--font);
   transition: all 0.15s ease;
   min-height: 36px;
   box-sizing: border-box;
@@ -298,15 +312,18 @@
 .cp-fav-bar {
   display: flex;
   align-items: center;
-  gap: 6px;
-  overflow-x: auto;
-  overflow-y: hidden;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+  overflow-x: hidden;
+  overflow-y: auto;
   padding: 3px 10px;
   border-radius: 10px;
   background: rgb(var(--fg) / 0.025);
   border: 1px solid rgb(var(--fg) / 0.06);
   scrollbar-width: none;
   min-height: 28px;
+  /* Starred coins wrap onto a second row; past that the strip scrolls (two whole rows, never a cut one). */
+  max-height: calc(max(22px, calc(10.5px * var(--fs, 1) * 1.25 + 6px)) * 2 + 12px);
   max-width: 100%;
   box-sizing: border-box;
   flex-shrink: 0;
@@ -328,9 +345,11 @@
   color: var(--ink-2);
   border-radius: 9999px;
   cursor: pointer;
-  font: 600 10.5px var(--font);
+  font: 600 calc(10.5px * var(--fs, 1))/1.25 var(--font);
   transition: all 0.15s ease;
   white-space: nowrap;
+  box-sizing: border-box;
+  min-height: max(22px, calc(10.5px * var(--fs, 1) * 1.25 + 6px));
 }
 
 .cp-fav-chip:hover {
@@ -346,7 +365,7 @@
 
 .cp-chip-star {
   color: var(--amber, #f5a524);
-  font-size: 10px;
+  font-size: calc(10px * var(--fs, 1));
 }
 
 /* ── Dropdown Menu ───────────────────────────────────────────────────────── */
@@ -355,8 +374,7 @@
   display: none;
   position: absolute;
   top: calc(100% + 4px);
-  left: 0;
-  right: 0;
+  inset-inline: 0;
   background: var(--card, #141518);
   border: 1px solid rgb(var(--fg) / 0.14);
   border-radius: 12px;
@@ -396,11 +414,11 @@
   border: 0;
   outline: none;
   color: var(--ink);
-  font: 12px var(--font);
+  font: calc(12px * var(--fs, 1)) var(--font);
 }
 
 .cp-dropdown-list {
-  max-height: 180px;
+  max-height: calc(180px * max(1, var(--fs, 1)));
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -424,7 +442,8 @@
   cursor: pointer;
   transition: background 0.1s;
   font-family: var(--font);
-  gap: 8px;
+  gap: 2px 8px;
+  flex-wrap: wrap;
   min-width: 0;
 }
 
@@ -441,7 +460,7 @@
   align-items: center;
   gap: 8px;
   min-width: 0;
-  flex: 1 1 auto;
+  flex: 1 1 calc(80px * var(--fs, 1));
   overflow: hidden;
 }
 
@@ -454,13 +473,13 @@
 }
 
 .cp-item-symbol {
-  font-size: 12px;
+  font-size: calc(12px * var(--fs, 1));
   font-weight: 700;
   color: var(--ink);
 }
 
 .cp-item-name {
-  font-size: 10.5px;
+  font-size: calc(10.5px * var(--fs, 1));
   color: var(--dim);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -470,12 +489,15 @@
 .cp-item-right {
   display: flex;
   align-items: center;
-  gap: 6px;
-  flex-shrink: 0;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 2px 6px;
+  max-width: 100%;
+  margin-inline-start: auto;
 }
 
 .cp-item-price {
-  font-size: 11.5px;
+  font-size: calc(11.5px * var(--fs, 1));
   font-family: var(--mono);
   font-weight: 600;
   color: var(--ink);
@@ -512,7 +534,7 @@
   border-radius: 9999px;
   padding: 1px 7px;
   cursor: pointer;
-  font: 600 9px var(--font);
+  font: 600 calc(9px * var(--fs, 1)) var(--font);
   transition: all 0.1s;
   white-space: nowrap;
 }
@@ -537,7 +559,7 @@
 /* ── Badges ──────────────────────────────────────────────────────────────── */
 
 .cp-badge {
-  font-size: 10px;
+  font-size: calc(10px * var(--fs, 1));
   font-weight: 650;
   padding: 1.5px 5px;
   border-radius: 5px;
@@ -567,8 +589,9 @@
   border-radius: 10px;
   background: rgb(var(--fg) / 0.035);
   border: 1px solid rgb(var(--fg) / 0.07);
-  flex-wrap: nowrap !important;
-  gap: 8px;
+  /* The price block and the 24h chips share a row while they fit; otherwise the chips drop under the price. */
+  flex-wrap: wrap;
+  gap: 4px 8px;
   min-height: 42px;
   box-sizing: border-box;
   flex-shrink: 0;
@@ -577,28 +600,31 @@
 .cp-spotlight-left {
   display: flex;
   align-items: center;
-  gap: 8px;
+  flex-wrap: wrap;
+  gap: 4px 8px;
   min-width: 0;
+  max-width: 100%;
   flex: 1 1 auto;
-  white-space: nowrap !important;
-  overflow: hidden;
 }
 
 .cp-big-price {
-  font: 750 20px/1.2 var(--mono);
+  font: 750 calc(20px * var(--fs, 1))/1.2 var(--mono);
   letter-spacing: -0.02em;
   color: var(--ink-strong);
   padding: 1px 4px;
   border-radius: 6px;
   transition: background-color 0.15s ease, color 0.15s ease;
-  white-space: nowrap !important;
-  display: inline-flex;
-  align-items: baseline;
-  flex-shrink: 0;
+  white-space: nowrap;
+  display: block;
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .cp-big-price.long {
-  font-size: 16.5px;
+  font-size: calc(16.5px * var(--fs, 1));
 }
 
 .cp-big-price.tick-up {
@@ -612,14 +638,14 @@
 }
 
 .cp-change-lg {
-  font-size: 11.5px;
+  font-size: calc(11.5px * var(--fs, 1));
   font-weight: 700;
   padding: 2px 6px;
   border-radius: 5px;
 }
 
 .cp-ms-badge {
-  font-size: 10px;
+  font-size: calc(10px * var(--fs, 1));
   font-family: var(--mono);
   color: var(--dim);
   background: rgb(var(--fg) / 0.04);
@@ -631,9 +657,11 @@
 .cp-stats-chips {
   display: flex;
   align-items: center;
-  gap: 10px;
-  flex-shrink: 0;
-  flex-wrap: nowrap !important;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  min-width: 0;
+  max-width: 100%;
+  margin-inline-start: auto;
 }
 
 .cp-stat-chip {
@@ -642,28 +670,28 @@
   gap: 1px;
   min-width: 0;
   flex-shrink: 0;
-  white-space: nowrap !important;
+  white-space: nowrap;
 }
 
 .cp-stat-chip-label {
-  font: 8.5px var(--font);
+  font: calc(8.5px * var(--fs, 1)) var(--font);
   color: var(--dim-2);
   text-transform: uppercase;
   letter-spacing: 0.03em;
-  white-space: nowrap !important;
+  white-space: nowrap;
 }
 
 .cp-stat-chip-val {
-  font: 600 10.5px var(--mono);
+  font: 600 calc(10.5px * var(--fs, 1)) var(--mono);
   color: var(--ink-2);
-  white-space: nowrap !important;
+  white-space: nowrap;
 }
 
 /* ── 1m Candlestick Chart Card ───────────────────────────────────────────── */
 
 .cp-chart-card {
   flex: 1 1 auto;
-  min-height: 155px;
+  min-height: 0;
   background: rgb(var(--fg) / 0.035);
   border: 1px solid rgb(var(--fg) / 0.07);
   border-radius: 10px;
@@ -680,7 +708,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 11px;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  font-size: calc(11px * var(--fs, 1));
   color: var(--dim);
   font-family: var(--font);
   margin-bottom: 2px;
@@ -690,7 +720,10 @@
 .cp-chart-toolbar {
   display: flex;
   align-items: center;
-  gap: 6px;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .cp-tf-dropdown {
@@ -705,7 +738,7 @@
   background: rgba(245, 158, 11, 0.16);
   border: 1px solid rgba(245, 158, 11, 0.42);
   color: #fbbf24;
-  font: 700 10px var(--font);
+  font: 700 calc(10px * var(--fs, 1)) var(--font);
   padding: 2px 7px;
   border-radius: 6px;
   cursor: pointer;
@@ -733,7 +766,7 @@
   position: absolute;
   top: calc(100% + 4px);
   inset-inline-start: 0;
-  min-width: 90px;
+  min-width: calc(90px * var(--fs, 1));
   background: var(--card, #141518);
   border: 1px solid rgb(var(--fg) / 0.14);
   border-radius: 9px;
@@ -756,7 +789,7 @@
   padding: 4px 8px;
   border-radius: 6px;
   cursor: pointer;
-  font: 600 10.5px var(--font);
+  font: 600 calc(10.5px * var(--fs, 1)) var(--font);
   color: var(--ink-2);
   transition: background 0.1s;
   white-space: nowrap;
@@ -799,7 +832,7 @@
   background: rgb(var(--fg) / 0.05);
   border: 1px solid rgb(var(--fg) / 0.08);
   color: var(--dim);
-  font: 10px var(--font);
+  font: calc(10px * var(--fs, 1)) var(--font);
   padding: 2px 6px;
   border-radius: 4px;
   cursor: pointer;
@@ -816,10 +849,21 @@
 .cp-ohlc-bar {
   display: flex;
   align-items: center;
-  gap: 8px;
+  flex-wrap: wrap;
+  gap: 2px 8px;
+  min-width: 0;
+  max-width: 100%;
   font-family: var(--mono);
-  font-size: 9.5px;
+  font-size: calc(9.5px * var(--fs, 1));
   color: var(--dim);
+  white-space: nowrap;
+}
+
+/* One "O: price" pair stays together; whole pairs wrap onto a second row when the bar is narrow. */
+.cp-ohlc-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   white-space: nowrap;
 }
 
@@ -832,7 +876,7 @@
   flex: 1 1 auto;
   width: 100%;
   position: relative;
-  min-height: 120px;
+  min-height: 70px;
 }
 
 .cp-chart-svg {
@@ -849,7 +893,7 @@
 
 .cp-price-label {
   font-family: var(--mono);
-  font-size: 9px;
+  font-size: calc(9px * var(--fs, 1));
   fill: var(--dim-3);
   dominant-baseline: middle;
   text-anchor: start;
@@ -857,7 +901,7 @@
 
 .cp-time-axis-text {
   font-family: var(--mono);
-  font-size: 8.5px;
+  font-size: calc(8.5px * var(--fs, 1));
   fill: var(--dim-4);
   text-anchor: middle;
 }
@@ -898,14 +942,14 @@
 }
 
 .cp-setup-title {
-  font-size: 15px;
+  font-size: calc(15px * var(--fs, 1));
   font-weight: 750;
   color: var(--ink);
   letter-spacing: -0.01em;
 }
 
 .cp-setup-hint {
-  font-size: 11px;
+  font-size: calc(11px * var(--fs, 1));
   color: var(--dim);
   line-height: 1.5;
 }
@@ -923,7 +967,7 @@
 }
 
 .cp-api-label {
-  font-size: 10.5px;
+  font-size: calc(10.5px * var(--fs, 1));
   color: var(--dim);
 }
 
@@ -935,7 +979,7 @@
   border-radius: 8px;
   padding: 6px 10px;
   color: var(--ink);
-  font: 12px var(--mono);
+  font: calc(12px * var(--fs, 1)) var(--mono);
   outline: none;
   transition: border-color 0.15s, box-shadow 0.15s;
 }
@@ -966,17 +1010,19 @@ html[dir="rtl"] select.cp-setup-input {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
   margin-top: 4px;
-  gap: 10px;
+  gap: 6px 10px;
 }
 
 .cp-setup-btn-primary {
   background: var(--amber, #f59e0b);
   color: #000000;
-  font: 750 12px var(--font);
+  font: 750 calc(12px * var(--fs, 1)) var(--font);
   border: none;
   border-radius: 8px;
   padding: 7px 18px;
+  max-width: 100%;
   cursor: pointer;
   transition: opacity 0.15s, transform 0.1s;
 }

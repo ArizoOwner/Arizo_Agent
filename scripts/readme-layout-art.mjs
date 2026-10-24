@@ -156,6 +156,7 @@ ${stars(18, W, H, name.length + 9)}
     football: { en: "Live football", fa: "فوتبال زنده", c: TEAL, c2: "#34d399", icon: "⚽", art: "Every goal, card and whistle gets its own show" },
     crypto: { en: "Live crypto", fa: "ارز دیجیتال زنده", c: "#f59e0b", c2: "#fbbf24", icon: "₿", art: "Prices and candles from your own exchange — Nobitex, Binance or Toobit" },
     wardrobe: { en: "Ari's wardrobe", fa: "کمد لباس آری", c: "#fb923c", c2: ROSE, icon: "🎩", art: "Hats, glasses and crowns — and the seasons dress him on their own" },
+    look: { en: "Make it yours", fa: "مال خودتان کنید", c: "#818cf8", c2: ROSE, icon: "🎛️", art: "Size, see-through level, text, corners, a floating island and a folded one of your own size" },
     engines: { en: "Two engines", fa: "دو موتور ترجمه", c: VIOLET, c2: BLUE, icon: "✦", art: "Fast and free, or Smart with tone, idioms and alternatives" },
     start: { en: "Get started", fa: "شروع کنید", c: AMBER, c2: ROSE, icon: "🚀", art: "Install in seconds — no administrator rights, no account" },
     privacy: { en: "Private by design", fa: "حریم خصوصی", c: "#22c55e", c2: TEAL, icon: "🔒", art: "No telemetry. Your key stays in the Windows Credential Manager" },
@@ -164,7 +165,7 @@ ${stars(18, W, H, name.length + 9)}
 
   // ───────────────────────────────────────────── feature cards (an animated grid)
   function cards() {
-    const W = 1200, H = 744;
+    const W = 1200, H = 918;
     const items = [
       ["⚡", "Translate in place", "ترجمه در محل", "Alt+Shift+D swaps your text for its translation in any app", BLUE],
       ["🎯", "Quick bubble", "حباب سریع", "Select text anywhere — a button appears by the cursor", ROSE],
@@ -180,7 +181,11 @@ ${stars(18, W, H, name.length + 9)}
       ["👗", "Wardrobe &amp; seasons", "کمد لباس", "Hats and accessories — and the seasons dress him alone", "#fb923c"],
       ["🗣️", "Speech", "گفتار", "Reads the translation aloud — including Persian", "#a3e635"],
       ["📋", "History &amp; clipboard", "تاریخچه", "Star, search, bilingual copy, PDF line-break cleaner", "#f0abfc"],
-      ["🔊", "30 original sounds", "۳۰ صدای اصلی", "Synthesized from code for every gesture", "#67e8f9"],
+      ["🎛️", "Island look", "ظاهر جزیره", "Width, height, see-through level, text size, corners, floating", "#818cf8"],
+      ["💊", "Folded island", "جزیره‌ی جمع‌شده", "The capsule has its own width, height and zoom", "#38bdf8"],
+      ["🧲", "Drag the tabs", "جابه‌جایی تب‌ها", "Rearrange Translate, Spotify, Football and Crypto", "#f472b6"],
+      ["🔠", "Any text size", "هر اندازه‌ی متن", "80% to 140%: nothing overlaps, nothing is cut", "#a3e635"],
+      ["🔊", "33 original sounds", "۳۳ صدای اصلی", "Synthesized from code for every gesture", "#67e8f9"],
       ["🔒", "Private &amp; light", "خصوصی و سبک", "No telemetry; Rust + WebView2, no bundled Chromium", "#22c55e"],
     ];
     const cw = 264, ch = 150, gx = 24, gy = 24, x0 = 36, y0 = 36;

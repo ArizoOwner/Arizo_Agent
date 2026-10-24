@@ -50,7 +50,7 @@ export class Translator {
 
   /** Stops what is running and forgets it. */
   cancel() {
-    if (this.phase === "loading") void Bridge.translateCancel();
+    if (this.phase === "loading") void Bridge.translateCancel(this.seq);
     this.reset();
   }
 

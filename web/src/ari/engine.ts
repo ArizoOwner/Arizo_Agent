@@ -562,6 +562,9 @@ export class BotEngine {
       this.particles.length > 0 ||
       this.cfg.bounces || this.cfg.scans || this.cfg.breathes || this.cfg.zz || this.cfg.sweat ||
       this.isMini || this.isDancing || this.dancingLevel > 0.001 ||
+      // A timed eye override must be able to expire; the permanent one has no end.
+      (this.eyeOverride != null && Number.isFinite(this.eyeOverrideUntil)) ||
+      this.state === "dizzy" ||
       Math.abs(this.tgYaw - this.yaw) > 0.002 ||
       Math.abs(this.tgPitch - this.pitch) > 0.002 ||
       Math.abs(this.tgTilt - this.tilt) > 0.002 ||

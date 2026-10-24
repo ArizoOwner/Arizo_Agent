@@ -12,6 +12,9 @@ test("cleanPdfText joins hard-wrapped lines and re-glues hyphenated words", () =
   assert.equal(cleanPdfText("The quick brown\nfox jumps over\nthe lazy dog."), "The quick brown fox jumps over the lazy dog.");
   assert.equal(cleanPdfText("a trans-\nlation engine"), "a translation engine");
   assert.equal(cleanPdfText("Line one\r\nline two"), "Line one line two");
+  assert.equal(cleanPdfText("pages 10-\n12"), "pages 10- 12", "a number range is not a word");
+  assert.equal(cleanPdfText("COVID-\n19"), "COVID- 19");
+  assert.equal(cleanPdfText("one-\n\nPart two"), "one-\n\nPart two", "a paragraph break is kept, nothing is glued across it");
 });
 
 test("cleanPdfText keeps paragraphs and tidies spaces before punctuation", () => {

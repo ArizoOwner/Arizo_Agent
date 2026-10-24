@@ -213,9 +213,26 @@ pub fn resolve_target(requested: &str, detected: &str, native: &str, second: &st
     }
 }
 
+/// `detect` answers "en" for every Latin-script text, so when the native or second
+/// language is another Latin-script one, an "en" guess may really be that language.
+pub fn ambiguous_latin_guess(guess: &str, native: &str, second: &str) -> bool {
+    let other_latin = |c: &str| matches!(normalize_code(c).as_str(), "tr" | "de" | "fr" | "es" | "it" | "pt" | "nl" | "pl" | "sv");
+    guess == "en" && (other_latin(native) || other_latin(second))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn a_latin_guess_is_only_ambiguous_next_to_another_latin_language() {
+        assert!(!ambiguous_latin_guess("en", "fa", "en"));
+        assert!(!ambiguous_latin_guess("en", "", ""));
+        assert!(!ambiguous_latin_guess("fa", "tr", "de"));
+        assert!(ambiguous_latin_guess("en", "tr", "en"));
+        assert!(ambiguous_latin_guess("en", "fa", "de"));
+        assert!(ambiguous_latin_guess("en", "en", "fr"));
+    }
 
     #[test]
     fn detects_scripts() {

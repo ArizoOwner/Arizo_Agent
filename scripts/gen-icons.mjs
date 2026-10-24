@@ -171,10 +171,4 @@ writeFileSync(
   encodeIco([16, 24, 32, 48, 64, 128, 256].map((size) => ({ size, png: png(size) }))),
 );
 
-// Also copy to assets/icons
-const assetsIcons = resolve(root, "assets", "icons");
-mkdirSync(assetsIcons, { recursive: true });
-writeFileSync(join(assetsIcons, "icon.png"), png(512));
-writeFileSync(join(assetsIcons, "icon.ico"), encodeIco([16, 24, 32, 48, 64, 128, 256].map((size) => ({ size, png: png(size) }))));
-
-console.log(`Icons successfully written to ${outDir} and ${assetsIcons}`);
+console.log(`Icons successfully written to ${outDir}`);

@@ -48,16 +48,34 @@ export function buildHistory(actions: HistoryActions): ViewHost {
     shownKey = "";
     render();
   });
+  // Two-step: the first click arms the button for a few seconds, the second clears.
+  let armed: number | null = null;
+  const clearLabel = h("span", { text: tl("Clear all") });
+  const confirmLabel = h("span", { text: tl("Click again to confirm") });
+  confirmLabel.style.display = "none";
+  function disarm() {
+    if (armed !== null) window.clearTimeout(armed);
+    armed = null;
+    clearLabel.style.display = "";
+    confirmLabel.style.display = "none";
+  }
   const clearAll = h("button", {
-    class: "link-btn clear-all", text: tl("Clear all"),
+    class: "link-btn clear-all",
     onclick: async () => {
+      if (armed === null) {
+        clearLabel.style.display = "none";
+        confirmLabel.style.display = "";
+        armed = window.setTimeout(disarm, 3000);
+        return;
+      }
+      disarm();
       await Bridge.clearHistory();
       items = [];
       shownKey = "";
       render();
       toast(t("History cleared"));
     },
-  });
+  }, clearLabel, confirmLabel);
   const backBtn = h(
     "button",
     { class: "src-action-btn hist-back", type: "button", title: tl("Back to translate"), "aria-label": tl("Back to translate"), onclick: () => actions.close() },
@@ -101,7 +119,10 @@ export function buildHistory(actions: HistoryActions): ViewHost {
         async () => { await Bridge.toggleFavoriteItem(item.id); item.favorite = !item.favorite; shownKey = ""; render(); },
         `star${item.favorite ? " on" : ""}`, item.favorite),
       iconBtn(t("Copy translation"), ICONS.copy, async (b) => {
-        await Bridge.copyText(item.translation);
+        if (await Bridge.copyText(item.translation) === false) {
+          toast(t("Could not copy"));
+          return;
+        }
         b.classList.add("done");
         window.setTimeout(() => b.classList.remove("done"), 900);
       }),
@@ -151,6 +172,7 @@ export function buildHistory(actions: HistoryActions): ViewHost {
         if (!loaded) void load();
         else render();
       } else {
+        disarm();
         loaded = false;
       }
     },

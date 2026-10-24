@@ -95,7 +95,8 @@ export function buildFootball(): ViewHost {
     const known = Football.logos.get(id);
     if (known !== undefined) { setCrest(el, known, initial); return; }
     const data = await Bridge.footballLogo(id);
-    Football.logos.set(id, data ?? "");
+    // A failed fetch is not remembered: only a real crest is cached here (the backend remembers a final "none").
+    if (data) Football.logos.set(id, data);
     if (el.dataset.id === id) setCrest(el, data ?? "", initial);
   }
   function setCrest(el: HTMLElement, data: string, initial: string) {
@@ -182,8 +183,13 @@ export function buildFootball(): ViewHost {
 
   function liveCard(m: FootballMatch, teamId: string): HTMLElement {
     const score = (s: number | null) => (s == null ? "–" : digits(s));
+    // Added time arrives as "90'+5'": every run of digits is localised on its own.
+    const minute = (raw: string) => {
+      const plain = raw.replace(/['′’]/g, "").trim();
+      return plain ? `${plain.replace(/\d+/g, (d) => digits(d))}′ ` : "";
+    };
     const goals = m.goals.slice(-3).map((g) => h("span", { class: "fb-goal" },
-      `${digits(g.minute.replace(/\D+$/, "") || g.minute)}′ ${g.player}${g.ownGoal ? ` (${t("own goal")})` : g.penalty ? ` (${t("pen.")})` : ""}`));
+      `${minute(g.minute)}${g.player}${g.ownGoal ? ` (${t("own goal")})` : g.penalty ? ` (${t("pen.")})` : ""}`));
     return h("div", { class: "fb-live-card", dir: "ltr" },
       h("div", { class: "fb-live-top" },
         h("span", { class: "fb-live-badge" }, h("i", {}), t("LIVE")),

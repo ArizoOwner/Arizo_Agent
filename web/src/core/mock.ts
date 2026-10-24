@@ -180,7 +180,7 @@ export async function mockInvoke(cmd: string, args: Record<string, unknown> = {}
   switch (cmd) {
     case "boot":
       return {
-        settings, version: "3.3.0", cursorPoll: false,
+        settings, version: "3.4.0", cursorPoll: false,
         screen: { x: 0, y: 0, width: 1920, height: 1080, scale: 1 },
       };
     case "get_settings":
@@ -249,7 +249,8 @@ export async function mockInvoke(cmd: string, args: Record<string, unknown> = {}
     case "translate":
       return translate(args.params as Params);
     case "translate_cancel":
-      newest = -1;
+      // Like the backend: a window only cancels its own translation (ids from 1_000_000 are the bubble's).
+      if (((args.requestId as number) >= 1_000_000) === (newest >= 1_000_000)) newest = -1;
       return null;
     case "tts":
       return { ok: false };

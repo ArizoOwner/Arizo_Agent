@@ -78,6 +78,8 @@ export function h<K extends keyof HTMLElementTagNameMap>(
 ): HTMLElementTagNameMap[K] {
   const el = document.createElement(tag);
   for (const [k, v] of Object.entries(attrs)) {
+    // Enumerated attributes: "false" must reach the DOM, unlike boolean ones.
+    if ((k === "spellcheck" || k === "draggable") && typeof v === "boolean") { el.setAttribute(k, String(v)); continue; }
     if (v == null || v === false) continue;
     if (v instanceof Msg) {
       const text = String(v);
