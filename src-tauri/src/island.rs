@@ -74,6 +74,9 @@ pub struct PollGate {
     pub panel: Mutex<(f64, f64)>,
     /// Mirrors the window flag so we only call into the OS when it changes.
     ignoring: AtomicBool,
+    /// Held while click-through is decided: the poll thread may be mid-tick when the window
+    /// shrinks to the wake strip, and must not switch click-through back on after it was cleared.
+    pub click_lock: Mutex<()>,
 }
 
 impl PollGate {
@@ -85,6 +88,7 @@ impl PollGate {
             rect: Mutex::new(IslandRect::default()),
             panel: Mutex::new((PANEL_W, PANEL_H)),
             ignoring: AtomicBool::new(false),
+            click_lock: Mutex::new(()),
         }
     }
 
@@ -443,9 +447,17 @@ pub fn spawn_cursor_poll(app: AppHandle, gate: Arc<PollGate>) {
                 // time a moving cursor reaches a button.
                 let on_island = on_island_shape(*gate.rect.lock().unwrap(), x, y);
 
-                if gate.ignoring.load(Ordering::Relaxed) == on_island {
-                    gate.ignoring.store(!on_island, Ordering::Relaxed);
-                    let _ = win.set_ignore_cursor_events(!on_island);
+                {
+                    let _decide = gate.click_lock.lock().unwrap();
+                    // The wake strip must always take the mouse: once the window is collapsed
+                    // this tick, computed for the old size, has nothing left to decide.
+                    if gate.collapsed.load(Ordering::Relaxed) {
+                        continue;
+                    }
+                    if gate.ignoring.load(Ordering::Relaxed) == on_island {
+                        gate.ignoring.store(!on_island, Ordering::Relaxed);
+                        let _ = win.set_ignore_cursor_events(!on_island);
+                    }
                 }
 
                 let _ = win.emit("cursor", CursorPayload { x, y });

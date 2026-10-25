@@ -828,10 +828,14 @@ fn boot(app: AppHandle, st: State<'_, Arc<AppState>>) -> BootInfo {
 #[tauri::command]
 fn set_collapsed(app: AppHandle, st: State<'_, Arc<AppState>>, collapsed: bool) {
     let pref = st.store.settings().screen;
-    st.gate.collapsed.store(collapsed, Ordering::Relaxed);
-    island::apply_geometry(&app, &pref, collapsed);
-    // The wake strip must always take the mouse, and a resize invalidates the flag.
-    island::refresh_click_through(&app, &st.gate);
+    {
+        // The poll thread decides click-through under this lock: it cannot undo what follows.
+        let _decide = st.gate.click_lock.lock().unwrap();
+        st.gate.collapsed.store(collapsed, Ordering::Relaxed);
+        island::apply_geometry(&app, &pref, collapsed);
+        // The wake strip must always take the mouse, and a resize invalidates the flag.
+        island::refresh_click_through(&app, &st.gate);
+    }
     st.gate.set_active(!collapsed && !st.hidden.load(Ordering::Relaxed));
     platform::set_pointer_watch(!collapsed);
 }
