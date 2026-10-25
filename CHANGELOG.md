@@ -33,6 +33,17 @@
 - **History.** The cap keeps starred items, and a history full of stars still records the new
   lookup.
 - **Crypto.** A Toman Tether market is no longer listed as a USDT row.
+- **Fixed: "Hide when I click elsewhere" did nothing.** The setting was saved but never read. With it
+  on, a click outside the island now hides it completely (open or folded); the pointer at the top
+  edge brings it back.
+- **Fixed: the folded island hid itself after a minute.** Only an island that peeked up from hiding
+  goes back to hiding; one you folded yourself stays where it is.
+- **Fixed: the hidden island sometimes did not wake** when the pointer reached the top edge. The
+  cursor poll could switch click-through back on just after the window shrank to its wake strip.
+- **Fixed: Settings tabs lost their labels** at a low island height. Their padding and the point
+  where inactive tabs turn into icons now follow the text size.
+- **README.** The Wardrobe animations (English and Persian) were damaged and are recorded again,
+  like Spotify and the three island modes, and the recorder drops frames of the wrong size.
 - **Only the island is the island.** Clicks pass through everything but its shape, and the
   window is never smaller than the default or absurdly large.
 - **README.** Every animation was recorded again from the app itself (`npm run readme-gifs`), in
