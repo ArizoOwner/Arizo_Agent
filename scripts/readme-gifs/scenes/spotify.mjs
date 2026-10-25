@@ -58,7 +58,7 @@ async function prepare(rec) {
   await rec.arizo(`A.State.settings.autoCloseInterval = 600; A.State.settings.ariOutfit = "none"; A.island.fsm.homeToPetitDelay = 600; A.island.alert("spotify");`);
   await sleep(700);
   // The song starts at 0:02 a moment after the recording begins.
-  await rec.arizo(`A.spotify.mock(Object.assign(${JSON.stringify(state)}, { position: 2, positionAt: Date.now() + 900 }));`);
+  await rec.arizo(`A.spotify.mock(Object.assign(${JSON.stringify(state)}, { position: 1, positionAt: Date.now() + 900 }));`);
   rec.mouse = { x: rec.width - 110, y: rec.height - 22 };
   await rec.drawCursor(rec.mouse.x, rec.mouse.y);
   await sleep(500);
@@ -115,7 +115,7 @@ export async function scene(rec, lang) {
   await sleep(250);
 
   // 4. The volume goes down, then comes back up.
-  await dragVia(rec, ".spotify-volume", [20, 60], { ms: 380, hold: 60 });
+  await dragVia(rec, ".spotify-volume", [20, 61], { ms: 380, hold: 60 });
   await sleep(100);
 
   // 5. "Previous" starts the song over; the pointer leaves.

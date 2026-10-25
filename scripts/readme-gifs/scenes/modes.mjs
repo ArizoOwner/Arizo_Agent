@@ -105,7 +105,7 @@ export async function scene(rec) {
   await sleep(1150);
   await hideKeys(rec);
   // Out of sight, the song is put back so that it reads the same time again when the loop comes round (about 7 s of the clip are left).
-  await rec.arizo(`A.spotify.mock({ position: 34.3, positionAt: Date.now() });`);
+  await rec.arizo(`A.spotify.mock({ position: 36, positionAt: Date.now() });`);
   await sleep(250);
 
   // 4. The pointer touches the top edge: the island peeks out again as the capsule.

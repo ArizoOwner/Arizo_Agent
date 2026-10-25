@@ -127,9 +127,12 @@ export async function dropTorn(rec) {
     for (const y of [20, 160, 300, 450, 600, 635]) worst = Math.max(worst, d(px(1012, y), px(1030, y)), d(px(28, y), px(8, y)));
     for (const x of [8, 520, 1030]) worst = Math.max(worst, d(px(x, 636), px(x, 600)));
     // "Reset all" rebuilds the settings list: for a blink the panel is an empty dark card. That counts as torn too.
+    // A card with text always has light pixels in its middle (and so does the wallpaper); an empty one has none.
     const tones = new Set();
     for (let y = 200; y < 420; y += 4) for (let x = 220; x < 700; x += 4) { const p = px(x, y); tones.add((p[0] >> 3) * 1024 + (p[1] >> 3) * 32 + (p[2] >> 3)); }
-    if ((worst > 4 || tones.size <= 2) && f !== snapshot[0]) bad.add(f);
+    let lit = 0;
+    for (let y = 170; y < 520; y += 2) for (let x = 300; x < 860; x += 2) { const p = px(x, y); if (p[0] + p[1] + p[2] > 420) lit++; }
+    if ((worst > 4 || tones.size <= 2 || lit < 30) && f !== snapshot[0]) bad.add(f);
   }
   rec.frames = rec.frames.filter((f) => !bad.has(f));
   if (bad.size) console.log(`  (${bad.size} torn or empty frame${bad.size > 1 ? "s" : ""} dropped)`);
@@ -143,16 +146,16 @@ export const kit = { openLook, lighten, panel, wheelTo, reveal, slide, dropTorn,
 export async function scene(rec, lang) {
   await lighten(rec);
   await sleep(300);
-  await slide(rec, 0, [114, 100], { ms: 400, pause: 150 });          // width: wider, then back
-  await slide(rec, 1, [114], { ms: 340 });                           // height: taller
-  await slide(rec, 2, [15, 150], { ms: 320, pause: 40 });            // corners: square, then extra round
-  await slide(rec, 3, [55], { ms: 380, pause: 200 });                // transparency: see-through over the wallpaper
-  await slide(rec, 4, [120], { ms: 360, pause: 120 });               // text size
+  await slide(rec, 0, [114, 100], { ms: 360, pause: 110 });          // width: wider, then back
+  await slide(rec, 1, [114], { ms: 320 });                           // height: taller
+  await slide(rec, 2, [15, 150], { ms: 300, pause: 40 });            // corners: square, then extra round
+  await slide(rec, 3, [55], { ms: 360, pause: 150 });                // transparency: see-through over the wallpaper
+  await slide(rec, 4, [120], { ms: 340, pause: 90 });                // text size
   await reveal(rec, ".switch", 0, 0.35);
-  await rec.click(".switch", 0, { ms: 280, after: 280 });            // floating island on
-  await slide(rec, 5, [36], { ms: 360, pause: 160, scroll: 0.5 });   // distance from the top
+  await rec.click(".switch", 0, { ms: 260, after: 220 });            // floating island on
+  await slide(rec, 5, [36], { ms: 340, pause: 130, scroll: 0.5 });   // distance from the top
   await reveal(rec, ".look-reset-all", 0, 0.7);
-  await rec.click(".look-reset-all", 0, { ms: 280, after: 450 });    // everything back to default
+  await rec.click(".look-reset-all", 0, { ms: 260, after: 400 });    // everything back to default
   await wheelTo(rec, 0, 380);
   await rec.move(START.x, START.y, 320);
   await sleep(150);

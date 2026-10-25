@@ -763,6 +763,8 @@ html[data-dir="rtl"] .target-select {
 
 .settings-island-card {
   container: setcard / inline-size;
+  /* The container query below is written in em: it reads this size, so it moves with the text size. */
+  font-size: calc(16px * var(--fs, 1));
 }
 
 .settings-nav {
@@ -786,7 +788,7 @@ html[data-dir="rtl"] .target-select {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding: 6px 13px;
+  padding: calc(6px * var(--fs, 1)) calc(13px * var(--fs, 1));
   font-size: calc(12.5px * var(--fs, 1));
   font-weight: 500;
   border-radius: 999px;
@@ -795,13 +797,11 @@ html[data-dir="rtl"] .target-select {
   color: var(--dim);
   cursor: pointer;
   white-space: nowrap;
-  flex: 0 1 auto;
-  min-width: 0;
+  flex: 0 0 auto;
   transition: background 0.12s, color 0.12s;
 }
 .settings-nav-btn > span {
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow: visible;
 }
 .settings-nav-btn svg {
   flex: 0 0 auto;
@@ -899,12 +899,12 @@ html[data-dir="rtl"] .target-select {
 
 /* Not enough room for every label: inactive tabs become icons (the title
    still names them); the active one keeps its word. */
-@container setcard (max-width: 640px) {
+@container setcard (max-width: 54em) {
   .settings-nav-btn:not(.on) > span {
     display: none;
   }
   .settings-nav-btn:not(.on) {
-    padding-inline: 10px;
+    padding-inline: calc(10px * var(--fs, 1));
     gap: 0;
   }
 }
