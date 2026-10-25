@@ -56,7 +56,7 @@ async function main() {
 
   await onEvent<string>("tray", (what) => {
     if (what === "settings") island.alert("settings");
-    else if (what === "collapse") island.collapse();
+    else if (what === "collapse") island.clickedAway();
     else if (what === "close") island.close();
     else island.alert(State.defaultView());
   });

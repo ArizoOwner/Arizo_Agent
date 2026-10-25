@@ -21,7 +21,10 @@ export class IslandStateMachine {
     this.homeDelay = seconds;
     if (this.state === "home" && this.homeCollapse != null) this.scheduleHomeCollapse();
   }
-  /** petit → hidden delay, seconds. */
+  /**
+   * petit → hidden delay, seconds. Only a compact island that came up out of hiding (a hover on
+   * the strip, an event) goes back after it; one that was folded from the open island stays.
+   */
   petitToHiddenDelay = 60;
   /** greet → petit once the greeting animation ends (no hover). */
   greetAutoCollapseDelay = 0.6;
@@ -37,6 +40,8 @@ export class IslandStateMachine {
    */
   homeCollapseDueAt: number | null = null;
 
+  /** The compact island is only a visit from hiding: it goes back to hiding. Otherwise it stays. */
+  private peeking = false;
   /** A show fills the compact island: it must not hide until the show is over. */
   private holding = false;
   private homeDelay = 15;
@@ -48,6 +53,7 @@ export class IslandStateMachine {
 
   launch() {
     this.cancelTimers();
+    this.peeking = false;
     this.transition("greet");
   }
 
@@ -55,6 +61,7 @@ export class IslandStateMachine {
     switch (this.state) {
       case "hidden":
         this.cancelTimers();
+        this.peeking = true;
         this.transition("petit");
         break;
       case "petit":
@@ -89,6 +96,7 @@ export class IslandStateMachine {
   click() {
     if (this.state !== "petit") return;
     this.cancelTimers();
+    this.peeking = false;
     this.transition("home");
   }
 
@@ -102,6 +110,7 @@ export class IslandStateMachine {
   reveal() {
     if (this.state !== "hidden") return;
     this.cancelTimers();
+    this.peeking = true;
     this.transition("petit");
     this.schedulePetitHide();
   }
@@ -125,17 +134,20 @@ export class IslandStateMachine {
   /** Alert or explicit request: open straight to expanded. */
   forceHome() {
     this.cancelTimers();
+    this.peeking = false;
     this.transition("home");
   }
 
   /// Explicit close (OK button, Escape, an alert being answered).
   forcePetit() {
     this.cancelTimers();
+    this.peeking = false;
     this.transition("petit");
   }
 
   forceHidden() {
     this.cancelTimers();
+    this.peeking = false;
     this.transition("hidden");
   }
 
@@ -145,7 +157,7 @@ export class IslandStateMachine {
     this.clear("petitHide");
     // A card folded away while it waits for an answer keeps the compact island
     // on screen, so it can be reopened (isHeldOpen ).
-    if (this.pinned) return;
+    if (this.pinned || !this.peeking) return;
     this.petitHide = window.setTimeout(() => {
       this.petitHide = null;
       if (this.state === "petit" && !this.pinned && !this.holding) this.transition("hidden");

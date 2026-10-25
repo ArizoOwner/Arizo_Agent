@@ -40,6 +40,32 @@ test("choosing an engine focuses its pill and the mini Aris follow the work", ()
   assert.equal(S.State.engine, "google");
 });
 
+test("a compact island stays up when it was folded, and only a peek from hiding goes back to hiding", async () => {
+  const fsm = new IslandStateMachine();
+  fsm.petitToHiddenDelay = 0.03;
+  fsm.launch();
+  fsm.mouseLeft(); // greeting over: compact
+  await new Promise((r) => setTimeout(r, 80));
+  assert.equal(fsm.state, "petit", "after the greeting it stays");
+  fsm.click();
+  fsm.forcePetit();
+  fsm.mouseLeft();
+  await new Promise((r) => setTimeout(r, 80));
+  assert.equal(fsm.state, "petit", "folded from the open island it stays");
+  fsm.forceHidden();
+  fsm.mouseEntered(); // a peek from the hidden strip
+  fsm.mouseLeft();
+  await new Promise((r) => setTimeout(r, 80));
+  assert.equal(fsm.state, "hidden", "a peek goes back");
+  fsm.mouseEntered();
+  fsm.click(); // the visitor opens it: from here on it is theirs
+  fsm.forcePetit();
+  fsm.mouseLeft();
+  await new Promise((r) => setTimeout(r, 80));
+  assert.equal(fsm.state, "petit", "a peek that was opened and folded stays");
+  fsm.cancelTimers();
+});
+
 test("the island opens from the greeting to compact, and a click expands it", () => {
   const fsm = new IslandStateMachine();
   const seen = [];

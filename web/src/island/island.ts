@@ -356,6 +356,18 @@ export class Island {
     if (State.mode === "expanded") this.fsm.forcePetit();
   }
 
+  /**
+   * A click landed outside the island. Folds an open island; with "Hide when I click elsewhere" on,
+   * the island (open or compact) goes away completely. A goal show in progress is left alone.
+   */
+  clickedAway() {
+    if (!State.settings.hideOnBlur) return this.collapse();
+    if (State.mode === "hidden" || this.celebration) return;
+    State.isPinned = false;
+    this.fsm.pinned = false;
+    this.fsm.forceHidden();
+  }
+
   /** A copy or replace is done: the island folds (the window is click-through, nothing to give back). */
   private closeAfterAction() {
     this.collapse();
