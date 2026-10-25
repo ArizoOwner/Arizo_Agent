@@ -4,6 +4,7 @@
 //
 // The helpers at the top (exported as `kit`) are shared with folded.mjs. They are time-based: the pointer and
 // the scrolling follow the clock, not a step count, so a slow frame capture never stretches the animation.
+import pngjs from "pngjs";
 import { sleep } from "../recorder.mjs";
 
 const START = { x: 520, y: 70 };
@@ -38,6 +39,9 @@ export async function lighten(rec) {
       await sleep(8);
     }
   })();
+  // Once the capture has stopped, torn frames are sorted out (see dropTorn).
+  const stop = rec.stop.bind(rec);
+  rec.stop = async (hold) => { await stop(hold); await dropTorn(rec); };
   // The pointer glides on the clock (see above), so rec.click / rec.drag take exactly the time they say.
   rec.move = async (x, y, ms = 420, buttons = 0) => {
     const from = { ...rec.mouse }, t0 = Date.now();
@@ -106,7 +110,33 @@ export async function slide(rec, n, values, { ms = 380, pause = 90, scroll = 0.4
   await sleep(120);
 }
 
-export const kit = { openLook, lighten, panel, wheelTo, reveal, slide, START };
+/**
+ * A screenshot taken in the very moment the island window is resized can come back half re-composited (the lower part
+ * of the page shifted, a seam across the frame). The margins left and right of the island are one flat wallpaper
+ * gradient, so a frame whose margins jump in colour is torn: it is dropped and the previous frame stays on screen.
+ * (Only meant for the 1040 x 640 look scenes: the sample points are fixed.)
+ */
+export async function dropTorn(rec) {
+  const { PNG } = pngjs;
+  const bad = new Set();
+  const snapshot = rec.frames.slice();
+  for (const f of snapshot) {
+    const im = PNG.sync.read(f.png), px = (x, y) => { const i = (y * im.width + x) * 4; return [im.data[i], im.data[i + 1], im.data[i + 2]]; };
+    const d = (a, b) => Math.max(Math.abs(a[0] - b[0]), Math.abs(a[1] - b[1]), Math.abs(a[2] - b[2]));
+    let worst = 0;
+    for (const y of [20, 160, 300, 450, 600, 635]) worst = Math.max(worst, d(px(1012, y), px(1030, y)), d(px(28, y), px(8, y)));
+    for (const x of [8, 520, 1030]) worst = Math.max(worst, d(px(x, 636), px(x, 600)));
+    // "Reset all" rebuilds the settings list: for a blink the panel is an empty dark card. That counts as torn too.
+    const tones = new Set();
+    for (let y = 200; y < 420; y += 4) for (let x = 220; x < 700; x += 4) { const p = px(x, y); tones.add((p[0] >> 3) * 1024 + (p[1] >> 3) * 32 + (p[2] >> 3)); }
+    if ((worst > 4 || tones.size <= 2) && f !== snapshot[0]) bad.add(f);
+  }
+  rec.frames = rec.frames.filter((f) => !bad.has(f));
+  if (bad.size) console.log(`  (${bad.size} torn or empty frame${bad.size > 1 ? "s" : ""} dropped)`);
+  return bad.size;
+}
+
+export const kit = { openLook, lighten, panel, wheelTo, reveal, slide, dropTorn, START };
 
 // ── the scene ────────────────────────────────────────────────────────────────
 

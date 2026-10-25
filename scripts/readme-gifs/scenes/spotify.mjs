@@ -4,7 +4,7 @@
 import { sleep } from "../recorder.mjs";
 
 export const meta = {
-  file: "spotify", width: 920, height: 400, fps: 15, hold: 900,
+  file: "spotify", width: 920, height: 370, fps: 15, hold: 800,
   async setup(rec) { await prepare(rec); },
 };
 
@@ -55,47 +55,70 @@ async function prepare(rec) {
     capabilities: { playPause: true, next: true, previous: true, seek: true, shuffle: true, repeat: true, volume: true },
   };
   // The island stays open for the whole recording (no auto-close), on the Spotify tab.
-  await rec.arizo(`A.State.settings.autoCloseInterval = 600; A.island.fsm.homeToPetitDelay = 600; A.island.alert("spotify");`);
+  await rec.arizo(`A.State.settings.autoCloseInterval = 600; A.State.settings.ariOutfit = "none"; A.island.fsm.homeToPetitDelay = 600; A.island.alert("spotify");`);
   await sleep(700);
   // The song starts at 0:02 a moment after the recording begins.
   await rec.arizo(`A.spotify.mock(Object.assign(${JSON.stringify(state)}, { position: 2, positionAt: Date.now() + 900 }));`);
-  rec.mouse = { x: rec.width - 110, y: rec.height - 46 };
+  rec.mouse = { x: rec.width - 110, y: rec.height - 22 };
   await rec.drawCursor(rec.mouse.x, rec.mouse.y);
   await sleep(500);
 }
 
+/** Moves the pointer by the clock, not by step count: it takes `ms` however slow the browser answers, so a busy machine cannot stretch the GIF. */
+async function glide(rec, x, y, ms) {
+  const from = { ...rec.mouse }, t0 = Date.now();
+  for (;;) {
+    const k = Math.min(1, (Date.now() - t0) / ms), e = k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+    await rec._mouse("mouseMoved", from.x + (x - from.x) * e, from.y + (y - from.y) * e);
+    if (k >= 1) break;
+    await sleep(14);
+  }
+  rec.mouse = { x, y };
+}
+
+/** Glides to an element, clicks it and waits a beat (rec.click with the clock-based glide). */
+async function tap(rec, selector, n, { ms = 450, after = 400 } = {}) {
+  const p = await rec.where(selector, n);
+  await glide(rec, p.x, p.y, ms);
+  await sleep(100);
+  await rec.press(p.x, p.y);
+  await sleep(60);
+  await rec.release(p.x, p.y);
+  await sleep(after);
+}
+
 /** Presses a slider's thumb, glides through the given values and lets go at the last one. */
-async function dragVia(rec, selector, values, { ms = 650, hold = 130 } = {}) {
+async function dragVia(rec, selector, values, { ms = 450, hold = 90 } = {}) {
   const info = await rec.eval(`(() => { const el = document.querySelector(${JSON.stringify(selector)});
     const b = el.getBoundingClientRect(); return { l: b.left, w: b.width, y: b.top + b.height / 2, v: Number(el.value), min: Number(el.min), max: Number(el.max) }; })()`);
   const at = (v) => info.l + 8 + ((v - info.min) / (info.max - info.min)) * (info.w - 16);
-  await rec.move(at(info.v), info.y, 480);
-  await sleep(120);
+  await glide(rec, at(info.v), info.y, 380);
+  await sleep(80);
   await rec.press(at(info.v), info.y);
   await sleep(hold);
-  for (const v of values) { await rec.move(at(v), info.y, ms); await sleep(hold); }
+  for (const v of values) { await glide(rec, at(v), info.y, ms); await sleep(hold); }
   await rec.release(at(values[values.length - 1]), info.y);
-  await sleep(300);
+  await sleep(220);
 }
 
 export async function scene(rec, lang) {
   const home = { ...rec.mouse };
   // 1. The song plays: Ari dances, the clock and the thumb of the timeline move.
-  await sleep(1200);
+  await sleep(800);
 
   // 2. Pause: Ari stops, the timeline freezes; Play: he dances again.
-  await rec.click(".spotify-play", 0, { ms: 650, after: 1100 });
-  await rec.click(".spotify-play", 0, { ms: 300, after: 800 });
+  await tap(rec, ".spotify-play", 0, { ms: 480, after: 750 });
+  await tap(rec, ".spotify-play", 0, { ms: 200, after: 450 });
 
   // 3. The timeline is dragged to the chorus.
-  await dragVia(rec, ".spotify-seek", [118], { ms: 800 });
-  await sleep(600);
+  await dragVia(rec, ".spotify-seek", [118], { ms: 550 });
+  await sleep(250);
 
   // 4. The volume goes down, then comes back up.
-  await dragVia(rec, ".spotify-volume", [18, 60], { ms: 600 });
-  await sleep(300);
+  await dragVia(rec, ".spotify-volume", [20, 60], { ms: 380, hold: 60 });
+  await sleep(100);
 
   // 5. "Previous" starts the song over; the pointer leaves.
-  await rec.click(".spotify-controls .spotify-control", 1, { ms: 650, after: 900 });
-  await rec.move(home.x, home.y, 650);
+  await tap(rec, ".spotify-controls .spotify-control", 1, { ms: 450, after: 650 });
+  await glide(rec, home.x, home.y, 520);
 }

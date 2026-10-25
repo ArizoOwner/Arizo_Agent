@@ -4,7 +4,7 @@
 import { sleep } from "../recorder.mjs";
 
 export const meta = {
-  file: "modes", width: 920, height: 400, fps: 15, hold: 900,
+  file: "modes", width: 920, height: 370, fps: 15, hold: 800,
   async setup(rec) { await prepare(rec); },
 };
 
@@ -52,7 +52,9 @@ async function prepare(rec) {
     artworkDataUrl: "data:image/svg+xml;utf8," + encodeURIComponent(COVER),
     capabilities: { playPause: true, next: true, previous: true, seek: true, shuffle: true, repeat: true, volume: true },
   };
-  await rec.arizo(`A.State.settings.autoCloseInterval = 600; A.island.fsm.homeToPetitDelay = 600; A.island.alert("spotify");`);
+  // Ari wears nothing (the default outfit follows the season); a sample football team gives the capsule a fourth mini Ari.
+  await rec.settings({ autoCloseInterval: 600, ariOutfit: "none", footballEnabled: true, footballTeamId: "1", footballTeamName: "Sample FC" });
+  await rec.arizo(`A.island.fsm.homeToPetitDelay = 600; A.island.alert("spotify");`);
   await sleep(700);
   await rec.arizo(`A.spotify.mock(Object.assign(${JSON.stringify(state)}, { position: 40, positionAt: Date.now() }));`);
   // A small keycap that names the shortcut being pressed (a drawing of the keys, not part of the app).
@@ -62,9 +64,21 @@ async function prepare(rec) {
     document.head.append(s);
     const k = document.createElement("div"); k.id = "rec-keys"; document.body.append(k);
   })()`);
-  rec.mouse = { x: rec.width - 110, y: rec.height - 40 };
+  rec.mouse = { x: rec.width - 110, y: rec.height - 22 };
   await rec.drawCursor(rec.mouse.x, rec.mouse.y);
   await sleep(500);
+}
+
+/** Moves the pointer by the clock, not by step count: it takes `ms` however slow the browser answers, so a busy machine cannot stretch the GIF. */
+async function glide(rec, x, y, ms) {
+  const from = { ...rec.mouse }, t0 = Date.now();
+  for (;;) {
+    const k = Math.min(1, (Date.now() - t0) / ms), e = k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+    await rec._mouse("mouseMoved", from.x + (x - from.x) * e, from.y + (y - from.y) * e);
+    if (k >= 1) break;
+    await sleep(14);
+  }
+  rec.mouse = { x, y };
 }
 
 const showKeys = (rec, keys) => rec.eval(`(() => { const k = document.getElementById("rec-keys");
@@ -74,30 +88,38 @@ const hideKeys = (rec) => rec.eval(`document.getElementById("rec-keys").classLis
 export async function scene(rec) {
   const home = { ...rec.mouse };
   // 1. The open island: the song plays, Ari dances.
-  await sleep(1500);
+  await sleep(1000);
 
   // 2. Ctrl+M: the island folds into the capsule (clock, the mini Aris, Ari still dancing).
   await showKeys(rec, ["Ctrl", "M"]);
-  await sleep(700);
+  await sleep(550);
   await rec.key("m", { code: "KeyM", modifiers: 2, vk: 77 });
   await sleep(400);
   await hideKeys(rec);
-  await sleep(1900);
-
-  // 3. The hide shortcut: the island slides up into the top edge and is gone.
-  await showKeys(rec, ["Alt", "Shift", "H"]);
-  await sleep(800);
-  await rec.arizo(`A.island.fsm.forceHidden();`);
-  await sleep(300);
-  await hideKeys(rec);
-  await sleep(1300);
-
-  // 4. The pointer touches the top edge: the island peeks out again as the capsule.
-  await rec.move(rec.width / 2, 2, 800);
   await sleep(1500);
 
+  // 3. The hide shortcut: the island slides up into the top edge and is gone (its keycap stays up meanwhile).
+  await showKeys(rec, ["Alt", "Shift", "H"]);
+  await sleep(650);
+  await rec.arizo(`A.island.fsm.forceHidden();`);
+  await sleep(1150);
+  await hideKeys(rec);
+  // Out of sight, the song is put back so that it reads the same time again when the loop comes round (about 7 s of the clip are left).
+  await rec.arizo(`A.spotify.mock({ position: 34.3, positionAt: Date.now() });`);
+  await sleep(250);
+
+  // 4. The pointer touches the top edge: the island peeks out again as the capsule.
+  await glide(rec, rec.width / 2, 2, 650);
+  await sleep(1100);
+
   // 5. A click on the capsule opens it again, and the pointer goes back.
-  await rec.click("#island", 0, { ms: 300, after: 1500 });
-  await rec.move(home.x, home.y, 700);
-  await sleep(500);
+  const cap = await rec.where("#island", 0);
+  await glide(rec, cap.x, cap.y, 250);
+  await sleep(100);
+  await rec.press(cap.x, cap.y);
+  await sleep(60);
+  await rec.release(cap.x, cap.y);
+  await sleep(1100);
+  await glide(rec, home.x, home.y, 600);
+  await sleep(300);
 }
