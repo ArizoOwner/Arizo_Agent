@@ -259,8 +259,13 @@ export class Recorder {
    * so a mostly still island stays small.
    */
   async save(file, { fps = 15, colors = 255, keyframes = null, maxBytes = 5.2e6 } = {}) {
-    const frames = this.frames.slice().sort((a, b) => a.t - b.t);
-    if (frames.length < 2) throw new Error("nothing was recorded");
+    // A frame that is not exactly width x height (a window that was resized under the browser) would
+    // write a short pixel stream and scramble the whole GIF, so such frames are left out.
+    const sizeOf = (png) => ({ w: png.readUInt32BE(16), h: png.readUInt32BE(20) });
+    const all = this.frames.slice().sort((a, b) => a.t - b.t);
+    const frames = all.filter((f) => { const s = sizeOf(f.png); return s.w === this.width && s.h === this.height; });
+    this.dropped = all.length - frames.length;
+    if (frames.length < 2) throw new Error(`nothing was recorded (${this.dropped} frames had the wrong size)`);
     const t0 = frames[0].t, t1 = frames[frames.length - 1].t;
     const step = 1000 / fps;
     const picked = [];
@@ -326,7 +331,7 @@ export class Recorder {
       names.forEach((i, n) => fs.writeFileSync(path.join(keyframes, `${path.basename(file, ".gif")}-${n}.png`), frames[i].png));
     }
     const seconds = (t1 - t0) / 1000;
-    const result = { file, kb: Math.round(bytes.length / 1024), seconds: +seconds.toFixed(1), frames: written, over: bytes.length > maxBytes };
+    const result = { file, kb: Math.round(bytes.length / 1024), seconds: +seconds.toFixed(1), frames: written, dropped: this.dropped, over: bytes.length > maxBytes };
     return result;
   }
 
