@@ -132,7 +132,11 @@ export async function dropTorn(rec) {
     for (let y = 200; y < 420; y += 4) for (let x = 220; x < 700; x += 4) { const p = px(x, y); tones.add((p[0] >> 3) * 1024 + (p[1] >> 3) * 32 + (p[2] >> 3)); }
     let lit = 0;
     for (let y = 170; y < 520; y += 2) for (let x = 300; x < 860; x += 2) { const p = px(x, y); if (p[0] + p[1] + p[2] > 420) lit++; }
-    if ((worst > 4 || tones.size <= 2 || lit < 30) && f !== snapshot[0]) bad.add(f);
+    // The upper part of the card holds text rows (edges); with the island folded it shows bare wallpaper instead (bright).
+    // The empty card has neither (this also catches the blink when the pointer and the Reset button are the only bright things).
+    let ink = 0;
+    for (let y = 120; y < 330; y += 2) for (let x = 260; x < 780; x += 2) { const p = px(x, y); if (p[0] + p[1] + p[2] > 420 || d(p, px(x + 3, y)) > 10) ink++; }
+    if ((worst > 4 || tones.size <= 2 || lit < 30 || ink < 20) && f !== snapshot[0]) bad.add(f);
   }
   rec.frames = rec.frames.filter((f) => !bad.has(f));
   if (bad.size) console.log(`  (${bad.size} torn or empty frame${bad.size > 1 ? "s" : ""} dropped)`);

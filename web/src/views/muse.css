@@ -1,0 +1,271 @@
+/* The Muse view (views/muse.ts): a slim toolbar over a rounded hole that muse.ai
+   shows through. The hole's own content (orb / error) is only seen while the site
+   is loading or could not be opened. */
+
+.muse-view {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  height: 100%;
+  padding-top: 2px;
+}
+
+.muse-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 26px;
+  padding-inline: 8px 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-strong);
+}
+
+.muse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ffb35a, #ff7a59 55%, #c86bff);
+  box-shadow: 0 0 8px rgba(255, 122, 89, 0.6);
+}
+.muse-view.busy .muse-dot {
+  animation: muse-pulse 1.1s ease-in-out infinite;
+}
+
+.muse-status {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 280px;
+}
+.muse-spacer { flex: 1; }
+
+.muse-btn {
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 13px;
+  background: transparent;
+  color: rgb(var(--fg) / 0.7);
+  cursor: pointer;
+  transition: background 0.14s, color 0.14s, transform 0.08s;
+}
+.muse-btn:hover { background: rgb(var(--fg) / 0.14); color: var(--ink-strong); }
+.muse-btn:active { transform: scale(0.9); }
+
+.muse-frame {
+  position: relative;
+  flex: 1;
+  border-radius: 16px;
+  overflow: hidden;
+  background:
+    radial-gradient(120% 80% at 20% 0%, rgba(255, 122, 89, 0.22), transparent 60%),
+    radial-gradient(100% 70% at 100% 100%, rgba(200, 107, 255, 0.2), transparent 60%),
+    rgb(var(--fg) / 0.05);
+}
+
+/* Connecting and failed: the same card as "off" (Ari in the middle, a title, a line, then
+   what to do), each on a layer that covers the frame. Only one layer is shown at a time. */
+.muse-loading,
+.muse-error,
+.muse-off {
+  position: absolute;
+  inset: 0;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 28px 32px 36px;
+  text-align: center;
+}
+.muse-view:not(.off):not(.failed):not(.ready) .muse-loading { display: flex; }
+.muse-view.failed:not(.off) .muse-error { display: flex; }
+.muse-view.off .muse-off { display: flex; }
+
+.muse-loading {
+  background:
+    radial-gradient(70% 45% at 50% 34%, rgba(99, 102, 241, 0.16), transparent 70%),
+    var(--surface-card);
+}
+.muse-error {
+  background:
+    radial-gradient(70% 45% at 50% 34%, rgba(244, 80, 94, 0.14), transparent 70%),
+    var(--surface-card);
+}
+
+/* The connecting steps: done ones are ticked, the current one pulses. */
+.muse-steps {
+  list-style: none;
+  margin: 0 0 18px;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+  width: min(100%, 240px);
+}
+.muse-steps li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12.5px;
+  color: var(--dim-3);
+  text-align: start;
+  transition: color 0.25s;
+}
+.muse-steps li.now { color: var(--ink); }
+.muse-steps li.done { color: var(--dim); }
+.muse-step-dot {
+  flex: 0 0 auto;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid rgb(var(--fg) / 0.18);
+  transition: background 0.25s, border-color 0.25s;
+}
+.muse-steps li.now .muse-step-dot {
+  border-color: var(--indigo);
+  background: var(--indigo);
+  animation: muse-pulse 1.1s ease-in-out infinite;
+}
+.muse-steps li.done .muse-step-dot { border-color: var(--green-2); background: var(--green-2); }
+
+/* A thin bar that keeps moving, so a slow connection never looks frozen. */
+.muse-progress {
+  position: relative;
+  width: min(100%, 240px);
+  height: 3px;
+  margin-bottom: 22px;
+  border-radius: 2px;
+  overflow: hidden;
+  background: rgb(var(--fg) / 0.08);
+}
+.muse-progress i {
+  position: absolute;
+  inset-block: 0;
+  width: 40%;
+  border-radius: 2px;
+  background: linear-gradient(90deg, transparent, var(--indigo), #a78bfa, transparent);
+  animation: muse-slide 1.4s ease-in-out infinite;
+}
+
+.muse-ghost-btn {
+  margin-top: 10px;
+  height: 32px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 16px;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--dim);
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.14s, color 0.14s;
+}
+.muse-ghost-btn:hover { background: rgb(var(--fg) / 0.08); color: var(--ink); }
+
+@keyframes muse-slide {
+  from { inset-inline-start: -40%; }
+  to { inset-inline-start: 100%; }
+}
+@keyframes muse-pulse {
+  0%, 100% { opacity: 1; scale: 1; }
+  50% { opacity: 0.55; scale: 0.86; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .muse-view.busy .muse-dot,
+  .muse-steps li.now .muse-step-dot,
+  .muse-progress i { animation: none; }
+}
+
+/* Switched off (the default at start-up): nothing of muse.ai runs. Ari sleeps in the middle
+   of the frame, with what "off" means and the button that turns Muse on. The loading and
+   error layers are not drawn at all, so nothing shows through. */
+.muse-view.off .muse-btn { display: none; }
+.muse-view.off .muse-dot { background: rgb(var(--fg) / 0.28); box-shadow: none; animation: none; }
+
+.muse-off {
+  background:
+    radial-gradient(70% 45% at 50% 34%, rgba(255, 122, 89, 0.16), transparent 70%),
+    var(--surface-card);
+}
+
+/* Room for the island's own Ari (MUSE_ARI_D across), who is drawn over it, asleep, with his
+   glow; the space above is for the "z"s that rise from him. */
+.muse-off-ari {
+  width: 96px;
+  height: 96px;
+  margin: 40px 0 30px;
+}
+
+.muse-off-title {
+  margin: 0 0 8px;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--ink-strong);
+}
+.muse-off-text {
+  margin: 0 0 20px;
+  max-width: 300px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--dim);
+}
+
+.muse-off-facts {
+  list-style: none;
+  margin: 0 0 26px;
+  padding: 12px 16px;
+  display: grid;
+  gap: 9px;
+  width: min(100%, 280px);
+  border-radius: 14px;
+  background: rgb(var(--fg) / 0.045);
+  border: 1px solid rgb(var(--fg) / 0.06);
+}
+.muse-off-facts li {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: var(--ink);
+  text-align: start;
+}
+.muse-off-facts svg {
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  padding: 3px;
+  border-radius: 50%;
+  color: var(--green-2);
+  background: color-mix(in srgb, var(--green-2) 16%, transparent);
+}
+
+.muse-on-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 180px;
+  height: 42px;
+  padding: 0 22px;
+  border: 0;
+  border-radius: 21px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(135deg, #ff9a5a, #ff7a59 50%, #e0609a);
+  box-shadow: 0 6px 20px rgba(255, 122, 89, 0.32);
+  cursor: pointer;
+  transition: transform 0.12s, box-shadow 0.12s, filter 0.12s;
+}
+.muse-on-btn:hover { filter: brightness(1.06); box-shadow: 0 8px 26px rgba(255, 122, 89, 0.45); }
+.muse-on-btn:active { transform: scale(0.96); }
+.muse-on-btn:focus-visible { outline: 2px solid #ffb35a; outline-offset: 3px; }
+
+.muse-power-off:hover { color: #ff6b5a; }

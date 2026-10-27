@@ -309,6 +309,11 @@ export function buildSettingsView(actions: ViewActions): ViewHost {
         t("Live prices and a 1-minute chart, read through your own exchange API"),
         toggle(s.cryptoEnabled, (val) => void save({ cryptoEnabled: val })),
       ),
+      settingRow(
+        t("Muse assistant"),
+        t("Use muse.ai, your personal AI agent, right inside the island"),
+        toggle(s.museEnabled, (val) => void save({ museEnabled: val })),
+      ),
     );
 
     // 8. Save history & Limit
@@ -340,12 +345,12 @@ export function buildSettingsView(actions: ViewActions): ViewHost {
     );
 
     // rows: 0 lang, 1 theme, 2 startup, 3 hide, 4 bubble, 5 copy, 6 restore,
-    //       7 spotify, 8 football, 9 kit, 10 crypto, 11 history, 12 size
+    //       7 spotify, 8 football, 9 kit, 10 crypto, 11 muse, 12 history, 13 size
     content.append(
       section(t("Appearance"), ICONS.eye, rows[0], rows[1]),
       section(t("Behavior"), ICONS.gear, rows[2], rows[3], rows[4]),
-      section(t("Clipboard & history"), ICONS.clipboard, rows[5], rows[6], rows[11], rows[12]),
-      section(t("Island widgets"), ICONS.stack, rows[7], rows[8], rows[9], rows[10]),
+      section(t("Clipboard & history"), ICONS.clipboard, rows[5], rows[6], rows[12], rows[13]),
+      section(t("Island widgets"), ICONS.stack, rows[7], rows[8], rows[9], rows[10], rows[11]),
     );
     return content;
   }

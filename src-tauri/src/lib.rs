@@ -17,6 +17,7 @@ mod input;
 mod island;
 mod langs;
 mod model;
+mod muse;
 mod platform;
 mod spotify;
 mod spotify_account;
@@ -50,7 +51,9 @@ use translator::{Request, Translator};
 
 use island::WINDOW_LABEL as ISLAND;
 const BUBBLE: &str = "bubble";
-const MAX_TEXT: usize = 8000;
+/// The longest text translated, in characters: a long article. Both engines translate long
+/// text in pieces, so this only keeps a mistaken paste of a whole book from running for minutes.
+const MAX_TEXT: usize = 30_000;
 
 /// The bubble's translator numbers its requests from 1_000_000 (web/src/bubble/main.ts),
 /// the island's from 0: that tells the two windows' translations apart.
@@ -578,6 +581,9 @@ fn save_settings(
     if saved.show_floating_bubble != before.show_floating_bubble && !saved.show_floating_bubble {
         hide_bubble(&app);
     }
+    if before.muse_enabled && !saved.muse_enabled {
+        muse::close(&app);
+    }
     spotify::sync(&app, saved.spotify_enabled, &saved.spotify_client_id);
     football::sync(&app, saved.football_enabled, &saved.football_team_id, &saved.football_team_name);
     crypto::sync(&app);
@@ -641,7 +647,8 @@ async fn translate(app: AppHandle, st: State<'_, Arc<AppState>>, params: Transla
     let last_sent = AtomicU64::new(0);
     let on_partial = move |partial: String| {
         let now = started.elapsed().as_millis() as u64 + 1;
-        if now.saturating_sub(last_sent.load(Ordering::Relaxed)) >= 50 {
+        // An empty update wipes what was shown (the smart engine gave up): it is never dropped.
+        if partial.is_empty() || now.saturating_sub(last_sent.load(Ordering::Relaxed)) >= 50 {
             last_sent.store(now, Ordering::Relaxed);
             let _ = app.emit("translate-partial", json!({ "requestId": request_id, "text": partial }));
         }
@@ -940,7 +947,7 @@ fn shortcuts_suspend(app: AppHandle, st: State<'_, Arc<AppState>>, suspended: bo
 /// fixed by whichever webview is created first. Every window must therefore ask
 /// for the *same* arguments as the island (see `additionalBrowserArgs` in
 /// tauri.conf.json) — a mismatch makes the second window come up blank.
-const BROWSER_ARGS: &str =
+pub(crate) const BROWSER_ARGS: &str =
     "--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection --autoplay-policy=no-user-gesture-required";
 
 /// In a dev build the pages are served by Vite, so the extra windows need the
@@ -1092,6 +1099,11 @@ pub fn run() {
             crypto::crypto_select,
             crypto::crypto_set_timeframe,
             crypto::crypto_active,
+            muse::muse_show,
+            muse::muse_hide,
+            muse::muse_focus,
+            muse::muse_reload,
+            muse::muse_power_off,
             spotify::spotify_refresh,
             spotify::spotify_control,
             spotify::spotify_open,

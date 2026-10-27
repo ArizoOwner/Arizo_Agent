@@ -26,7 +26,7 @@ pub const CRYPTO_TIMEFRAMES: &[&str] = &["1m", "5m", "15m", "1h", "4h", "1d"];
 const MAX_FAVORITES: usize = 40;
 
 /// The feature tabs of the island's header, in their default order.
-const FEATURE_TABS: &[&str] = &["translate", "spotify", "football", "crypto"];
+const FEATURE_TABS: &[&str] = &["translate", "spotify", "football", "crypto", "muse"];
 
 /// How far each look setting may go, in percent (web/src/core/appearance.ts has the same
 /// numbers: a web test reads them from here, so the two cannot drift apart).
@@ -114,6 +114,8 @@ pub struct Settings {
     /// Live prices read through the user's own exchange account (crypto.rs). The
     /// token itself is never a setting: it lives in the Credential Manager.
     pub crypto_enabled: bool,
+    /// The Muse tab (muse.ai in the island, muse.rs).
+    pub muse_enabled: bool,
     /// "nobitex" or "binance": the exchange whose API the user entered.
     pub crypto_provider: String,
     /// The coin on screen ("BTC") and the market it is read in ("USDT" or "IRT").
@@ -176,6 +178,7 @@ impl Default for Settings {
             football_team_id: String::new(),
             football_team_name: String::new(),
             crypto_enabled: true,
+            muse_enabled: true,
             crypto_provider: "nobitex".into(),
             crypto_asset: "BTC".into(),
             crypto_quote: "USDT".into(),
@@ -354,6 +357,7 @@ pub fn merge(base: &Settings, incoming: &Value) -> Settings {
         },
         football_team_name: pick_str(incoming.get("footballTeamName"), &base.football_team_name, 60),
         crypto_enabled: pick_bool(incoming.get("cryptoEnabled"), base.crypto_enabled),
+        muse_enabled: pick_bool(incoming.get("museEnabled"), base.muse_enabled),
         crypto_provider: pick_enum(incoming.get("cryptoProvider"), CRYPTO_PROVIDERS, &base.crypto_provider),
         crypto_asset: {
             let a = pick_str(incoming.get("cryptoAsset"), &base.crypto_asset, 16).to_ascii_uppercase();
@@ -835,9 +839,9 @@ mod tests {
     #[test]
     fn the_tab_order_is_always_a_full_permutation_of_the_known_tabs() {
         let base = Settings::default();
-        assert_eq!(base.feature_order, ["translate", "spotify", "football", "crypto"]);
+        assert_eq!(base.feature_order, ["translate", "spotify", "football", "crypto", "muse"]);
         let m = merge(&base, &json!({ "featureOrder": ["crypto", "translate", "bogus", "crypto", 7] }));
-        assert_eq!(m.feature_order, ["crypto", "translate", "spotify", "football"], "unknown and repeated names go, missing ones come back");
+        assert_eq!(m.feature_order, ["crypto", "translate", "spotify", "football", "muse"], "unknown and repeated names go, missing ones come back");
         // Not a list: nothing changes. An empty list restores the default order.
         assert_eq!(merge(&m, &json!({ "featureOrder": "crypto" })).feature_order, m.feature_order);
         assert_eq!(merge(&m, &json!({ "featureOrder": [] })).feature_order, base.feature_order);

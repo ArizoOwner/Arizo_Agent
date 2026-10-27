@@ -1,8 +1,8 @@
-// The smart engine ("Aphra"): one streamed request against any OpenAI-compatible
+// The smart engine ("Aphra"): streamed requests against any OpenAI-compatible
 // endpoint (OpenRouter, DeepSeek, Groq, OpenAI, Ollama, LM Studio…) or Google
 // Gemini's native API. Analyse → translate → critique → refine is collapsed into
 // a single JSON answer whose "translation" key comes first, so it can be shown
-// while it is still being written.
+// while it is still being written. Long text is translated in pieces (`translate`).
 
 use std::collections::HashSet;
 use std::sync::{Mutex, OnceLock};
@@ -14,6 +14,7 @@ use serde_json::{json, Value};
 
 use crate::langs::{ambiguous_latin_guess, detect, get_language, language_name, normalize_code, resolve_target};
 use crate::model::{BreakdownItem, TranslationData};
+use crate::textutil::{join_translations, split_text};
 
 pub const DEFAULT_BASE_URL: &str = "https://openrouter.ai/api/v1";
 pub const DEFAULT_MODEL: &str = "deepseek/deepseek-chat";
@@ -21,10 +22,16 @@ const GEMINI_HOST: &str = "generativelanguage.googleapis.com";
 const GEMINI_OPENAI_URL: &str = "https://generativelanguage.googleapis.com/v1beta/openai";
 const GEMINI_DEFAULT: &str = "gemini-3.8-flash";
 const REQUEST_TIMEOUT: Duration = Duration::from_secs(15);
-const LONG_REQUEST_TIMEOUT: Duration = Duration::from_secs(45); // a whole non-streamed answer
-const STREAM_IDLE_TIMEOUT: Duration = Duration::from_secs(20);
-const CHAT_DEADLINE: Duration = Duration::from_secs(45); // after this the ladder stops trying more models
+const LONG_REQUEST_TIMEOUT: Duration = Duration::from_secs(90); // a whole non-streamed answer of a long piece
+const STREAM_IDLE_TIMEOUT: Duration = Duration::from_secs(30);
+const CHAT_DEADLINE: Duration = Duration::from_secs(60); // after this the ladder stops trying more models
 const LONG_TEXT_THRESHOLD: usize = 700; // above this the (slow) idiom breakdown is skipped
+/// Long text goes to the model in pieces of about this many characters. One answer has a
+/// token ceiling, and a whole page in one request is cut off before it ends; a piece this
+/// size fits easily in any model's answer, in any language.
+const PIECE_CHARS: usize = 1800;
+/// Pieces translated at the same time: fast, without tripping a provider's rate limit.
+const PIECES_AT_ONCE: usize = 3;
 
 pub fn tone_text(tone: &str) -> &'static str {
     match tone {
@@ -154,15 +161,16 @@ fn is_short(text: &str) -> bool {
     t.chars().count() <= 80 || t.split_whitespace().count() <= 8
 }
 
-/// The answer budget grows with the text; word counts are useless for CJK or Thai.
+/// The answer budget grows with the text; word counts are useless for CJK or Thai. A
+/// translation into Persian or Arabic can take 3 tokens a character, and the JSON around
+/// it (and the breakdown) needs room too, so the budget is generous: a cut-off answer is
+/// far worse than an unused allowance.
 fn max_tokens_for(text: &str) -> u32 {
-    let n = text.trim().chars().count();
+    let n = text.trim().chars().count() as u32;
     if n <= 80 {
-        160
-    } else if n > 500 {
-        2048
+        400
     } else {
-        1024
+        (n * 3 + 600).clamp(1024, 8192)
     }
 }
 
@@ -349,6 +357,13 @@ pub fn parse_model_output(raw: &str, src: &str, tgt: &str, tone: &str) -> Transl
 
 fn describe_http_error(status: u16, provider: &str) -> AiError {
     let detail = provider.to_string();
+    // A web page instead of an API answer: the service turned this network away before the
+    // key was even read (Google and OpenRouter do this for some countries), so the key is fine.
+    if status == 403 && looks_like_html(provider) {
+        let mut e = AiError::new("BLOCKED", status, false, "");
+        e.provider_message = provider.to_string();
+        return e;
+    }
     let (code, retryable) = match status {
         401 | 403 => ("AUTH", false),
         404 => ("NOT_FOUND", false),
@@ -360,6 +375,11 @@ fn describe_http_error(status: u16, provider: &str) -> AiError {
     let mut e = AiError::new(code, status, retryable, detail);
     e.provider_message = provider.to_string();
     e
+}
+
+fn looks_like_html(s: &str) -> bool {
+    let t = s.trim_start().to_ascii_lowercase();
+    t.starts_with("<!doctype html") || t.starts_with("<html")
 }
 
 async fn read_provider_error(res: Response) -> String {
@@ -518,8 +538,10 @@ async fn call_gemini(
             .unwrap_or_default()
     };
 
+    let stop_of = |v: &Value| v.pointer("/candidates/0/finishReason").and_then(Value::as_str).map(str::to_string);
     if call.stream {
         let mut content = String::new();
+        let mut stop = String::new();
         read_sse(res, |payload| {
             if let Ok(v) = serde_json::from_str::<Value>(payload) {
                 let t = parts_text(&v);
@@ -527,17 +549,20 @@ async fn call_gemini(
                     content.push_str(&t);
                     on_content(&content);
                 }
+                if let Some(r) = stop_of(&v) {
+                    stop = r;
+                }
             }
         })
         .await?;
-        return Ok(content);
+        return cut_off_check(content, &stop);
     }
     let v: Value = res.json().await.map_err(|_| AiError::new("API_ERROR", 0, false, "bad response"))?;
     let t = parts_text(&v);
     if !t.is_empty() {
         on_content(&t);
     }
-    Ok(t)
+    cut_off_check(t, &stop_of(&v).unwrap_or_default())
 }
 
 fn urlencode(s: &str) -> String {
@@ -590,6 +615,7 @@ async fn call_openai(
         .is_some_and(|t| t.contains("text/event-stream"));
     if call.stream && is_sse {
         let mut content = String::new();
+        let mut stop = String::new();
         read_sse(res, |payload| {
             if let Ok(v) = serde_json::from_str::<Value>(payload) {
                 let delta = v
@@ -600,15 +626,28 @@ async fn call_openai(
                     content.push_str(d);
                     on_content(&content);
                 }
+                if let Some(r) = v.pointer("/choices/0/finish_reason").and_then(Value::as_str) {
+                    stop = r.to_string();
+                }
             }
         })
         .await?;
-        return Ok(content);
+        return cut_off_check(content, &stop);
     }
     let v: Value = res.json().await.map_err(|_| AiError::new("API_ERROR", 0, false, "bad response"))?;
     let content = v.pointer("/choices/0/message/content").and_then(Value::as_str).unwrap_or("").to_string();
     if !content.is_empty() {
         on_content(&content);
+    }
+    let stop = v.pointer("/choices/0/finish_reason").and_then(Value::as_str).unwrap_or("");
+    cut_off_check(content, stop)
+}
+
+/// An answer that ran out of room ("length" in OpenAI's words, "MAX_TOKENS" in Gemini's)
+/// is not a translation: it ends in the middle of the text.
+fn cut_off_check(content: String, stop: &str) -> Result<String, AiError> {
+    if matches!(stop.to_ascii_lowercase().as_str(), "length" | "max_tokens") {
+        return Err(AiError::new("TRUNCATED", 0, false, "the answer was cut off"));
     }
     Ok(content)
 }
@@ -661,6 +700,10 @@ async fn chat(
                     let busy = matches!(err.status, 503 | 429) || err.code == "NETWORK";
                     let gone = matches!(err.status, 404 | 503 | 429);
                     let retryable = err.retryable;
+                    // Cut off: the same call would be cut off again. The caller splits the text.
+                    if err.code == "TRUNCATED" {
+                        return Err(err);
+                    }
                     last = Some(err);
 
                     if rejected {
@@ -684,7 +727,7 @@ async fn chat(
         // Another model cannot fix a bad key or an unreachable host, and a hanging
         // service would otherwise cost minutes before the Google fallback.
         if let Some(err) = &last {
-            if matches!(err.status, 401 | 403) || err.code == "NETWORK" {
+            if matches!(err.status, 401 | 403) || matches!(err.code.as_str(), "NETWORK" | "BLOCKED") {
                 break;
             }
             if err.code == "TIMEOUT" {
@@ -707,6 +750,13 @@ fn check_config(cfg: &AiConfig) -> Result<(), AiError> {
 }
 
 /// Translates `text`; the translation is streamed through `on_partial` as it is written.
+///
+/// Text that fits one answer goes in one request. Longer text is cut on paragraph and
+/// sentence boundaries into pieces that each fit comfortably, the pieces are translated a
+/// few at a time, and the translation streams in reading order. Nothing is ever shown as
+/// done when part of it is missing: a piece the model cut off is translated again in
+/// smaller pieces, and if a piece still fails the whole request fails (and the caller
+/// falls back to the fast engine) instead of returning half a translation.
 pub async fn translate(
     client: &Client,
     text: &str,
@@ -717,47 +767,130 @@ pub async fn translate(
     let tone = known_tone(&cfg.tone).to_string();
     let src = detect(text);
     let tgt = resolve_target(&cfg.target_lang, &src, &cfg.native_lang, &cfg.second_lang);
-    let (system, mut user) = build_prompts(text, &src, &tgt, &tone, cfg.show_breakdown);
-    if ambiguous_latin_guess(&src, &cfg.native_lang, &cfg.second_lang) && matches!(cfg.target_lang.as_str(), "" | "auto") {
-        // "en" is only the Latin-script guess: let the model correct the direction.
-        let alt = resolve_target("auto", &tgt, &cfg.native_lang, &cfg.second_lang);
+    // "en" is only the Latin-script guess: let the model correct the direction.
+    let redirect = (ambiguous_latin_guess(&src, &cfg.native_lang, &cfg.second_lang) && matches!(cfg.target_lang.as_str(), "" | "auto"))
+        .then(|| resolve_target("auto", &tgt, &cfg.native_lang, &cfg.second_lang));
+    let job = Job { cfg, src: &src, tgt: &tgt, tone: &tone, redirect: redirect.as_deref() };
+
+    let pieces = split_text(text, PIECE_CHARS);
+    if pieces.len() == 1 {
+        let mut last = String::new();
+        let mut on_content = |acc: &str| {
+            if let Some((p, _)) = extract_partial_translation(acc) {
+                if p != last {
+                    last = p.clone();
+                    on_partial(p);
+                }
+            }
+        };
+        return match translate_piece(client, &job, text, true, &mut on_content).await {
+            // Cut off even with the full budget: the long-text path translates it in pieces.
+            Err(e) if e.code == "TRUNCATED" => translate_long(client, &job, &split_text(text, PIECE_CHARS / 3), &on_partial).await,
+            other => other,
+        };
+    }
+    translate_long(client, &job, &pieces, &on_partial).await
+}
+
+/// What every piece of one request shares.
+struct Job<'a> {
+    cfg: &'a AiConfig,
+    src: &'a str,
+    tgt: &'a str,
+    tone: &'a str,
+    /// The other direction, when the source language is only a guess.
+    redirect: Option<&'a str>,
+}
+
+/// One request for one piece of text. `extras` asks for the breakdown (only a whole, short text).
+async fn translate_piece(
+    client: &Client,
+    job: &Job<'_>,
+    text: &str,
+    extras: bool,
+    on_content: &mut (dyn FnMut(&str) + Send),
+) -> Result<TranslationData, AiError> {
+    let (system, mut user) = build_prompts(text, job.src, job.tgt, job.tone, extras && job.cfg.show_breakdown);
+    if let Some(alt) = job.redirect {
         user.push_str(&format!(
             "\n\nIf the text is actually already written in {}, translate it into {} instead.",
-            language_name(&tgt),
-            language_name(&alt)
+            language_name(job.tgt),
+            language_name(alt)
         ));
     }
-    let max_tokens = max_tokens_for(text);
-
-    let mut last_partial = String::new();
-    let mut on_content = |acc: &str| {
-        if let Some((p, _)) = extract_partial_translation(acc) {
-            if p != last_partial {
-                last_partial = p.clone();
-                on_partial(p);
-            }
-        }
-    };
     let raw = chat(
         client,
-        cfg,
+        job.cfg,
         &[("system".into(), system), ("user".into(), user)],
         true,
         true,
-        Some(max_tokens),
-        &mut on_content,
+        Some(max_tokens_for(text)),
+        on_content,
     )
     .await?
     .0;
-
     if raw.trim().is_empty() {
         return Err(AiError::new("EMPTY", 0, false, ""));
     }
-    let result = parse_model_output(&raw, &src, &tgt, &tone);
+    let result = parse_model_output(&raw, job.src, job.tgt, job.tone);
     if result.translation.is_empty() {
         return Err(AiError::new("EMPTY", 0, false, ""));
     }
     Ok(result)
+}
+
+/// A piece, and again in smaller pieces if the model cut its answer off. Boxed: it calls itself.
+fn translate_piece_whole<'a>(
+    client: &'a Client,
+    job: &'a Job<'a>,
+    text: String,
+    depth: u8,
+) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<String, AiError>> + Send + 'a>> {
+    Box::pin(async move {
+        let mut ignore = |_: &str| {};
+        match translate_piece(client, job, &text, false, &mut ignore).await {
+            Ok(r) => Ok(r.translation),
+            Err(e) if e.code == "TRUNCATED" && depth < 2 && text.chars().count() > 200 => {
+                let parts = split_text(&text, (text.chars().count() / 3).max(150));
+                let mut out = Vec::with_capacity(parts.len());
+                for p in &parts {
+                    out.push(translate_piece_whole(client, job, p.clone(), depth + 1).await?);
+                }
+                Ok(join_translations(&parts, &out))
+            }
+            Err(e) => Err(e),
+        }
+    })
+}
+
+async fn translate_long(
+    client: &Client,
+    job: &Job<'_>,
+    pieces: &[String],
+    on_partial: &(impl Fn(String) + Send + Sync),
+) -> Result<TranslationData, AiError> {
+    use futures_util::stream::{self, StreamExt};
+
+    // A few at a time, but handed back in reading order, so the text on screen grows from
+    // the top and never has a hole in it.
+    let mut done: Vec<String> = Vec::with_capacity(pieces.len());
+    let mut results = stream::iter(pieces.iter().cloned().map(|p| translate_piece_whole(client, job, p, 0))).buffered(PIECES_AT_ONCE);
+    while let Some(r) = results.next().await {
+        done.push(r?);
+        on_partial(join_translations(&pieces[..done.len()], &done));
+    }
+    let translation = join_translations(pieces, &done).trim().to_string();
+    if translation.is_empty() {
+        return Err(AiError::new("EMPTY", 0, false, ""));
+    }
+    Ok(TranslationData {
+        translation,
+        detected_lang: job.src.to_string(),
+        target_lang: job.tgt.to_string(),
+        tone_used: job.tone.to_string(),
+        engine: "aphra".into(),
+        ..Default::default()
+    })
 }
 
 /// A cheap connectivity check for the "test" button. Returns (milliseconds, model).
@@ -972,9 +1105,175 @@ mod tests {
 
     #[test]
     fn the_token_budget_follows_length_not_word_count() {
-        assert_eq!(max_tokens_for("hi"), 160);
-        assert_eq!(max_tokens_for(&"字".repeat(300)), 1024, "unspaced CJK text is not 'short'");
-        assert_eq!(max_tokens_for(&"字".repeat(3000)), 2048);
+        assert_eq!(max_tokens_for("hi"), 400);
+        assert_eq!(max_tokens_for(&"字".repeat(300)), 1500, "unspaced CJK text is not 'short'");
+        assert_eq!(max_tokens_for(&"字".repeat(9000)), 8192, "capped");
+        // A whole piece always has room for its translation into Persian (about 3 tokens a character) and the JSON.
+        assert!(max_tokens_for(&"a".repeat(PIECE_CHARS)) as usize >= PIECE_CHARS * 3);
+    }
+
+    #[test]
+    fn an_answer_that_ran_out_of_room_is_not_a_translation() {
+        assert_eq!(cut_off_check("{\"translation\":\"half".into(), "length").unwrap_err().code, "TRUNCATED");
+        assert_eq!(cut_off_check("x".into(), "MAX_TOKENS").unwrap_err().code, "TRUNCATED", "Gemini's word for it");
+        assert_eq!(cut_off_check("whole".into(), "stop").unwrap(), "whole");
+        assert_eq!(cut_off_check("whole".into(), "STOP").unwrap(), "whole");
+        assert_eq!(cut_off_check("whole".into(), "").unwrap(), "whole", "no reason given is not a cut");
+    }
+
+    #[test]
+    fn long_text_is_cut_into_pieces_that_fit_one_answer() {
+        let page = (0..120).map(|i| format!("This is sentence number {i} of a long article about translation.")).collect::<Vec<_>>().join(" ");
+        let pieces = split_text(&page, PIECE_CHARS);
+        assert!(pieces.len() > 1);
+        assert!(pieces.iter().all(|p| p.chars().count() <= PIECE_CHARS));
+        assert_eq!(join_translations(&pieces, &pieces), page, "translated back in order, nothing lost");
+    }
+
+    /// Against the provider saved in the app (its key comes from Windows' credential store and is
+    /// never printed): `cargo test --lib -- --ignored aphra`.
+    #[tokio::test]
+    #[ignore]
+    async fn a_long_text_comes_back_whole_from_the_smart_engine() {
+        let settings = crate::store::Store::load().settings();
+        let cfg = AiConfig {
+            base_url: settings.aphra.base_url.clone(),
+            api_key: crate::store::api_key(),
+            model: settings.aphra.model.clone(),
+            tone: "auto".into(),
+            show_breakdown: true,
+            target_lang: "fa".into(),
+            native_lang: "fa".into(),
+            second_lang: "en".into(),
+        };
+        let text = (1..=40)
+            .map(|i| format!("Paragraph {i}. The quick brown fox jumps over the lazy dog, and then it runs into the forest to find its friends."))
+            .collect::<Vec<_>>()
+            .join("\n\n");
+        let partials = std::sync::Mutex::new(Vec::<usize>::new());
+        let r = translate(&Client::new(), &text, &cfg, |p| partials.lock().unwrap().push(p.chars().count()))
+            .await
+            .unwrap_or_else(|e| panic!("smart engine failed: {} {} {}", e.code, e.status, e.detail));
+        assert_eq!(r.engine, "aphra");
+        let paras = r.translation.split("\n\n").filter(|p| !p.trim().is_empty()).count();
+        eprintln!("{} paragraphs, {} chars, {} partial updates", paras, r.translation.chars().count(), partials.lock().unwrap().len());
+        assert_eq!(paras, 40, "every paragraph is translated and keeps its own line");
+        assert!(r.translation.contains("۴۰") || r.translation.contains("40"), "the last paragraph is there");
+        let p = partials.lock().unwrap();
+        assert!(p.windows(2).all(|w| w[1] >= w[0]), "the text on screen only ever grows");
+    }
+
+    /// A stand-in for an OpenAI-style service on localhost. It "translates" each line of the
+    /// <text> to "T:" + the line, answering with SSE like the real thing. A text longer than
+    /// `cut_over` characters gets half an answer and `finish_reason: "length"`, as a real model
+    /// does when it runs out of room. Returns the base URL and the number of requests served.
+    async fn fake_ai(cut_over: usize) -> (String, std::sync::Arc<std::sync::atomic::AtomicUsize>) {
+        use std::sync::atomic::Ordering;
+        use tokio::io::{AsyncReadExt, AsyncWriteExt};
+        let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let url = format!("http://{}/v1", listener.local_addr().unwrap());
+        let served = std::sync::Arc::new(std::sync::atomic::AtomicUsize::new(0));
+        let count = served.clone();
+        tokio::spawn(async move {
+            loop {
+                let Ok((mut sock, _)) = listener.accept().await else { break };
+                let count = count.clone();
+                tokio::spawn(async move {
+                    let mut buf = Vec::new();
+                    let mut tmp = [0u8; 8192];
+                    // Read the headers, then exactly the body they announce.
+                    let body = loop {
+                        let n = sock.read(&mut tmp).await.unwrap_or(0);
+                        if n == 0 { return; }
+                        buf.extend_from_slice(&tmp[..n]);
+                        let s = String::from_utf8_lossy(&buf).to_string();
+                        if let Some(end) = s.find("\r\n\r\n") {
+                            let len = s[..end].lines().find_map(|l| l.to_ascii_lowercase().strip_prefix("content-length:").map(|v| v.trim().parse::<usize>().unwrap_or(0))).unwrap_or(0);
+                            if buf.len() >= end + 4 + len { break String::from_utf8_lossy(&buf[end + 4..end + 4 + len]).to_string(); }
+                        }
+                    };
+                    count.fetch_add(1, Ordering::SeqCst);
+                    let req: Value = serde_json::from_str(&body).unwrap();
+                    let user = req["messages"][1]["content"].as_str().unwrap_or("").to_string();
+                    let text = user.split("<text>\n").nth(1).and_then(|t| t.split("\n</text>").next()).unwrap_or("").to_string();
+                    let translated: String = text.split('\n').map(|l| if l.trim().is_empty() { l.to_string() } else { format!("T:{}", l.trim()) }).collect::<Vec<_>>().join("\n");
+                    let whole = json!({ "translation": translated, "detectedLang": "en" }).to_string();
+                    let (answer, reason) = if text.chars().count() > cut_over {
+                        (whole.chars().take(whole.chars().count() / 2).collect::<String>(), "length")
+                    } else {
+                        (whole, "stop")
+                    };
+                    let mut sse = String::new();
+                    let chars: Vec<char> = answer.chars().collect();
+                    for part in chars.chunks(40) {
+                        let d = json!({ "choices": [{ "delta": { "content": part.iter().collect::<String>() } }] });
+                        sse.push_str(&format!("data: {d}\n\n"));
+                    }
+                    sse.push_str(&format!("data: {}\n\ndata: [DONE]\n\n", json!({ "choices": [{ "delta": {}, "finish_reason": reason }] })));
+                    let head = format!("HTTP/1.1 200 OK\r\ncontent-type: text/event-stream\r\ncontent-length: {}\r\nconnection: close\r\n\r\n", sse.len());
+                    let _ = sock.write_all(head.as_bytes()).await;
+                    let _ = sock.write_all(sse.as_bytes()).await;
+                    let _ = sock.shutdown().await;
+                });
+            }
+        });
+        (url, served)
+    }
+
+    fn local_cfg(base_url: &str) -> AiConfig {
+        AiConfig {
+            base_url: base_url.into(),
+            model: "local-test".into(),
+            tone: "auto".into(),
+            target_lang: "fa".into(),
+            native_lang: "fa".into(),
+            second_lang: "en".into(),
+            ..Default::default()
+        }
+    }
+
+    fn article(paragraphs: usize) -> String {
+        (1..=paragraphs)
+            .map(|i| format!("Paragraph {i}. The quick brown fox jumps over the lazy dog, and then it runs into the forest to find its friends."))
+            .collect::<Vec<_>>()
+            .join("\n\n")
+    }
+
+    #[tokio::test(flavor = "multi_thread")]
+    async fn a_long_text_is_translated_whole_in_pieces_and_streams_in_order() {
+        let (url, served) = fake_ai(usize::MAX).await;
+        let text = article(80);
+        let partials = std::sync::Mutex::new(Vec::<String>::new());
+        let r = translate(&Client::new(), &text, &local_cfg(&url), |p| partials.lock().unwrap().push(p)).await.unwrap();
+        let lines: Vec<&str> = r.translation.split("\n\n").collect();
+        assert_eq!(lines.len(), 80, "every paragraph, each on its own");
+        for (i, l) in lines.iter().enumerate() {
+            assert_eq!(*l, format!("T:Paragraph {}. The quick brown fox jumps over the lazy dog, and then it runs into the forest to find its friends.", i + 1));
+        }
+        assert!(served.load(std::sync::atomic::Ordering::SeqCst) > 1, "it went in pieces");
+        let p = partials.lock().unwrap();
+        assert!(!p.is_empty());
+        assert!(p.windows(2).all(|w| w[1].starts_with(&w[0])), "the text on screen only grows, from the top");
+        assert_eq!(p.last().unwrap().trim(), r.translation);
+    }
+
+    #[tokio::test(flavor = "multi_thread")]
+    async fn an_answer_cut_off_by_the_model_is_translated_again_in_smaller_pieces() {
+        // The model runs out of room on anything over 700 characters.
+        let (url, _) = fake_ai(700).await;
+        let text = article(30);
+        let r = translate(&Client::new(), &text, &local_cfg(&url), |_| {}).await.unwrap();
+        let lines: Vec<&str> = r.translation.split("\n\n").collect();
+        assert_eq!(lines.len(), 30, "nothing lost to the cut");
+        assert!(lines.iter().all(|l| l.starts_with("T:Paragraph ") && l.ends_with("friends.")), "no half paragraph");
+    }
+
+    #[tokio::test(flavor = "multi_thread")]
+    async fn a_short_text_is_one_request() {
+        let (url, served) = fake_ai(usize::MAX).await;
+        let r = translate(&Client::new(), "Hello there, my friend.", &local_cfg(&url), |_| {}).await.unwrap();
+        assert_eq!(r.translation, "T:Hello there, my friend.");
+        assert_eq!(served.load(std::sync::atomic::Ordering::SeqCst), 1);
     }
 
     #[test]
@@ -985,6 +1284,9 @@ mod tests {
         assert!(describe_http_error(429, "").retryable);
         assert!(describe_http_error(503, "").retryable);
         assert_eq!(describe_http_error(418, "").code, "API_ERROR");
+        // Turned away by the network, not the key.
+        assert_eq!(describe_http_error(403, "<!DOCTYPE html>\n<html lang=en>").code, "BLOCKED");
+        assert_eq!(describe_http_error(403, "{\"error\":\"bad key\"}").code, "AUTH");
     }
 
     #[test]

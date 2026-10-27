@@ -1,5 +1,46 @@
 # Changelog
 
+## 3.5.0 — Muse in the island
+
+- **Muse, in the island.** A new Muse tab puts the [muse.ai](https://muse.ai) web app itself
+  inside the island: the real site, live, with your login, your chats and everything it does.
+  The island takes the shape of a small tablet standing up while it is open (520 × 860, less on
+  a short screen) and stays open when the pointer leaves it; a click outside folds it.
+- **Off until you want it.** Muse is switched off every time the app starts, Windows start-up
+  included: nothing of it runs, so it uses no memory, processor or internet. Ari sleeps in the
+  middle of the tab with the button that turns it on; the power button in its toolbar turns it off
+  again. Switching it off never logs you out.
+- **Ari while it connects.** While muse.ai opens, Ari searches for it in the middle of the tab, the
+  steps light up one by one and a bar keeps moving; if it cannot be opened, Ari says so with
+  **Try again** and **Turn Muse off**.
+- **Reads well in both languages.** The chat uses the island's own fonts, Inter for English and
+  Vazirmatn for Persian, a step smaller than the site draws them, and every paragraph, list and
+  text field turns right-to-left or left-to-right on its own, by what is written in it — while
+  an answer is still being written, and while you type.
+- **Background work, in the capsule.** While Muse loads, its mini Ari thinks in the folded island;
+  when its title announces something new, the mini shows a dot.
+- **Kept apart from the app.** muse.ai runs in its own webview that cannot reach a single app
+  command; links that open new windows go to your browser, only web pages may load, and the
+  microphone, camera and location are asked for every time. Muse can be turned off for good in
+  Settings → **Island widgets**.
+- **Fixed: long text came back cut short, or not at all.** Both engines now translate long text in
+  pieces and put it back together whole:
+  - **Fast:** each piece is retried on its own (and in smaller pieces if Google refuses it), a few
+    at a time so Google does not answer "too many requests", and paragraph breaks are put back
+    where Google trims them, so paragraphs are no longer glued together. A run of text with no
+    full stop is cut between words, never inside one.
+  - **Smart:** the model is given room enough for its whole answer; an answer it had to cut off is
+    noticed and that part translated again in smaller pieces instead of being shown as done; long
+    text streams in from the top in reading order; and when the Smart engine gives up, what it had
+    written is cleared before the Fast engine answers.
+  - Up to 30,000 characters (an article) are translated; the limit was 8,000, and the rest was
+    dropped without a word.
+- **Smart engine: a blocked network is called that.** When the AI service turns this network away
+  (some providers do for some countries), the island says so and suggests a VPN or another
+  provider, instead of calling the key invalid.
+- **Fixed: Settings lost the History size row.** Settings → General showed a widget where the
+  number of translations kept belongs.
+
 ## 3.4.0 — Make it yours
 
 - **Island look.** A new Settings page, *Island look*, sets how the island looks and each

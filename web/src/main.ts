@@ -6,6 +6,7 @@ import "./views/select.css";
 import "./views/spotify.css";
 import "./views/football.css";
 import "./views/crypto.css";
+import "./views/muse.css";
 import { Bridge, IS_MOCK, IS_TAURI, onEvent } from "./core/bridge";
 import { Sound } from "./core/sound";
 import { State, mergeSettings, type Settings } from "./core/state";

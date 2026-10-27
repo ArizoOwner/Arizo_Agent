@@ -16,7 +16,7 @@ export function layoutArt(u) {
 
   // ───────────────────────────────────────────── header
   function header() {
-    const W = 1200, H = 560, LOOP = 32;
+    const W = 1200, H = 560, LOOP = 36;
     // Seven features, each owns a slot of the loop: the island shows its name, Ari wears its look.
     const F = [
       { en: "Translate anywhere", fa: "ترجمه در هر جا", c: BLUE, icon: "T", sub: "Alt+Shift+D replaces your text in place" },
@@ -27,6 +27,7 @@ export function layoutArt(u) {
       { en: "Team kits", fa: "پیراهن تیم‌ها", c: AMBER, icon: "👕", sub: "Ari wears your team's real shirt" },
       { en: "Live crypto", fa: "ارز دیجیتال زنده", c: "#f59e0b", icon: "₿", sub: "Live prices and candles from your own exchange" },
       { en: "Wardrobe &amp; seasons", fa: "کمد لباس و فصل‌ها", c: "#fb923c", icon: "🎩", sub: "Hats, glasses, crowns — and the seasons" },
+      { en: "Muse in the island", fa: "Muse در جزیره", c: "#FF7A59", icon: "💬", sub: "The muse.ai web app, live — off until you want it" },
     ];
     const N = F.length, SLOT = LOOP / N;
     const pct = (v) => (v * 100).toFixed(3) + "%";
@@ -52,6 +53,7 @@ export function layoutArt(u) {
         case 4: return `<g transform="translate(60 70)"><circle r="22" fill="#fff"/><path d="M0-12 9-4 6 8H-6L-9-4Z" fill="#1f2937"/></g>`;
         case 5: return `<g transform="translate(0 -88)"><path d="M-86 -52 Q0 -86 86 -52 L84 -40 Q0 -72 -84 -40Z" fill="#A50044" stroke="#EDBB00" stroke-width="2"/></g>`;
         case 6: return `<g transform="translate(0 -92)"><circle cx="0" cy="-8" r="30" fill="#F7931A" stroke="#fff" stroke-opacity=".7" stroke-width="3"/><text x="0" y="3" text-anchor="middle" font-size="34" font-weight="900" fill="#fff">₿</text><g class="spark"><path d="M44-34 L47-26 55-23 47-20 44-12 41-20 33-23 41-26Z" fill="#fff"/></g></g>`;
+        case 8: return `<g transform="translate(0 -96)"><rect x="-44" y="-62" width="88" height="128" rx="16" fill="#0b0b12" stroke="#FF7A59" stroke-width="5"/><rect x="-34" y="-48" width="68" height="100" rx="8" fill="#FF7A59" opacity=".22"/><rect x="-24" y="-36" width="40" height="9" rx="4.5" fill="#FF7A59"/><rect x="-24" y="-20" width="48" height="9" rx="4.5" fill="#fff" opacity=".55"/><rect x="-8" y="-4" width="32" height="9" rx="4.5" fill="#FF7A59"/><g class="spark"><path d="M52-58 L55-50 63-47 55-44 52-36 49-44 41-47 49-50Z" fill="#ffb35a"/></g></g>`;
         default: return `<g transform="translate(0 -86)"><ellipse cx="0" cy="6" rx="112" ry="19" fill="#5b21b6"/><path d="M-62 4 C-40 -20 -22 -70 6 -128 C12 -90 38 -40 62 4Z" fill="#7c3aed"/><path d="M-62 4 Q0 20 62 4 L58 -10 Q0 4 -58 -10Z" fill="#f97316"/></g>`;
       }
     };
@@ -73,7 +75,7 @@ export function layoutArt(u) {
     // Floating feature glyphs around Ari
     const orbit = [
       ["⚡", 190, 250, BLUE, 0], ["✦", 1010, 230, VIOLET, 1.2], ["♪", 250, 140, GREEN, 2.1], ["⚽", 960, 140, TEAL, 0.7],
-      ["👕", 150, 360, AMBER, 1.7], ["🎩", 1060, 360, "#fb923c", 2.6], ["₿", 330, 400, "#f59e0b", 3.1],
+      ["👕", 150, 360, AMBER, 1.7], ["🎩", 1060, 360, "#fb923c", 2.6], ["₿", 330, 400, "#f59e0b", 3.1], ["💬", 880, 410, "#FF7A59", 1.9],
     ].map(([g, x, y, c, d]) => `<g transform="translate(${x} ${y})"><g class="drift" style="animation-delay:${d}s"><circle r="26" fill="${c}" opacity=".14"/><circle r="26" fill="none" stroke="${c}" stroke-opacity=".5"/><text y="9" text-anchor="middle" font-size="24" style="font-family:'Segoe UI Emoji','Apple Color Emoji',sans-serif">${g}</text></g></g>`).join("");
 
     const body = `
@@ -156,6 +158,7 @@ ${stars(18, W, H, name.length + 9)}
     football: { en: "Live football", fa: "فوتبال زنده", c: TEAL, c2: "#34d399", icon: "⚽", art: "Every goal, card and whistle gets its own show" },
     crypto: { en: "Live crypto", fa: "ارز دیجیتال زنده", c: "#f59e0b", c2: "#fbbf24", icon: "₿", art: "Prices and candles from your own exchange — Nobitex, Binance or Toobit" },
     wardrobe: { en: "Ari's wardrobe", fa: "کمد لباس آری", c: "#fb923c", c2: ROSE, icon: "🎩", art: "Hats, glasses and crowns — and the seasons dress him on their own" },
+    muse: { en: "Muse, in the island", fa: "Muse در جزیره", c: "#FF7A59", c2: "#c86bff", icon: "💬", art: "The muse.ai web app itself, live — and switched off until you want it" },
     look: { en: "Make it yours", fa: "مال خودتان کنید", c: "#818cf8", c2: ROSE, icon: "🎛️", art: "Size, see-through level, text, corners, a floating island and a folded one of your own size" },
     engines: { en: "Two engines", fa: "دو موتور ترجمه", c: VIOLET, c2: BLUE, icon: "✦", art: "Fast and free, or Smart with tone, idioms and alternatives" },
     start: { en: "Get started", fa: "شروع کنید", c: AMBER, c2: ROSE, icon: "🚀", art: "Install in seconds — no administrator rights, no account" },
@@ -165,7 +168,7 @@ ${stars(18, W, H, name.length + 9)}
 
   // ───────────────────────────────────────────── feature cards (an animated grid)
   function cards() {
-    const W = 1200, H = 918;
+    const W = 1200, H = 1092;
     const items = [
       ["⚡", "Translate in place", "ترجمه در محل", "Alt+Shift+D swaps your text for its translation in any app", BLUE],
       ["🎯", "Quick bubble", "حباب سریع", "Select text anywhere — a button appears by the cursor", ROSE],
@@ -179,6 +182,8 @@ ${stars(18, W, H, name.length + 9)}
       ["⭐", "Favourite coins", "ارزهای موردعلاقه", "Star the coins you follow, pick one as the default", "#fbbf24"],
       ["🔑", "Read-only API key", "کلید فقط‌خواندنی", "Locked in the Windows Credential Manager", "#34d399"],
       ["👗", "Wardrobe &amp; seasons", "کمد لباس", "Hats and accessories — and the seasons dress him alone", "#fb923c"],
+      ["💬", "Muse in the island", "Muse در جزیره", "The muse.ai web app, live, in a tablet-sized island", "#FF7A59"],
+      ["💤", "Off until you want it", "خاموش تا وقتی بخواهید", "No memory, processor or internet; you stay logged in", "#c86bff"],
       ["🗣️", "Speech", "گفتار", "Reads the translation aloud — including Persian", "#a3e635"],
       ["📋", "History &amp; clipboard", "تاریخچه", "Star, search, bilingual copy, PDF line-break cleaner", "#f0abfc"],
       ["🎛️", "Island look", "ظاهر جزیره", "Width, height, see-through level, text size, corners, floating", "#818cf8"],

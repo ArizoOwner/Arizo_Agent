@@ -8,12 +8,13 @@ import { State } from "./state";
 import { setLanguage } from "../i18n/i18n";
 import { Football, setFootballState } from "./football";
 import { mockCrypto, mockFootball, mockSpotify } from "./mock";
+import { Muse } from "../views/muse";
 
-const VIEWS: readonly IslandViewName[] = ["translate", "settings", "note", "wardrobe", "spotify", "football", "crypto"];
+const VIEWS: readonly IslandViewName[] = ["translate", "settings", "note", "wardrobe", "spotify", "football", "crypto", "muse"];
 
 export function installDevHooks(island: Island) {
   const q = new URLSearchParams(location.search);
-  (window as unknown as { __arizo: unknown }).__arizo = { island, State, setLanguage, engine: (island as unknown as { engine: unknown }).engine, football: { setState: setFootballState, state: () => Football.state, mock: mockFootball }, spotify: { mock: mockSpotify }, crypto: { mock: mockCrypto } };
+  (window as unknown as { __arizo: unknown }).__arizo = { island, State, setLanguage, engine: (island as unknown as { engine: unknown }).engine, football: { setState: setFootballState, state: () => Football.state, mock: mockFootball }, spotify: { mock: mockSpotify }, crypto: { mock: mockCrypto }, muse: Muse };
   const view = q.get("view") as IslandViewName | null;
   const mode = q.get("state");
   const text = q.get("text");

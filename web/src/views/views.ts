@@ -12,6 +12,7 @@ import { buildSettingsView } from "./settings";
 import { buildSpotify } from "./spotify";
 import { buildFootball } from "./football";
 import { buildCrypto } from "./crypto";
+import { buildMuse, MUSE_COLOR, MUSE_ID, type MuseHost } from "./muse";
 import { createMiniBot, type MiniTask } from "../ari/minibots";
 import { Spotify, SPOTIFY_GREEN, SPOTIFY_ID, musicPlaying } from "../core/spotify";
 import { FOOTBALL_COLOR, FOOTBALL_ID } from "../core/football";
@@ -64,7 +65,7 @@ export interface ViewHost {
 
 export function buildHeader(actions: ViewActions): ViewHost {
   function feature(view: IslandViewName, label: string, color: string, eye: MiniTask["miniEye"] = "pill") {
-    const task: MiniTask = { id: view === "spotify" ? SPOTIFY_ID : view === "football" ? FOOTBALL_ID : view === "crypto" ? CRYPTO_ID : `feature_${view}`, name: label, color, state: "idle", miniEye: eye };
+    const task: MiniTask = { id: view === "spotify" ? SPOTIFY_ID : view === "football" ? FOOTBALL_ID : view === "crypto" ? CRYPTO_ID : view === "muse" ? MUSE_ID : `feature_${view}`, name: label, color, state: "idle", miniEye: eye };
     return h("button", {
       class: "tab feature-tab", type: "button", title: tl(label), "aria-label": tl(label),
       "data-view": view, onclick: () => go(view),
@@ -76,6 +77,7 @@ export function buildHeader(actions: ViewActions): ViewHost {
   const tabSpotify = feature("spotify", "Spotify", SPOTIFY_GREEN);
   const tabFootball = feature("football", "Football", FOOTBALL_COLOR);
   const tabCrypto = feature("crypto", "Crypto", CRYPTO_COLOR);
+  const tabMuse = feature("muse", "Muse", MUSE_COLOR);
   const gearBtn = h("button", { class: "tab-action feature-settings", type: "button", title: tl("Settings"), "aria-label": tl("Settings"), onclick: () => go("settings") },
     createMiniBot({ id: "feature_settings", name: "Settings", color: "#C0C4CC", state: "idle", miniEye: "line" }, 18));
   const soundBtn = h("button", { class: "tab-action", title: tl("Mute"), onclick: () => actions.toggleSound() }, svg(ICONS.speakerOn, 15));
@@ -85,7 +87,7 @@ export function buildHeader(actions: ViewActions): ViewHost {
     actions.setView(v);
   }
 
-  const tabsEl = h("div", { class: "tabs", "aria-label": tl("Features") }, tabTranslate, tabSpotify, tabFootball, tabCrypto);
+  const tabsEl = h("div", { class: "tabs", "aria-label": tl("Features") }, tabTranslate, tabSpotify, tabFootball, tabCrypto, tabMuse);
   const el = h(
     "div",
     { id: "header" },
@@ -95,7 +97,7 @@ export function buildHeader(actions: ViewActions): ViewHost {
 
   // The tabs can be dragged into any order (and moved with Alt+arrows); the order is a setting.
   const byId: Record<FeatureId, HTMLElement> = {
-    translate: tabTranslate, spotify: tabSpotify, football: tabFootball, crypto: tabCrypto,
+    translate: tabTranslate, spotify: tabSpotify, football: tabFootball, crypto: tabCrypto, muse: tabMuse,
   };
   enableTabDrag({
     container: tabsEl,
@@ -125,7 +127,9 @@ export function buildHeader(actions: ViewActions): ViewHost {
       tabFootball.style.display = State.settings.footballEnabled || v === "football" ? "" : "none";
       tabCrypto.classList.toggle("on", v === "crypto");
       tabCrypto.style.display = State.settings.cryptoEnabled || v === "crypto" ? "" : "none";
-      for (const button of [tabTranslate, tabSpotify, tabFootball, tabCrypto]) {
+      tabMuse.classList.toggle("on", v === "muse");
+      tabMuse.style.display = State.settings.museEnabled || v === "muse" ? "" : "none";
+      for (const button of [tabTranslate, tabSpotify, tabFootball, tabCrypto, tabMuse]) {
         button.setAttribute("aria-pressed", String(button.dataset.view === v));
       }
       gearBtn.classList.toggle("on", v === "settings");
@@ -154,6 +158,7 @@ function buildNote(): ViewHost {
 export interface BuiltViews {
   map: Map<IslandViewName, ViewHost>;
   translate: TranslateHost;
+  muse: MuseHost;
 }
 
 export function buildViews(actions: ViewActions, closeIsland: () => void): BuiltViews {
@@ -171,5 +176,7 @@ export function buildViews(actions: ViewActions, closeIsland: () => void): Built
   map.set("spotify", buildSpotify());
   map.set("football", buildFootball());
   map.set("crypto", buildCrypto());
-  return { map, translate };
+  const muse = buildMuse();
+  map.set("muse", muse);
+  return { map, translate, muse };
 }

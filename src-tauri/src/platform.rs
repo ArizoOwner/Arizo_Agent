@@ -66,6 +66,17 @@ pub fn place_window(win: &WebviewWindow, x: i32, y: i32, w: u32, h: u32) -> bool
     unsafe { SetWindowPos(hwnd, None, x, y, w as i32, h as i32, SWP_NOZORDER | SWP_NOACTIVATE).is_ok() }
 }
 
+/// Windows 11 rounds the corners of a borderless window when asked (Windows 10 ignores
+/// it), so a webview laid over a rounded frame does not stick out at the corners.
+pub fn round_corners(win: &WebviewWindow) {
+    use windows::Win32::Graphics::Dwm::{DwmSetWindowAttribute, DWMWA_WINDOW_CORNER_PREFERENCE, DWMWCP_ROUND};
+    let Some(hwnd) = hwnd_of(win) else { return };
+    let pref = DWMWCP_ROUND;
+    unsafe {
+        let _ = DwmSetWindowAttribute(hwnd, DWMWA_WINDOW_CORNER_PREFERENCE, &pref as *const _ as *const _, std::mem::size_of_val(&pref) as u32);
+    }
+}
+
 /// The cursor poll already parks itself with the island (island.rs): nothing to do.
 pub fn set_pointer_watch(_active: bool) {}
 

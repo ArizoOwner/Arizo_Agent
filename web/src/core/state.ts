@@ -54,6 +54,8 @@ export interface Settings {
   footballTeamName: string;
   /** Live prices and a 1-minute chart, read through the user's own exchange API. */
   cryptoEnabled: boolean;
+  /** The Muse tab: muse.ai itself, inside the island. */
+  museEnabled: boolean;
   /** The exchange whose API the user entered. The token itself is never a setting. */
   cryptoProvider: "nobitex" | "binance" | "toobit";
   /** The coin on screen ("BTC") and the market it is read in ("USDT", or "IRT" for Toman). */
@@ -121,6 +123,7 @@ export const DEFAULT_SETTINGS: Settings = {
   footballTeamId: "",
   footballTeamName: "",
   cryptoEnabled: true,
+  museEnabled: true,
   cryptoProvider: "nobitex",
   cryptoAsset: "BTC",
   cryptoQuote: "USDT",

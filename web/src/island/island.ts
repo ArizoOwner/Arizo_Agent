@@ -3,10 +3,10 @@
 import { Tracked, Spring, clamp } from "../core/anim";
 import { Bridge, IS_TAURI } from "../core/bridge";
 import {
-  EXPANDED_CORNER, EXPANDED_W, NOTCH_W, PANEL_H, PANEL_W, TRANSLATE_MAX_W, VIEW_LAYOUTS,
+  EXPANDED_CORNER, EXPANDED_W, MUSE_ISLAND_H, MUSE_ISLAND_W, NOTCH_W, PANEL_H, PANEL_W, TRANSLATE_MAX_W, VIEW_LAYOUTS,
   ROUNDED_CORNER, botGlowColor, botGlowOpacity, botPosition, compactLayout, compactSize, islandSize,
   type CompactLayout,
-  type BotEmoteName, type IslandMode, type IslandViewName,
+  type BotEmoteName, type BotStateName, type IslandMode, type IslandViewName,
 } from "../core/layout";
 import { DEFAULT_LOOK, LOOK, PANEL_STEP, applyLookVars, cornerRadius, floatOffset, lookOf, panelFor, scaledIsland, type IslandExtent, type Look } from "../core/appearance";
 import { onEmote } from "../core/mood";
@@ -23,6 +23,7 @@ import { GREETING_H, GREETING_W, Greeting } from "../ari/greeting";
 import { createMiniBot, pruneMiniBots, syncMiniBotStates, tickMiniBots, type MiniTask } from "../ari/minibots";
 import { SeasonCache, parseOutfit } from "../ari/wardrobe";
 import { buildHeader, buildViews, type ViewActions, type ViewHost } from "../views/views";
+import { Muse, MUSE_ARI_D, MUSE_COLOR, MUSE_ID, type MuseHost } from "../views/muse";
 import type { TranslateHost } from "../views/translate";
 import type { HistoryItem } from "../core/history-logic";
 import { onToast } from "../core/toast";
@@ -43,14 +44,15 @@ const PANEL_SHRINK_DELAY_MS = 700;
 
 const modeOrder = (m: IslandMode) => (m === "hidden" ? 0 : m === "compact" ? 1 : 2);
 
-/** The biggest the island can be at the default look: the translator at its widest and tallest, and the tallest fixed view. */
+/** The biggest the island can be at the default look: the translator at its widest and tallest, the tallest fixed view, and Muse. */
 const LARGEST: readonly IslandExtent[] = [
   { w: TRANSLATE_MAX_W, h: PANEL_H, fitsContent: true },
   {
     w: EXPANDED_W,
-    h: Math.max(...Object.entries(VIEW_LAYOUTS).filter(([name]) => name !== "translate" && name !== "greeting").map(([, v]) => v.height)),
+    h: Math.max(...Object.entries(VIEW_LAYOUTS).filter(([name]) => name !== "translate" && name !== "greeting" && name !== "muse").map(([, v]) => v.height)),
     fitsContent: false,
   },
+  { w: MUSE_ISLAND_W, h: MUSE_ISLAND_H, fitsContent: false },
 ];
 
 export class Island {
@@ -127,6 +129,7 @@ export class Island {
   private confusedRecovery: number | null = null;
   private lastSyncedView: IslandViewName | null = null;
   private cryptoReported = false;
+  private museHost: MuseHost | null = null;
   private toastTimer: number | null = null;
 
   // The goal celebration: the island grows, rains balls and confetti, then returns.
@@ -239,6 +242,7 @@ export class Island {
     const built = buildViews(actions, () => this.closeAfterAction());
     this.views = built.map;
     (this as { translate: TranslateHost }).translate = built.translate;
+    this.museHost = built.muse;
     this.viewsEl = h("div", { id: "views" });
     for (const v of this.views.values()) this.viewsEl.append(v.el);
     this.contentEl = h("div", { id: "content" }, this.header.el, this.viewsEl);
@@ -805,7 +809,7 @@ export class Island {
     this.confusedRecovery = window.setTimeout(() => {
       this.confusedRecovery = null;
       if (State.botState === "dizzy") State.botState = "idle";
-      this.engine.setState(State.effectiveState);
+      this.engine.setState(this.ariState());
       this.engine.triggerEmote("happy");
       State.notify();
     }, 3300);
@@ -893,6 +897,14 @@ export class Island {
       p.cy = c.ariCy;
       p.diameter = c.ariD;
     }
+    // Muse off, connecting or failed: Ari is in the middle of its frame, over the card that says so.
+    const museAsleep = this.museSleeping();
+    if (museAsleep) {
+      p.cx = museAsleep.cx;
+      p.cy = museAsleep.cy;
+      p.diameter = MUSE_ARI_D;
+      p.opacity = 1;
+    }
     // While celebrating, Ari moves to the middle of the stage and grows — from the
     // folded capsule too, where he starts small beside the clock.
     if (this.celebrationLevelNow > 0.001 && (State.mode === "expanded" || State.mode === "compact")) {
@@ -911,17 +923,33 @@ export class Island {
 
     if (State.mode === "expanded" && !greetingActive) {
       const d = p.diameter;
-      const color = botGlowColor(State.effectiveState);
+      const color = botGlowColor(this.ariState());
       this.botGlow.style.display = "block";
       this.botGlow.style.width = `${d * 2.2}px`;
       this.botGlow.style.height = `${d * 2.2}px`;
       this.botGlow.style.left = `${this.botCx.value - d * 1.1}px`;
       this.botGlow.style.top = `${this.botCy.value - d * 1.1}px`;
       this.botGlow.style.background = `radial-gradient(circle, ${color} 0%, transparent 62%)`;
-      this.botGlow.style.opacity = String(botGlowOpacity(State.effectiveState));
+      this.botGlow.style.opacity = String(botGlowOpacity(this.ariState()));
     } else {
       this.botGlow.style.display = "none";
     }
+  }
+
+  /** Ari's place while the Muse tab is open and Muse is off, in island coordinates; null otherwise. */
+  private museSleeping(): { cx: number; cy: number } | null {
+    if (State.mode !== "expanded" || State.view !== "muse" || this.celebration != null || !this.museHost) return null;
+    const box = this.islandEl.getBoundingClientRect();
+    return this.museHost.ariSpot({ x: box.left, y: box.top });
+  }
+
+  /** What Ari is doing: in the Muse frame, asleep (off), looking for it (connecting) or unhappy (failed); otherwise what the app says. */
+  private ariState(): BotStateName {
+    if (State.mode !== "expanded" || State.view !== "muse") return State.effectiveState;
+    if (!Muse.on) return "sleeping";
+    if (Muse.failed) return "error";
+    if (!Muse.ready) return "searching";
+    return State.effectiveState;
   }
 
   private drawBot(dt: number) {
@@ -1037,6 +1065,14 @@ export class Island {
       this.cryptoReported = cryptoOnScreen;
       void Bridge.cryptoActive(cryptoOnScreen);
     }
+    // muse.ai is a separate webview over the island: it shows only with its view, and
+    // while it does the island waits for a click outside instead of folding on mouse-leave.
+    const museOnScreen = expanded && State.view === "muse" && this.celebration == null;
+    this.museHost?.setOnScreen(museOnScreen);
+    if (this.fsm.stayOpen !== museOnScreen) {
+      this.fsm.stayOpen = museOnScreen;
+      if (!museOnScreen && expanded && !this.wasInIsland) this.fsm.mouseLeft();
+    }
 
     // The translate and history views have a text field: while one is up the
     // island may take keyboard focus (the field itself asks, on focus).
@@ -1058,6 +1094,11 @@ export class Island {
     }
     if (State.settings.footballEnabled && State.settings.footballTeamId) {
       tasks.push({ id: FOOTBALL_ID, name: "Football", color: FOOTBALL_COLOR, state: "idle" });
+    }
+    // Muse in the background: its mini thinks while the page loads, and shows a dot when
+    // the page's title says something new is waiting.
+    if (State.settings.museEnabled && Muse.on && (Muse.busy || Muse.unread > 0)) {
+      tasks.push({ id: MUSE_ID, name: "Muse", color: MUSE_COLOR, state: Muse.busy ? "thinking" : "finished" });
     }
     // The capsule's minis and clock step aside while a show fills the island.
     const showGrid = State.mode === "compact" && this.celebrationLevelNow < 0.001 && this.celebration == null;
@@ -1081,7 +1122,7 @@ export class Island {
     }
 
     syncMiniBotStates(tasks);
-    this.engine.setState(State.effectiveState);
+    this.engine.setState(this.ariState());
   }
 
   // ── Compact clock ───────────────────────────────────────────────────────────

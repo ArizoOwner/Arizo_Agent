@@ -54,9 +54,12 @@ export class Translator {
     this.reset();
   }
 
-  /** Streamed text from the backend; ignored when it belongs to an older request. */
+  /**
+   * Streamed text from the backend; ignored when it belongs to an older request. An empty
+   * text wipes what was shown: the smart engine gave up and the fast one starts over.
+   */
   partialText(requestId: number, text: string) {
-    if (requestId !== this.seq || this.phase !== "loading" || !text) return;
+    if (requestId !== this.seq || this.phase !== "loading" || text === this.partial) return;
     this.partial = text;
     this.onChange?.();
   }

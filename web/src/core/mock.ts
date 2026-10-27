@@ -180,7 +180,7 @@ export async function mockInvoke(cmd: string, args: Record<string, unknown> = {}
   switch (cmd) {
     case "boot":
       return {
-        settings, version: "3.4.0", cursorPoll: false,
+        settings, version: "3.5.0", cursorPoll: false,
         screen: { x: 0, y: 0, width: 1920, height: 1080, scale: 1 },
       };
     case "get_settings":

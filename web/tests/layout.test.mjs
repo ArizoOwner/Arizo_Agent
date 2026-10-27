@@ -13,11 +13,16 @@ test("hidden, compact and expanded sizes", () => {
   assert.deepEqual(L.islandSize("expanded", "greeting"), { w: L.GREETING_ISLAND_W, h: L.VIEW_LAYOUTS.greeting.height });
 });
 
-test("every view fits the panel window and expanded width", () => {
+test("every view fits the panel window and expanded width; only Muse makes the window taller", () => {
   for (const [name, v] of Object.entries(L.VIEW_LAYOUTS)) {
+    if (name === "muse") continue;
     assert.ok(v.height <= L.PANEL_H, `${name} is taller than the window`);
   }
   assert.ok(L.EXPANDED_W <= L.PANEL_W);
+  // A small tablet standing up: narrower than the window, taller than it, about 2:3.
+  assert.ok(L.MUSE_ISLAND_W <= L.PANEL_W && L.MUSE_ISLAND_H > L.PANEL_H);
+  const ratio = L.MUSE_ISLAND_W / L.MUSE_ISLAND_H;
+  assert.ok(ratio > 0.55 && ratio < 0.7, `Muse is ${ratio.toFixed(2)}, not a portrait tablet`);
 });
 
 test("the translate view grows with the text and stops at the window", () => {
@@ -34,7 +39,7 @@ test("the translate view grows with the text and stops at the window", () => {
 });
 
 test("the view list is the translator's own", () => {
-  assert.deepEqual(Object.keys(L.VIEW_LAYOUTS).sort(), ["crypto", "football", "greeting", "note", "settings", "spotify", "translate", "wardrobe"]);
+  assert.deepEqual(Object.keys(L.VIEW_LAYOUTS).sort(), ["crypto", "football", "greeting", "muse", "note", "settings", "spotify", "translate", "wardrobe"]);
 });
 
 test("Ari: hidden has no opacity, compact sits at the left, expanded follows the view", () => {

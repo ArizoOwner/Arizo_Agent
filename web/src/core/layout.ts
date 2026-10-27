@@ -2,7 +2,7 @@
 
 export type IslandMode = "hidden" | "compact" | "expanded";
 
-export type IslandViewName = "translate" | "note" | "settings" | "greeting" | "wardrobe" | "spotify" | "football" | "crypto";
+export type IslandViewName = "translate" | "note" | "settings" | "greeting" | "wardrobe" | "spotify" | "football" | "crypto" | "muse";
 
 /** The history pane is part of the translate view and needs this much room. */
 export const HISTORY_PANE_H = 350;
@@ -41,6 +41,13 @@ export const COMPACT_W = 288; // NOTCH_W + 104
 export const EXPANDED_W = 760;
 /** The intro is drawn on a canvas this wide (ari/greeting.ts): the island matches it exactly. */
 export const GREETING_ISLAND_W = 640;
+/**
+ * Muse (muse.ai) is a whole web app: the island takes a small tablet's portrait shape for it,
+ * so the site's frame is about 500×780, the proportions of an iPad mini (744×1133). A shorter
+ * screen keeps the width and gives up height.
+ */
+export const MUSE_ISLAND_W = 520;
+export const MUSE_ISLAND_H = 860;
 
 export const ROUNDED_CORNER = 14; // hidden / compact
 export const EXPANDED_CORNER = 22;
@@ -104,6 +111,8 @@ export const VIEW_LAYOUTS: Record<IslandViewName, ViewLayout> = {
   spotify: { height: 330, botX: 54, botY: null, botDiameter: 60 },
   football: { height: 400, botX: 54, botY: null, botDiameter: 60 },
   crypto: { height: 452, botX: 54, botY: null, botDiameter: 60 },
+  // Ari steps aside: the site fills the island, so he hides behind it.
+  muse: { height: MUSE_ISLAND_H, botX: 30, botY: 21, botDiameter: 0 },
 };
 
 export function islandSize(
@@ -122,7 +131,7 @@ export function islandSize(
     case "expanded":
       return view === "translate"
         ? { w: translateW, h: translateH }
-        : { w: view === "greeting" ? GREETING_ISLAND_W : EXPANDED_W, h: VIEW_LAYOUTS[view].height };
+        : { w: view === "greeting" ? GREETING_ISLAND_W : view === "muse" ? MUSE_ISLAND_W : EXPANDED_W, h: VIEW_LAYOUTS[view].height };
   }
 }
 

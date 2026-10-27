@@ -23,3 +23,7 @@ src-tauri/gen/
 *.log
 .DS_Store
 Thumbs.db
+
+# Spec Kit and the agent tools are per-developer setup; specs/ is the shared design record.
+.claude/
+.specify/

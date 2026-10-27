@@ -116,6 +116,9 @@ impl Translator {
                 Ok(data) => Ok(data),
                 Err(err) => {
                     // Never leave the user empty-handed: degrade to the instant engine and say why.
+                    // What the smart engine had streamed so far is wiped first, so the page never
+                    // shows the start of one translation glued to another.
+                    on_partial(String::new());
                     let missing = err.code == "MISSING_API_KEY";
                     warning = Some(Warning {
                         code: if missing { "MISSING_API_KEY".into() } else { "AI_FAILED".into() },
@@ -170,6 +173,10 @@ pub fn ai_message(err: &AiError, lang: &str) -> String {
     let text = match (err.code.as_str(), fa) {
         ("MISSING_API_KEY", true) => "ابتدا کلید API را وارد کنید.".to_string(),
         ("MISSING_API_KEY", false) => "Enter the API key first.".to_string(),
+        ("BLOCKED", true) => "سرویس هوش مصنوعی از این شبکه در دسترس نیست (احتمالاً تحریم یا فیلتر). یک VPN یا سرویس دیگر امتحان کنید.".to_string(),
+        ("BLOCKED", false) => "The AI service refuses this network (likely a regional block). Try a VPN or another provider.".to_string(),
+        ("TRUNCATED", true) => "پاسخ مدل نیمه‌کاره ماند.".to_string(),
+        ("TRUNCATED", false) => "The model's answer was cut off.".to_string(),
         ("AUTH", true) => format!("کلید API نامعتبر است یا دسترسی ندارد{detail}"),
         ("AUTH", false) => format!("The API key is invalid or has no access{detail}"),
         ("NOT_FOUND", true) => format!("مدل یا آدرس سرویس پیدا نشد؛ Base URL و نام مدل را بررسی کنید{detail}"),

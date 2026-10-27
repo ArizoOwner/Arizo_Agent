@@ -20,7 +20,7 @@ test("mergeSettings keeps the nested AI settings whole", () => {
 
 test("the settings keys are exactly the contract's", () => {
   assert.deepEqual(Object.keys(S.DEFAULT_SETTINGS).sort(), [
-    "ariOutfit", "aphra", "appLanguage", "autoCloseInterval", "autoCopy", "cryptoAsset", "cryptoDefaultAsset", "cryptoEnabled", "cryptoFavorites", "cryptoProvider", "cryptoQuote", "cryptoTimeframe", "defaultEngine", "featureOrder", "footballEnabled", "footballKit", "footballTeamId", "footballTeamName", "historyLimit",
+    "ariOutfit", "aphra", "appLanguage", "autoCloseInterval", "autoCopy", "cryptoAsset", "cryptoDefaultAsset", "cryptoEnabled", "cryptoFavorites", "cryptoProvider", "cryptoQuote", "cryptoTimeframe", "defaultEngine", "featureOrder", "footballEnabled", "footballKit", "footballTeamId", "footballTeamName", "historyLimit", "museEnabled",
     "hotkey", "hideHotkey", "hideOnBlur", "inlineHotkey", "language", "launchAtStartup", "nativeLang", "restoreClipboard",
     "saveHistory", "screen", "secondLang", "showFloatingBubble", "soundEnabled", "soundVolume", "spotifyClientId", "spotifyEnabled", "theme",
     "uiCompactHeight", "uiCompactScale", "uiCompactWidth", "uiCorner", "uiFloatGap", "uiFloating", "uiFontScale", "uiHeight", "uiTransparency", "uiWidth",
@@ -79,5 +79,24 @@ test("the island opens from the greeting to compact, and a click expands it", ()
   assert.equal(fsm.state, "petit");
   fsm.forceHidden();
   assert.equal(fsm.state, "hidden");
+  fsm.cancelTimers();
+});
+
+test("an open web app (Muse) stays open when the mouse leaves, and folds again once it is gone", async () => {
+  const fsm = new IslandStateMachine();
+  fsm.homeToPetitDelay = 0.03;
+  fsm.forceHome();
+  fsm.stayOpen = true;
+  fsm.mouseLeft();
+  await new Promise((r) => setTimeout(r, 80));
+  assert.equal(fsm.state, "home", "no countdown while Muse is on screen");
+  fsm.mouseLeft();
+  fsm.stayOpen = true; // turned on while a countdown runs: the countdown stops
+  await new Promise((r) => setTimeout(r, 80));
+  assert.equal(fsm.state, "home");
+  fsm.stayOpen = false;
+  fsm.mouseLeft();
+  await new Promise((r) => setTimeout(r, 80));
+  assert.equal(fsm.state, "petit", "another tab folds as usual");
   fsm.cancelTimers();
 });

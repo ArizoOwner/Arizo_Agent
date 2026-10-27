@@ -8,6 +8,7 @@ import { fileURLToPath } from "node:url";
 import { footballArt } from "./readme-football-art.mjs";
 import { cryptoArt } from "./readme-crypto-art.mjs";
 import { layoutArt } from "./readme-layout-art.mjs";
+import { museArt } from "./readme-muse-art.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const outDir = join(root, "assets", "readme");
@@ -222,4 +223,5 @@ spotify(); marquee(); footer();
 const fb = footballArt({ save, svg, ariDefs, CSS, BODY, SANS, FA, VIOLET });
 cryptoArt({ save, svg, ariDefs, ari, star, CSS, SANS, FA, VIOLET });
 layoutArt({ save, svg, ariDefs, ari, happyAri, star, note, CSS, SPOT_CSS, BODY, SANS, FA, VIOLET, BLUE, BEAT, anim, rnd, ...fb });
+museArt({ save, svg, ariDefs, ari, splitEyes, CSS, FA });
 console.log(`README art written to ${outDir}`);

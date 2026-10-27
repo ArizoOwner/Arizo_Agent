@@ -125,6 +125,8 @@ function generalSection(): HTMLElement {
       h("span", { class: "hint", text: t("Ari wears your team's shirt in the Football section") })),
     row(t("Crypto prices"), toggle(settings.cryptoEnabled, (v) => void save({ cryptoEnabled: v })),
       h("span", { class: "hint", text: t("Live prices and a 1-minute chart, read through your own exchange API") })),
+    row(t("Muse assistant"), toggle(settings.museEnabled, (v) => void save({ museEnabled: v })),
+      h("span", { class: "hint", text: t("Use muse.ai, your personal AI agent, right inside the island") })),
     row(t("Hide when I click elsewhere"), toggle(settings.hideOnBlur, (v) => void save({ hideOnBlur: v }))),
     row(t("Copy the translation automatically"), toggle(settings.autoCopy, (v) => void save({ autoCopy: v }))),
     row(t("Restore the clipboard after replacing"), toggle(settings.restoreClipboard, (v) => void save({ restoreClipboard: v }))),

@@ -32,6 +32,18 @@ export class IslandStateMachine {
   greetHoverCollapseDelay = 10;
   /** An alert waiting for an answer stays open, even when the mouse leaves. */
   pinned = false;
+  /**
+   * A view that is a whole web app (Muse) stays open when the mouse leaves: only a click
+   * outside folds it. Unlike `pinned`, the compact island is not held on screen by it.
+   */
+  get stayOpen(): boolean {
+    return this.holdOpen;
+  }
+  set stayOpen(on: boolean) {
+    this.holdOpen = on;
+    if (on) this.clear("homeCollapse");
+  }
+  private holdOpen = false;
 
   /**
    * When the open island will fold, on the performance.now() clock, while the
@@ -166,7 +178,7 @@ export class IslandStateMachine {
 
   private scheduleHomeCollapse() {
     this.clear("homeCollapse");
-    if (this.pinned) return;
+    if (this.pinned || this.stayOpen) return;
     const ms = this.homeDelay * 1000;
     this.homeCollapseDueAt = performance.now() + ms;
     this.homeCollapse = window.setTimeout(() => {

@@ -211,6 +211,13 @@ export const Bridge = {
   /** Whether the crypto section is on screen: nothing is read while it is not. */
   cryptoActive: (active: boolean) => call<void>("crypto_active", { active }),
 
+  // ── Muse (muse.ai in a child webview, src-tauri/src/muse.rs) ────────────────
+  museShow: (r: { x: number; y: number; width: number; height: number }) => callOrThrow<void>("muse_show", r),
+  museHide: () => call<void>("muse_hide"),
+  museFocus: () => call<void>("muse_focus"),
+  museReload: () => call<void>("muse_reload"),
+  musePowerOff: () => call<void>("muse_power_off"),
+
   // ── History ───────────────────────────────────────────────────────────────
   getHistory: () => call<HistoryItem[]>("get_history"),
   clearHistory: () => call<void>("clear_history"),

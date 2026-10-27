@@ -24,7 +24,7 @@ const title = log.match(new RegExp(`^## (${version.replace(/\./g, "\\.")}[^\\n]*
 const notes = [
   `## Arizo-Agent ${title.replace(version + " — ", `${version} — `)}`,
   "",
-  `<p align="center"><img src="https://raw.githubusercontent.com/${repo}/main/docs/media/look-en.gif" width="720" alt="Dragging the island look sliders: the island gets wider, taller, see-through and rounder, and floats away from the top edge"></p>`,
+  `<p align="center"><img src="https://raw.githubusercontent.com/${repo}/main/assets/readme/muse.svg" width="760" alt="The Muse tab: off with Ari asleep, turned on, Ari connecting, then a chat with Persian messages right to left and English ones left to right"></p>`,
   "",
   m[1].trim(),
   "",

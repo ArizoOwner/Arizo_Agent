@@ -1,7 +1,7 @@
 // The order of the feature tabs in the island's header, which the user rearranges
 // by dragging. Pure helpers: the dragging itself lives in views/tab-drag.ts.
 
-export const FEATURE_IDS = ["translate", "spotify", "football", "crypto"] as const;
+export const FEATURE_IDS = ["translate", "spotify", "football", "crypto", "muse"] as const;
 export type FeatureId = (typeof FEATURE_IDS)[number];
 
 export const DEFAULT_FEATURE_ORDER: readonly FeatureId[] = FEATURE_IDS;

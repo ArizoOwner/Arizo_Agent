@@ -5,12 +5,12 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { DEFAULT_FEATURE_ORDER, dragRange, insertionIndex, moved, normalizeOrder, rowLefts, sameOrder } from "../src/core/feature-order.ts";
 
-test("a stored order is repaired into a full permutation of the four tabs", () => {
-  assert.deepEqual(normalizeOrder(["crypto", "translate", "bogus", "crypto", 7]), ["crypto", "translate", "spotify", "football"]);
+test("a stored order is repaired into a full permutation of the five tabs", () => {
+  assert.deepEqual(normalizeOrder(["crypto", "translate", "bogus", "crypto", 7]), ["crypto", "translate", "spotify", "football", "muse"]);
   assert.deepEqual(normalizeOrder([]), [...DEFAULT_FEATURE_ORDER]);
   assert.deepEqual(normalizeOrder("crypto"), [...DEFAULT_FEATURE_ORDER]);
   assert.deepEqual(normalizeOrder(undefined), [...DEFAULT_FEATURE_ORDER]);
-  assert.ok(sameOrder(normalizeOrder(["football", "crypto", "spotify", "translate"]), ["football", "crypto", "spotify", "translate"]));
+  assert.ok(sameOrder(normalizeOrder(["muse", "football", "crypto", "spotify", "translate"]), ["muse", "football", "crypto", "spotify", "translate"]));
 });
 
 test("a dragged tab lands after as many of the others as lie before it", () => {

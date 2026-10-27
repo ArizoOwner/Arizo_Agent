@@ -1,24 +1,24 @@
 <div align="center">
 
-<img src="assets/readme/header.svg" width="100%" alt="Arizo-Agent — Ari, a tiny friend at the top of your Windows screen, shows translation, the two engines, the quick bubble, Spotify, live football, team kits, live crypto prices and the wardrobe">
+<img src="assets/readme/header.svg" width="100%" alt="Arizo-Agent — Ari, a tiny friend at the top of your Windows screen, shows translation, the two engines, the quick bubble, Spotify, live football, team kits, live crypto prices, Muse and the wardrobe">
 
 <br>
 
-[![Version](https://img.shields.io/badge/version-3.4.0-8b5cf6?logo=github)](https://github.com/ArizoOwner/Arizo_Agent/releases)
+[![Version](https://img.shields.io/badge/version-3.5.0-8b5cf6?logo=github)](https://github.com/ArizoOwner/Arizo_Agent/releases)
 ![Windows 10/11](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4?logo=windows&logoColor=white)
 ![Tauri 2](https://img.shields.io/badge/Tauri-2-FFC131?logo=tauri&logoColor=black)
 ![Rust](https://img.shields.io/badge/Rust-backend-000000?logo=rust)
 ![TypeScript](https://img.shields.io/badge/TypeScript-front%20end-3178C6?logo=typescript&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-241%20passing-22c55e)
+![Tests](https://img.shields.io/badge/tests-256%20passing-22c55e)
 ![No telemetry](https://img.shields.io/badge/telemetry-none-22c55e)
 ![Code: MIT](https://img.shields.io/badge/code-MIT-green)
 [![GitHub stars](https://img.shields.io/github/stars/ArizoOwner/Arizo_Agent?style=social)](https://github.com/ArizoOwner/Arizo_Agent/stargazers)
 
 **🌐 Language:** English • [فارسی](README.fa.md)
 
-**A Dynamic Island for your Windows desktop. It translates anything, plays your music, follows your football team, watches your crypto prices — and a little mascot named Ari keeps you company.**
+**A Dynamic Island for your Windows desktop. It translates anything, plays your music, follows your football team, watches your crypto prices, brings Muse into the island — and a little mascot named Ari keeps you company.**
 
-[⬇️ Download](https://github.com/ArizoOwner/Arizo_Agent/releases) • [Features](#everything-in-one-look) • [Translate](#translate-anywhere) • [Spotify](#spotify-in-the-island) • [Football](#live-football) • [Crypto](#live-crypto) • [Wardrobe](#aris-wardrobe) • [Make it yours](#make-it-yours) • [Shortcuts](#keyboard-shortcuts) • [Install](#get-started) • [Privacy](#private-by-design) • [Build](#for-developers)
+[⬇️ Download](https://github.com/ArizoOwner/Arizo_Agent/releases) • [Features](#everything-in-one-look) • [Translate](#translate-anywhere) • [Spotify](#spotify-in-the-island) • [Football](#live-football) • [Crypto](#live-crypto) • [Muse](#muse-in-the-island) • [Wardrobe](#aris-wardrobe) • [Make it yours](#make-it-yours) • [Shortcuts](#keyboard-shortcuts) • [Install](#get-started) • [Privacy](#private-by-design) • [Build](#for-developers)
 
 <img src="assets/readme/marquee.svg" width="100%" alt="">
 
@@ -28,7 +28,7 @@
 
 <div align="center">
 
-<img src="assets/readme/cards.svg" width="100%" alt="Translate in place, quick bubble, smart language handling, never empty-handed, Spotify player, live football, your team's kit, live crypto prices, candles from 1m to 1d, favourite coins, a read-only API key, wardrobe and seasons, speech, history, island look, folded island, draggable tabs, any text size, 33 original sounds, private and light">
+<img src="assets/readme/cards.svg" width="100%" alt="Translate in place, quick bubble, smart language handling, never empty-handed, Spotify player, live football, your team's kit, live crypto prices, candles from 1m to 1d, favourite coins, a read-only API key, Muse in the island, off until you want it, wardrobe and seasons, speech, history, island look, folded island, draggable tabs, any text size, 33 original sounds, private and light">
 
 </div>
 
@@ -61,8 +61,8 @@ Meet **Ari**: a soft little squircle with two dark eyes that breathes, blinks, f
 
 | Engine | What it is | Best for |
 | :--- | :--- | :--- |
-| **⚡ Fast** | Google Translate's free endpoint, MyMemory as a second chance. No key, no limit, long text chunked automatically. | Everyday reading and chat |
-| **✦ Smart** | A language model: tone control (formal, casual, technical, literary), idiom breakdown, alternative wordings, streamed as it is written. | Slang, idioms, code, formal mail |
+| **⚡ Fast** | Google Translate's free endpoint, MyMemory as a second chance. No key, no limit; long text (up to 30,000 characters) is translated in pieces and comes back whole. | Everyday reading and chat |
+| **✦ Smart** | A language model: tone control (formal, casual, technical, literary), idiom breakdown, alternative wordings, streamed as it is written; long text is translated whole, in pieces. | Slang, idioms, code, formal mail |
 
 **Smart providers:** OpenRouter, Google Gemini, DeepSeek, Groq, OpenAI, and local models (Ollama, LM Studio) that need no key — or any OpenAI-compatible endpoint. Switch engines with `Ctrl+Tab`.
 
@@ -162,6 +162,23 @@ In the Football section Ari wears the **real shirt of your favourite team**: Bar
 
 On Nobitex, Tether trades only against the Toman, so it shows its Toman price (Nobitex publishes no candles for it, so only the live price and the 24-hour figures appear). Keys can be changed or removed any time with **Change API**, and the whole section can be switched off in **Settings**.
 
+<img src="assets/readme/banner-muse.svg" width="100%" alt="Muse, in the island">
+
+## Muse in the island
+
+<div align="center">
+
+<img src="assets/readme/muse.svg" width="760" alt="The Muse tab: off with Ari asleep, turned on, Ari connecting, then a chat with Persian messages right to left and English ones left to right">
+
+</div>
+
+**New in 3.5.** A new **Muse** tab puts the muse.ai web app itself inside the island — the real site, live, with your login and your chats, not a copy. While it is open the island stands up like a small tablet and stays open when the pointer leaves; a click outside folds it.
+
+- 💤 **Off until you want it.** Muse is switched off every time the app starts, Windows start-up included: nothing of it runs, so it uses no memory, processor or internet. Ari sleeps in the middle of the tab next to the button that turns it on, and the power button in its toolbar turns it off again — without logging you out.
+- 🔌 **Ari while it connects.** Ari searches for it while the steps light up one by one; if it cannot be opened, Ari says so with **Try again** and **Turn Muse off**.
+- 🔤 **Reads well in both languages.** The chat uses the island's own fonts (Inter and Vazirmatn), and every paragraph, list and text field turns right-to-left or left-to-right on its own, by what is written in it — while an answer is being written, and while you type.
+- 🛡️ **Kept apart from the app.** The site runs in its own webview that cannot reach a single app command; new windows open in your browser. Turn the tab off for good in Settings → **Island widgets**.
+
 <img src="assets/readme/banner-wardrobe.svg" width="100%" alt="Ari's wardrobe">
 
 ## Ari's wardrobe
@@ -205,7 +222,7 @@ Hats and accessories — witch hat, party hat, crown, sunglasses, bunny ears… 
 
 </div>
 
-- 🧲 **Drag the tabs.** Pick up Translate, Spotify, Football or Crypto in the header and drop it where you want it: the others slide aside, and the order is remembered (mirrored in Persian).
+- 🧲 **Drag the tabs.** Pick up Translate, Spotify, Football, Crypto or Muse in the header and drop it where you want it: the others slide aside, and the order is remembered (mirrored in Persian).
 
 ## Made to feel good
 
@@ -254,8 +271,8 @@ Download from the [Releases](https://github.com/ArizoOwner/Arizo_Agent/releases)
 
 | File | What it is |
 | :--- | :--- |
-| `Arizo-Agent-Setup-3.4.0.exe` | Installer for the current user — no administrator rights |
-| `Arizo-Agent-3.4.0-Portable.exe` | One executable, runs without installing |
+| `Arizo-Agent-Setup-3.5.0.exe` | Installer for the current user — no administrator rights |
+| `Arizo-Agent-3.5.0-Portable.exe` | One executable, runs without installing |
 | `SHA256SUMS.txt` | Checksums of both |
 
 The installer is **not code-signed**, so Windows SmartScreen shows a warning the first time: click **More info → Run anyway**. The app is open source — read it, or build it yourself.
