@@ -1,5 +1,22 @@
 # Changelog
 
+## 3.5.1 — An island that fits every screen
+
+- **Fixed: the island was cut off on some PCs.** With Windows' **Text size** above 100 %
+  (Settings → Accessibility), the island was drawn bigger than its own window: tabs cut on one
+  side, the bottom gone, every font too large. The island is now drawn at the display scale only,
+  and keeps its own text size setting (Settings → Island look). muse.ai and the quick-translate
+  bubble are fixed the same way.
+- **Fits small screens on its own.** The island measures the room it really has on its display —
+  the screen less the taskbar — and when its largest views would not fit (a small laptop, a high
+  display scale, a tall taskbar), the whole island is drawn smaller by the one factor that makes
+  everything fit, text included, so nothing is cut off and nothing has to scroll. On a large
+  screen it stays exactly as designed. It fits itself again when the display, its resolution, its
+  scale or the taskbar changes.
+- **Tabs never run past the island.** When the tab row does not fit (the narrow Muse tab, bigger
+  text, more tabs), the other tabs drop their names first and keep their Ari; the open one keeps
+  its name while there is room.
+
 ## 3.5.0 — Muse in the island
 
 - **Muse, in the island.** A new Muse tab puts the [muse.ai](https://muse.ai) web app itself

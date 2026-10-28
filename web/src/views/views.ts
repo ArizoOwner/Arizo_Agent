@@ -106,6 +106,21 @@ export function buildHeader(actions: ViewActions): ViewHost {
     onCue: (cue) => actions.playSound(cue === "pickup" ? "pop" : cue === "swap" ? "tick" : "blip"),
   });
 
+  /**
+   * The tabs never run past the island: when they do not fit (a narrow island such as Muse's,
+   * more tabs, bigger text, a longer language), the other tabs drop their labels first and keep
+   * their Ari; only if that is still too wide does the open one drop its label too.
+   */
+  let fitKey = "";
+  function fitTabs() {
+    const overflows = () => el.scrollWidth > el.clientWidth + 1;
+    el.classList.remove("tight", "tighter");
+    if (el.clientWidth === 0 || !overflows()) return;
+    el.classList.add("tight");
+    if (overflows()) el.classList.add("tighter");
+  }
+  if (typeof ResizeObserver !== "undefined") new ResizeObserver(() => fitTabs()).observe(el);
+
   /** Puts the tab buttons in the saved order (never while one is being dragged or settling). */
   function applyOrder() {
     if (tabsEl.classList.contains("sorting")) return;
@@ -136,6 +151,12 @@ export function buildHeader(actions: ViewActions): ViewHost {
       gearBtn.setAttribute("aria-pressed", String(v === "settings"));
       clear(soundBtn);
       soundBtn.append(svg(State.settings.soundEnabled ? ICONS.speakerOn : ICONS.speakerOff, 15));
+      // Measured again only when what is in the row changed (sync runs often).
+      const key = [v, document.documentElement.lang, ...[tabSpotify, tabFootball, tabCrypto, tabMuse].map((b) => b.style.display)].join("|");
+      if (key !== fitKey) {
+        fitKey = key;
+        fitTabs();
+      }
     },
   };
 }

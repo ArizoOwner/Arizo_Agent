@@ -80,10 +80,13 @@ fn emit(app: &AppHandle, phase: Option<&'static str>, title: Option<String>) {
 fn place(app: &AppHandle) {
     let Some((x, y, w, h)) = *PLACE.lock().unwrap() else { return };
     let (Some(island), Some(view)) = (crate::island::window(app), app.get_webview_window(LABEL)) else { return };
-    let scale = island.scale_factor().unwrap_or(1.0);
+    // The frame is measured in the island page's px, which are zoomed out on a small screen;
+    // muse.ai itself keeps its own size (the display scale only: no Windows text size on top).
+    let scale = island.scale_factor().unwrap_or(1.0) * crate::ui_zoom(app);
     let Ok(origin) = island.inner_position() else { return };
     let _ = view.set_position(PhysicalPosition::new(origin.x + (x * scale).round() as i32, origin.y + (y * scale).round() as i32));
     let _ = view.set_size(PhysicalSize::new((w * scale).round() as u32, (h * scale).round() as u32));
+    crate::platform::match_display_scale(&view, 1.0);
 }
 
 /// Shows the webview if the view wants it and the page is ready.

@@ -8,7 +8,8 @@ import {
   type CompactLayout,
   type BotEmoteName, type BotStateName, type IslandMode, type IslandViewName,
 } from "../core/layout";
-import { DEFAULT_LOOK, LOOK, PANEL_STEP, applyLookVars, cornerRadius, floatOffset, lookOf, panelFor, scaledIsland, type IslandExtent, type Look } from "../core/appearance";
+import { DEFAULT_LOOK, LOOK, PANEL_STEP, applyLookVars, cornerRadius, fitZoom, floatOffset, lookOf, panelFor, scaledIsland, screenRoom, type IslandExtent, type Look } from "../core/appearance";
+import type { ScreenInfo } from "../core/bridge";
 import { onEmote } from "../core/mood";
 import { Sound } from "../core/sound";
 import { State } from "../core/state";
@@ -54,6 +55,13 @@ const LARGEST: readonly IslandExtent[] = [
   },
   { w: MUSE_ISLAND_W, h: MUSE_ISLAND_H, fitsContent: false },
 ];
+
+/**
+ * What has to fit on the screen without being cut off: the same, but Muse at the least height
+ * it is still a tablet at (on a short screen it gives up height before the island is zoomed out).
+ */
+const MUSE_MIN_H = 600;
+const MUST_FIT: readonly IslandExtent[] = LARGEST.map((e) => (e.w === MUSE_ISLAND_W ? { ...e, h: MUSE_MIN_H } : e));
 
 export class Island {
   readonly fsm = new IslandStateMachine();
@@ -119,6 +127,9 @@ export class Island {
   /** The size of the window as the backend has it now (the default until the look needs more). */
   private panel = { w: PANEL_W, h: PANEL_H };
   private panelTimer: number | null = null;
+  /** The room on the island's display (work area less a margin), and how much the whole page is zoomed out to fit it. */
+  private room = screenRoom(null);
+  private zoom = 1;
 
   // Bot hover → love
   private botHovering = false;
@@ -1176,10 +1187,37 @@ export class Island {
     return scaledIsland(base, view === "translate", this.look, this.screenLimit(), view === "translate" ? State.translateNeedH : 0);
   }
 
-  /** The most the island may take: the screen it is on, less a margin. */
+  /**
+   * The most the island may take, in page px: the room on its display (above the taskbar) at
+   * the page's zoom, less the shadow at the sides and the gap it floats at.
+   */
   private screenLimit(): { w: number; h: number } {
-    const s = typeof window !== "undefined" ? window.screen : undefined;
-    return { w: Math.max(PANEL_W, (s?.width ?? 1920) - 24), h: Math.max(PANEL_H, (s?.height ?? 1080) - 48) };
+    return {
+      w: Math.floor(this.room.w / this.zoom) - SHADOW_ROOM * 2,
+      h: Math.floor(this.room.h / this.zoom) - floatOffset(this.look, false),
+    };
+  }
+
+  /** The display the island is on, or its taskbar, changed: the island is fitted to the room it has now. */
+  setScreen(screen: ScreenInfo | null) {
+    const room = screenRoom(screen);
+    if (room.w === this.room.w && room.h === this.room.h) return;
+    this.room = room;
+    this.lookKey = "";
+    this.applyLook();
+  }
+
+  /**
+   * The smart fit: on a screen too small for the island at its largest (a laptop, a high display
+   * scale, a tall taskbar) the whole page is drawn smaller, text and all, by the one factor that
+   * makes everything fit; nothing is cut off and the proportions stay the design's. On a large
+   * screen this is 1 and nothing changes. The backend sizes the window and draws the page at it.
+   */
+  private updateZoom() {
+    const zoom = fitZoom(this.look, MUST_FIT, SHADOW_ROOM, this.room);
+    if (zoom === this.zoom) return;
+    this.zoom = zoom;
+    void Bridge.setUiZoom(zoom);
   }
 
   /** The folded capsule at the current look: its box, and where and how big Ari, the clock and the minis are. */
@@ -1216,6 +1254,7 @@ export class Island {
     this.lookKey = key;
     this.look = look;
     applyLookVars(document.documentElement, look);
+    this.updateZoom();
     this.updatePanel();
     // The cards are measured again at the new text size, so the translator is exactly as tall as they need.
     this.translate.refit();

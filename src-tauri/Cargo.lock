@@ -69,7 +69,7 @@ dependencies = [
 
 [[package]]
 name = "arizo-agent"
-version = "3.5.0"
+version = "3.5.1"
 dependencies = [
  "arboard",
  "base64 0.22.1",
@@ -89,7 +89,9 @@ dependencies = [
  "tauri-plugin-global-shortcut",
  "tauri-plugin-single-instance",
  "tokio",
+ "webview2-com",
  "windows 0.61.3",
+ "windows-core 0.62.2",
  "windows-future 0.2.1",
 ]
 

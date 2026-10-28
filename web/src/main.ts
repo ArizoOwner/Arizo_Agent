@@ -7,7 +7,7 @@ import "./views/spotify.css";
 import "./views/football.css";
 import "./views/crypto.css";
 import "./views/muse.css";
-import { Bridge, IS_MOCK, IS_TAURI, onEvent } from "./core/bridge";
+import { Bridge, IS_MOCK, IS_TAURI, onEvent, type ScreenInfo } from "./core/bridge";
 import { Sound } from "./core/sound";
 import { State, mergeSettings, type Settings } from "./core/state";
 import { parseEngine } from "./core/pills";
@@ -43,6 +43,8 @@ async function main() {
     State.settings = mergeSettings(State.settings, boot.settings);
     State.setEngine(parseEngine(State.settings.defaultEngine));
   }
+  // Sized for the room on its display before it first opens: a small screen zooms it out.
+  island.setScreen(boot?.screen ?? null);
   // A language change redraws the island in place: the texts given as tl(…)
   // relabel themselves (views/dom.ts) and the views redraw the rest on this sync.
   onLanguageChange(() => State.notify());
@@ -62,7 +64,11 @@ async function main() {
     else island.alert(State.defaultView());
   });
 
-  await onEvent<null>("screen-changed", () => void Bridge.reposition());
+  // Another display, resolution, scale or taskbar: fitted to the new room first, then placed again.
+  await onEvent<ScreenInfo | null>("screen-changed", (screen) => {
+    island.setScreen(screen);
+    void Bridge.reposition();
+  });
 
   // The settings window writes preferences; apply them here without a restart.
   // Spotify and football are re-read only when something they show has changed.
@@ -70,8 +76,14 @@ async function main() {
   const footballKey = (c: Settings) => `${c.footballEnabled}|${c.footballTeamId}|${c.footballTeamName}`;
   let spotifySeen = spotifyKey(State.settings);
   let footballSeen = footballKey(State.settings);
+  let screenSeen = State.settings.screen;
   await onEvent<Settings>("settings-changed", (s) => {
     State.settings = mergeSettings(State.settings, s);
+    // The island moved to another display (Settings → Island lives on): fitted to that one.
+    if (State.settings.screen !== screenSeen) {
+      screenSeen = State.settings.screen;
+      void Bridge.screenInfo().then((screen) => { if (screen) island.setScreen(screen); });
+    }
     const spotifyNow = spotifyKey(State.settings);
     if (!State.settings.spotifyEnabled) {
       Spotify.state = { ...IDLE_SPOTIFY };

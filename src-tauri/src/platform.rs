@@ -77,6 +77,27 @@ pub fn round_corners(win: &WebviewWindow) {
     }
 }
 
+/// WebView2 draws a page at the display scale times Windows' text size (Settings →
+/// Accessibility → Text size), so at a text size above 100 % the page is larger than the
+/// window sized for it and is cut off at the edges. Our windows are sized in logical px for
+/// their pages, so the page is drawn at the display scale only, times `zoom` (below 1 when the
+/// island is made smaller to fit a small screen); the island has its own text size setting.
+/// Called again whenever the window is placed, as the display may have changed.
+pub fn match_display_scale(win: &WebviewWindow, zoom: f64) {
+    let Ok(scale) = win.scale_factor() else { return };
+    let scale = scale * zoom;
+    let _ = win.with_webview(move |w| {
+        use webview2_com::Microsoft::Web::WebView2::Win32::ICoreWebView2Controller3;
+        use windows_core::Interface;
+        if let Ok(c) = w.controller().cast::<ICoreWebView2Controller3>() {
+            unsafe {
+                let _ = c.SetShouldDetectMonitorScaleChanges(false);
+                let _ = c.SetRasterizationScale(scale);
+            }
+        }
+    });
+}
+
 /// The cursor poll already parks itself with the island (island.rs): nothing to do.
 pub fn set_pointer_watch(_active: bool) {}
 

@@ -77,3 +77,10 @@ test("the translate view's width follows its text only: a standard, stepped scal
   assert.ok(L.translateWidth(80) > L.TRANSLATE_MIN_W && L.translateWidth(80) < L.TRANSLATE_MAX_W, "a paragraph is in between");
   assert.ok(L.TRANSLATE_MAX_W <= L.PANEL_W - 40, "room for the shadow inside the window");
 });
+
+test("the backend and the page agree on how far the island may be zoomed out", async () => {
+  const { readFileSync } = await import("node:fs");
+  const rust = readFileSync(new URL("../../src-tauri/src/island.rs", import.meta.url), "utf8");
+  const A = await import("../src/core/appearance.ts");
+  assert.equal(Number(rust.match(/pub const ZOOM_MIN: f64 = ([\d.]+);/)[1]), A.ZOOM_MIN);
+});

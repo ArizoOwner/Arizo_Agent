@@ -22,6 +22,13 @@ pub const PANEL_H: f64 = 640.0;
 pub const PANEL_MAX_W: f64 = 2000.0;
 pub const PANEL_MAX_H: f64 = 1400.0;
 
+/// How far the whole island may be zoomed out to fit a small screen (see `PollGate::zoom`).
+pub const ZOOM_MIN: f64 = 0.5;
+
+pub fn clamp_zoom(z: f64) -> f64 {
+    if z.is_finite() { z.clamp(ZOOM_MIN, 1.0) } else { 1.0 }
+}
+
 pub fn clamp_panel((w, h): (f64, f64)) -> (f64, f64) {
     let ok = |v: f64, lo: f64, hi: f64| if v.is_finite() { v.clamp(lo, hi) } else { lo };
     (ok(w, PANEL_W, PANEL_MAX_W).round(), ok(h, PANEL_H, PANEL_MAX_H).round())
@@ -44,12 +51,17 @@ pub struct CursorPayload {
 }
 
 #[derive(Serialize, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct ScreenInfo {
     pub x: f64,
     pub y: f64,
     pub width: f64,
     pub height: f64,
     pub scale: f64,
+    /// The room the island really has, in logical px: the width of the work area (the screen
+    /// less the taskbar), and from the top of the screen, where the island hangs, to its bottom.
+    pub work_width: f64,
+    pub work_height: f64,
 }
 
 /// The island shape in window-logical coordinates, pushed by the front end.
@@ -72,6 +84,11 @@ pub struct PollGate {
     /// The full-size window, in logical px: PANEL_W×PANEL_H until the page, which owns
     /// the island's geometry, says it needs more room (a wider or taller island).
     pub panel: Mutex<(f64, f64)>,
+    /// How much the whole page is zoomed out (1 = as designed). A screen too small for the
+    /// island at its largest (a laptop, a high display scale) gets all of it smaller, text
+    /// included, instead of an island cut off at the bottom. The page picks it from the work
+    /// area; the window is the panel times this, and the page is drawn at it (match_display_scale).
+    pub zoom: Mutex<f64>,
     /// Mirrors the window flag so we only call into the OS when it changes.
     ignoring: AtomicBool,
     /// Held while click-through is decided: the poll thread may be mid-tick when the window
@@ -87,6 +104,7 @@ impl PollGate {
             collapsed: AtomicBool::new(true),
             rect: Mutex::new(IslandRect::default()),
             panel: Mutex::new((PANEL_W, PANEL_H)),
+            zoom: Mutex::new(1.0),
             ignoring: AtomicBool::new(false),
             click_lock: Mutex::new(()),
         }
@@ -107,6 +125,19 @@ impl PollGate {
 
     pub fn panel_size(&self) -> (f64, f64) {
         *self.panel.lock().unwrap()
+    }
+
+    /// Stores the page's zoom; false when it did not change.
+    pub fn set_zoom(&self, zoom: f64) -> bool {
+        let mut z = self.zoom.lock().unwrap();
+        let zoom = clamp_zoom(zoom);
+        let changed = (*z - zoom).abs() > 0.001;
+        *z = zoom;
+        changed
+    }
+
+    pub fn zoom(&self) -> f64 {
+        *self.zoom.lock().unwrap()
     }
 
     /// Forces the next poll tick to re-apply the flag (after a window resize).
@@ -282,6 +313,20 @@ mod display_tests {
         assert_eq!(gate.panel_size(), (1100.0, 700.0));
     }
 
+    #[test]
+    fn the_zoom_only_ever_shrinks_the_island_and_never_to_nothing() {
+        assert_eq!(clamp_zoom(1.0), 1.0);
+        assert_eq!(clamp_zoom(1.7), 1.0, "never larger than designed");
+        assert_eq!(clamp_zoom(0.83), 0.83);
+        assert_eq!(clamp_zoom(0.1), ZOOM_MIN);
+        assert_eq!(clamp_zoom(f64::NAN), 1.0);
+        let gate = PollGate::new();
+        assert_eq!(gate.zoom(), 1.0);
+        assert!(gate.set_zoom(0.8));
+        assert!(!gate.set_zoom(0.8));
+        assert_eq!(gate.zoom(), 0.8);
+    }
+
     fn d(name: &str, x: i32, y: i32, w: i32, h: i32) -> DisplayId {
         DisplayId { name: name.into(), x, y, w, h }
     }
@@ -326,16 +371,30 @@ pub fn screen_info(app: &AppHandle, pref: &str) -> ScreenInfo {
             let scale = m.scale_factor();
             let p = m.position();
             let s = m.size();
+            let (work_width, work_height) = work_room(&m);
             ScreenInfo {
                 x: p.x as f64 / scale,
                 y: p.y as f64 / scale,
                 width: s.width as f64 / scale,
                 height: s.height as f64 / scale,
                 scale,
+                work_width,
+                work_height,
             }
         }
-        None => ScreenInfo { x: 0.0, y: 0.0, width: 1920.0, height: 1080.0, scale: 1.0 },
+        None => ScreenInfo { x: 0.0, y: 0.0, width: 1920.0, height: 1080.0, scale: 1.0, work_width: 1920.0, work_height: 1032.0 },
     }
+}
+
+/// The room under the top of a display, in logical px: the work area's width, and from the
+/// display's top edge (where the island hangs) down to the work area's bottom (the taskbar).
+fn work_room(m: &Monitor) -> (f64, f64) {
+    let scale = m.scale_factor();
+    let (p, s, wa) = (m.position(), m.size(), m.work_area());
+    let ok = wa.size.width > 0 && wa.size.height > 0;
+    let width = if ok { wa.size.width } else { s.width } as f64;
+    let bottom = if ok { wa.position.y + wa.size.height as i32 } else { p.y + s.height as i32 };
+    (width / scale, (bottom - p.y).max(1) as f64 / scale)
 }
 
 /// Places and sizes the window. `collapsed` picks the wake strip instead of the panel.
@@ -347,7 +406,13 @@ pub fn apply_geometry(app: &AppHandle, pref: &str, collapsed: bool) {
     let mp = *m.position();
     let ms = *m.size();
 
-    let (lw, lh) = if collapsed { (STRIP_W, STRIP_H) } else { crate::panel_size(app) };
+    let zoom = crate::ui_zoom(app);
+    let (lw, lh) = if collapsed {
+        (STRIP_W, STRIP_H)
+    } else {
+        let (w, h) = crate::panel_size(app);
+        (w * zoom, h * zoom)
+    };
     let pw = (lw * scale).round().max(1.0) as u32;
     let ph = (lh * scale).round().max(1.0) as u32;
     let x = mp.x + (ms.width as i32 - pw as i32) / 2;
@@ -361,17 +426,23 @@ pub fn apply_geometry(app: &AppHandle, pref: &str, collapsed: bool) {
     platform::pin_to_monitor(&win, lx, ly);
     // Moving across displays can rescale the window: re-assert the physical size.
     let _ = win.set_size(PhysicalSize::new(pw, ph));
+    // The wake strip is the whole window: drawn as designed, so all of it wakes the island.
+    platform::match_display_scale(&win, if collapsed { 1.0 } else { zoom });
     let _ = win.set_always_on_top(true);
     crate::muse::follow(app);
 }
 
 /// Position, size and scale of the monitor the island lives on. Any change here
 /// means the island has to be placed again.
-fn current_screen_key(app: &AppHandle) -> Option<(i32, i32, u32, u32, u64)> {
+/// The work area is part of it: a taskbar moved or resized leaves the island another room.
+type ScreenKey = (i32, i32, u32, u32, u64, i32, u32);
+
+fn current_screen_key(app: &AppHandle) -> Option<ScreenKey> {
     let m = target_monitor(app, &crate::screen_pref(app))?;
     let p = m.position();
     let size = m.size();
-    Some((p.x, p.y, size.width, size.height, m.scale_factor().to_bits()))
+    let wa = m.work_area();
+    Some((p.x, p.y, size.width, size.height, m.scale_factor().to_bits(), wa.position.y, wa.size.height))
 }
 
 /// Whether the window-logical point `(x, y)` is on the island shape `r`, within
@@ -396,7 +467,7 @@ pub(crate) fn cursor_on_island(win: &WebviewWindow, gate: &PollGate, x: i32, y: 
         let Ok(size) = win.outer_size() else { return false };
         return x >= origin.x && x <= origin.x + size.width as i32 && y >= origin.y && y <= origin.y + size.height as i32;
     }
-    let scale = win.scale_factor().unwrap_or(1.0);
+    let scale = win.scale_factor().unwrap_or(1.0) * gate.zoom();
     let lx = (x - origin.x) as f64 / scale;
     let ly = (y - origin.y) as f64 / scale;
     on_island_shape(*gate.rect.lock().unwrap(), lx, ly)
@@ -408,7 +479,7 @@ pub fn spawn_cursor_poll(app: AppHandle, gate: Arc<PollGate>) {
     std::thread::spawn(move || {
         // Remembered across wakes so a display change while hidden is noticed the
         // moment the island comes back.
-        let mut last_screen: Option<(i32, i32, u32, u32, u64)> = None;
+        let mut last_screen: Option<ScreenKey> = None;
         loop {
             gate.wait_until_active();
             let mut last = (f64::MIN, f64::MIN);
@@ -427,14 +498,17 @@ pub fn spawn_cursor_poll(app: AppHandle, gate: Arc<PollGate>) {
                         last_screen = now;
                         if !first {
                             crate::log("display layout changed — repositioning");
-                            let _ = app.emit_to(WINDOW_LABEL, "screen-changed", ());
+                            // The page sizes the island for the room it has now, then asks to be placed again.
+                            let info = screen_info(&app, &crate::screen_pref(&app));
+                            let _ = app.emit_to(WINDOW_LABEL, "screen-changed", info);
                         }
                     }
                 }
 
                 let Some(win) = window(&app) else { continue };
                 let Ok(origin) = win.outer_position() else { continue };
-                let scale = win.scale_factor().unwrap_or(1.0);
+                // In page px: the window's logical px over the page's zoom.
+                let scale = win.scale_factor().unwrap_or(1.0) * gate.zoom();
                 let Some((cx, cy)) = cursor_physical() else { continue };
                 let x = (cx - origin.x as f64) / scale;
                 let y = (cy - origin.y as f64) / scale;

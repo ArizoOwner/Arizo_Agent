@@ -142,3 +142,33 @@ test("the folded island never cuts what is in it, at any width, height and zoom"
     assert.ok(c.k > 0.29, `never vanishingly small (${tag})`);
   }
 });
+test("the smart fit: a large screen keeps the design, a small one zooms the whole island out until it fits", () => {
+  const largest = [{ w: 860, h: 640, fitsContent: true }, { w: 760, h: 452, fitsContent: false }, { w: 520, h: 600, fitsContent: false }];
+  const fits = (look, room) => {
+    const z = A.fitZoom(look, largest, 20, room);
+    for (const e of largest) {
+      const s = A.scaledIsland(e, e.fitsContent, look, { w: Infinity, h: Infinity });
+      assert.ok((s.w + 40) * z <= room.w + 0.5 && (s.h + A.floatOffset(look, false)) * z <= room.h + 0.5, `${e.w}x${e.h} fits ${room.w}x${room.h} at ${z}`);
+    }
+    return z;
+  };
+  // 2560×1440 and 1920×1080 at 100 %: exactly as designed.
+  assert.equal(fits(A.DEFAULT_LOOK, A.screenRoom({ width: 2560, height: 1440, workWidth: 2560, workHeight: 1370 })), 1);
+  assert.equal(fits(A.DEFAULT_LOOK, A.screenRoom({ width: 1920, height: 1080, workWidth: 1920, workHeight: 1032 })), 1);
+  // A 1366×768 laptop still has room for the design (only Muse gives up height); 1280×720 at
+  // 125 % (1024×576 logical) and 1366×768 at 150 % (911×512) do not: smaller, and everything fits.
+  assert.equal(fits(A.DEFAULT_LOOK, A.screenRoom({ width: 1366, height: 768, workWidth: 1366, workHeight: 728 })), 1);
+  const small = fits(A.DEFAULT_LOOK, A.screenRoom({ width: 1024, height: 576, workWidth: 1024, workHeight: 538 }));
+  assert.ok(small < 1 && small >= 0.75, `1024×576: ${small}`);
+  const tiny = fits(A.DEFAULT_LOOK, A.screenRoom({ width: 911, height: 512, workWidth: 911, workHeight: 480 }));
+  assert.ok(tiny < small, `911×512: ${tiny}`);
+  // Bigger text and a floating island need more room, so they are zoomed out more; never below the floor.
+  assert.ok(fits({ ...A.DEFAULT_LOOK, uiFontScale: 130, uiFloating: true, uiFloatGap: 30 }, A.screenRoom({ width: 1024, height: 576, workWidth: 1024, workHeight: 538 })) < small);
+  assert.equal(A.fitZoom(A.DEFAULT_LOOK, largest, 20, { w: 100, h: 100 }), A.ZOOM_MIN);
+  assert.equal(A.fitZoom(A.DEFAULT_LOOK, largest, 20, { w: NaN, h: NaN }), 1, "no screen known: as designed");
+});
+
+test("the room is the work area, never the whole screen behind the taskbar", () => {
+  assert.deepEqual(A.screenRoom({ width: 1920, height: 1080, workWidth: 1920, workHeight: 1032 }), { w: 1896, h: 1020 });
+  assert.deepEqual(A.screenRoom({ width: 1920, height: 1080 }), { w: 1896, h: 1020 }, "an older backend: the screen less a taskbar");
+});

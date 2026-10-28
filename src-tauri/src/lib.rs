@@ -873,6 +873,31 @@ pub(crate) fn panel_size(app: &AppHandle) -> (f64, f64) {
     state(app).gate.panel_size()
 }
 
+/// How much the page is zoomed out to fit the screen (1 = as designed).
+pub(crate) fn ui_zoom(app: &AppHandle) -> f64 {
+    state(app).gate.zoom()
+}
+
+/// The page fitted the island to a screen too small for it: the whole page is drawn smaller,
+/// and the window (panel × zoom) with it.
+#[tauri::command]
+fn set_ui_zoom(app: AppHandle, st: State<'_, Arc<AppState>>, zoom: f64) {
+    if !st.gate.set_zoom(zoom) {
+        return;
+    }
+    let collapsed = st.gate.collapsed.load(Ordering::Relaxed);
+    if !collapsed {
+        island::apply_geometry(&app, &st.store.settings().screen, false);
+        island::refresh_click_through(&app, &st.gate);
+    }
+}
+
+/// The display the island is on, as `boot` gives it: the page asks again after a display change.
+#[tauri::command]
+fn screen_info(app: AppHandle, st: State<'_, Arc<AppState>>) -> island::ScreenInfo {
+    island::screen_info(&app, &st.store.settings().screen)
+}
+
 #[tauri::command]
 fn focus_window(app: AppHandle, focused: bool) {
     let Some(win) = island(&app) else { return };
@@ -1007,6 +1032,7 @@ fn set_bubble_size(app: AppHandle, width: f64, height: f64) {
     let y = pos.y.min(mp.y + ms.height as i32 - h - pad).max(mp.y + pad);
     let _ = b.set_position(PhysicalPosition::new(x, y));
     let _ = b.set_size(PhysicalSize::new(w as u32, h as u32));
+    platform::match_display_scale(&b, 1.0);
 }
 
 pub fn run() {
@@ -1078,6 +1104,8 @@ pub fn run() {
             set_collapsed,
             set_island_rect,
             set_panel_size,
+            set_ui_zoom,
+            screen_info,
             focus_window,
             reposition,
             list_monitors,

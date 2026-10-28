@@ -4,7 +4,7 @@
 
 <br>
 
-[![نسخه](https://img.shields.io/badge/نسخه-3.5.0-8b5cf6?logo=github)](https://github.com/ArizoOwner/Arizo_Agent/releases)
+[![نسخه](https://img.shields.io/badge/نسخه-3.5.1-8b5cf6?logo=github)](https://github.com/ArizoOwner/Arizo_Agent/releases)
 ![Windows 10/11](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4?logo=windows&logoColor=white)
 ![Tauri 2](https://img.shields.io/badge/Tauri-2-FFC131?logo=tauri&logoColor=black)
 ![Rust](https://img.shields.io/badge/Rust-backend-000000?logo=rust)
@@ -337,8 +337,8 @@
 
 | فایل | توضیح |
 | :--- | :--- |
-| `Arizo-Agent-Setup-3.5.0.exe` | نصب برای کاربر فعلی — بدون نیاز به دسترسی ادمین |
-| `Arizo-Agent-3.5.0-Portable.exe` | یک فایل اجرایی، بدون نیاز به نصب |
+| `Arizo-Agent-Setup-3.5.1.exe` | نصب برای کاربر فعلی — بدون نیاز به دسترسی ادمین |
+| `Arizo-Agent-3.5.1-Portable.exe` | یک فایل اجرایی، بدون نیاز به نصب |
 | `SHA256SUMS.txt` | چک‌سام هر دو فایل |
 
 نصب‌کننده **امضای دیجیتال ندارد**، پس ویندوز بار اول هشدار SmartScreen نشان می‌دهد: روی **More info** و سپس **Run anyway** بزنید. برنامه متن‌باز است؛ می‌توانید کدش را بخوانید یا خودتان بسازیدش.

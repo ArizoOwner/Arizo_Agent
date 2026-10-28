@@ -164,6 +164,47 @@ export function panelFor(
   return { w, h };
 }
 
+/** The least the island is zoomed to on a small screen (the backend's ZOOM_MIN). */
+export const ZOOM_MIN = 0.5;
+
+/**
+ * How much the whole island must be zoomed out for its largest views to fit the room it has
+ * (the work area: the screen less the taskbar, less a margin), text and all: 1 when they fit,
+ * as on any large screen, so the design is left exactly as it is. Every view is measured at
+ * the look the user chose; Muse, which gives up height before anything else, is passed at its
+ * least height. In steps of 1 %, so a resize never makes the island breathe.
+ */
+export function fitZoom(
+  look: Look,
+  largest: readonly IslandExtent[],
+  sideShadow: number,
+  room: { w: number; h: number },
+): number {
+  const free = { w: Number.POSITIVE_INFINITY, h: Number.POSITIVE_INFINITY };
+  const float = floatOffset(look, false);
+  let w = 1;
+  let h = 1;
+  for (const extent of largest) {
+    const size = scaledIsland(extent, extent.fitsContent, look, free);
+    w = Math.max(w, size.w + sideShadow * 2);
+    h = Math.max(h, size.h + float);
+  }
+  const z = Math.min(1, room.w / w, room.h / h);
+  if (!Number.isFinite(z)) return 1;
+  return Math.max(ZOOM_MIN, Math.floor(z * 100 + 1e-9) / 100);
+}
+
+/**
+ * The room the island has on its display, in logical px: the work area less a margin at the
+ * sides and above the taskbar. Without the backend (a plain browser) the browser's own screen.
+ */
+export function screenRoom(screen: { workWidth?: number; workHeight?: number; width: number; height: number } | null): { w: number; h: number } {
+  const fallback = typeof window !== "undefined" ? window.screen : undefined;
+  const w = screen?.workWidth ?? screen?.width ?? fallback?.availWidth ?? 1920;
+  const h = screen?.workHeight ?? (screen ? screen.height - 48 : fallback?.availHeight ?? 1032);
+  return { w: Math.max(320, w - 24), h: Math.max(240, h - 12) };
+}
+
 /** "112%" for a slider's readout, with the digits and the percent sign of the interface language. */
 export function readout(value: number, persian: boolean, unit: "%" | "px" = "%"): string {
   const n = new Intl.NumberFormat(persian ? "fa-IR" : "en-US", { useGrouping: false }).format(value);

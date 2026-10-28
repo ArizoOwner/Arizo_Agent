@@ -1,6 +1,6 @@
 [package]
 name = "arizo-agent"
-version = "3.5.0"
+version = "3.5.1"
 description = "Arizo-Agent — a Dynamic Island translator and Spotify companion for Windows"
 authors = ["ArizoOwner"]
 edition = "2021"
@@ -34,6 +34,9 @@ arboard = "3"
 
 [target.'cfg(windows)'.dependencies]
 windows-future = "0.2.1"
+# The island page is drawn at the display scale only (platform::match_display_scale).
+webview2-com = "0.39"
+windows-core = "0.62"
 windows = { version = "0.61", features = [
   "Foundation",
   "Media",

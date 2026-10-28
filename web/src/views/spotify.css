@@ -65,6 +65,11 @@
 .tab.feature-tab .mini { margin-inline: 1px; }
 .tab.feature-tab.on { box-shadow: inset 0 0 0 1px rgb(var(--fg) / .07); }
 .header-actions .feature-settings { width: 38px; }
+/* Not enough room for every label (views.ts fitTabs): the others go first, then the open one. */
+#header.tight .tab.feature-tab:not(.on) .feature-label,
+#header.tighter .feature-label { display: none; }
+#header.tight .tab.feature-tab:not(.on),
+#header.tighter .tab.feature-tab { padding: 0 9px; }
 @media (max-width: 650px) {
   .feature-label { display: none; }
   .tab.feature-tab { padding: 0 9px; }

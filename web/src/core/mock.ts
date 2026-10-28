@@ -176,13 +176,27 @@ async function translate(p: Params) {
   return { requestId: p.requestId, success: true, cached: false, aborted: false, warning, data, error: "", errorCode: "" };
 }
 
+/** The browser's screen, as the backend would describe it: `?sw=1366&sh=768` tries a smaller one. */
+function mockScreen() {
+  const q = new URLSearchParams(location.search);
+  const width = Number(q.get("sw")) || screen.width || 1920;
+  const height = Number(q.get("sh")) || screen.height || 1080;
+  return { x: 0, y: 0, width, height, scale: 1, workWidth: width, workHeight: height - 48 };
+}
+
 export async function mockInvoke(cmd: string, args: Record<string, unknown> = {}): Promise<unknown> {
   switch (cmd) {
     case "boot":
       return {
-        settings, version: "3.5.0", cursorPoll: false,
-        screen: { x: 0, y: 0, width: 1920, height: 1080, scale: 1 },
+        settings, version: "3.5.1", cursorPoll: false,
+        screen: mockScreen(),
       };
+    case "screen_info":
+      return mockScreen();
+    case "set_ui_zoom":
+      // What the backend's rasterization scale does to the page, near enough to look at it.
+      document.documentElement.style.zoom = String(args.zoom);
+      return null;
     case "get_settings":
       return settings;
     case "save_settings": {

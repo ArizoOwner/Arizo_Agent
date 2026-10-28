@@ -39,10 +39,20 @@ async function callOrThrow<T>(cmd: string, args?: Record<string, unknown>): Prom
   return raw<T>(cmd, args);
 }
 
+/** The monitor the island lives on, in logical px, and the room it has there (screen less taskbar). */
+export interface ScreenInfo {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  scale: number;
+  workWidth: number;
+  workHeight: number;
+}
+
 export interface BootInfo {
   settings: Settings;
-  /** Logical screen rect of the monitor the island lives on. */
-  screen: { x: number; y: number; width: number; height: number; scale: number };
+  screen: ScreenInfo;
   version: string;
   /** False where the OS has no global cursor: see Island.followPageCursor. */
   cursorPoll: boolean;
@@ -145,6 +155,10 @@ export const Bridge = {
   /** The room the island needs (logical px): the window grows past its default for a wider or taller island. */
   setPanelSize: (width: number, height: number) => call<void>("set_panel_size", { width, height }),
 
+  /** Draws the whole page smaller (1 = as designed), for a screen too small for the island. */
+  setUiZoom: (zoom: number) => call<void>("set_ui_zoom", { zoom }),
+  screenInfo: () => call<ScreenInfo>("screen_info"),
+
   /** Shrink the window down to the invisible wake strip (hidden) or back to full. */
   setCollapsed: (collapsed: boolean) => call<void>("set_collapsed", { collapsed }),
 
@@ -245,7 +259,7 @@ export const Bridge = {
 export type BridgeEvent =
   | { name: "cursor"; payload: { x: number; y: number } }
   | { name: "tray"; payload: "open" | "settings" }
-  | { name: "screen-changed"; payload: null }
+  | { name: "screen-changed"; payload: ScreenInfo | null }
   | { name: "settings-changed"; payload: Settings }
   | { name: "spotify"; payload: SpotifyState }
   | { name: "crypto"; payload: CryptoState }
