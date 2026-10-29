@@ -53,7 +53,7 @@ export function buildFootball(): ViewHost {
   const refreshBtn = h("button", { class: "fb-icon", type: "button", title: tl("Refresh"), "aria-label": tl("Refresh"), onclick: () => void refresh(true) }, svg(ICONS.arrowClockwise, 14, { stroke: 1.8 }));
   const liveBox = h("div", { class: "fb-live" });
   const nextBox = h("div", { class: "fb-col" });
-  const lastBox = h("div", { class: "fb-col" });
+  const lastBox = h("div", { class: "fb-col fb-col-past" });
   const status = h("span", { class: "fb-status" });
   const notice = h("div", { class: "fb-error", role: "alert" });
   const page = h("div", { class: "fb-page" },
@@ -234,8 +234,8 @@ export function buildFootball(): ViewHost {
     return h("div", { class: "fb-row" },
       h("div", { class: "fb-row-when" },
         h("span", { text: dayText, dir: "auto" }),
-        h("small", {}, past ? m.leagueName : h("bdi", { class: "fb-time", dir: "ltr", text: parts.time }), eta ? eta : "")),
-      h("div", { class: "fb-row-opp" }, crestImg(opp.id, opp.short), h("span", { text: `${home ? "" : "@ "}${opp.short}`, dir: "auto" })),
+        h("small", {}, past ? m.leagueName : h("bdi", { class: "fb-time", dir: "ltr", text: parts.time }), eta ? h("span", { class: "fb-row-eta", text: eta }) : null)),
+      h("div", { class: "fb-row-opp" }, crestImg(opp.id, opp.short), h("span", { text: opp.short, dir: "auto" })),
       past
         ? h("div", { class: `fb-row-res ${res ? res.toLowerCase() : ""}`, dir: "ltr" },
             h("b", { text: res ? t(res === "W" ? "W" : res === "L" ? "L" : "D") : "" }),

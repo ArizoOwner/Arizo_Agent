@@ -152,7 +152,7 @@ export function buildHeader(actions: ViewActions): ViewHost {
       clear(soundBtn);
       soundBtn.append(svg(State.settings.soundEnabled ? ICONS.speakerOn : ICONS.speakerOff, 15));
       // Measured again only when what is in the row changed (sync runs often).
-      const key = [v, document.documentElement.lang, ...[tabSpotify, tabFootball, tabCrypto, tabMuse].map((b) => b.style.display)].join("|");
+      const key = [v, document.documentElement.lang, State.settings.uiFontScale, State.settings.uiWidth, ...[tabSpotify, tabFootball, tabCrypto, tabMuse].map((b) => b.style.display)].join("|");
       if (key !== fitKey) {
         fitKey = key;
         fitTabs();

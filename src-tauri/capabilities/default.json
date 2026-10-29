@@ -2,6 +2,6 @@
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
   "description": "What Arizo-Agent's windows are allowed to do. Everything that touches the OS goes through the app's own commands.",
-  "windows": ["island", "settings", "bubble"],
+  "windows": ["island", "settings", "bubble", "setup"],
   "permissions": ["core:default"]
 }

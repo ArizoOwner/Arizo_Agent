@@ -19,6 +19,7 @@ mod langs;
 mod model;
 mod muse;
 mod platform;
+mod setup;
 mod spotify;
 mod spotify_account;
 mod spotify_local;
@@ -1036,6 +1037,16 @@ fn set_bubble_size(app: AppHandle, width: f64, height: f64) {
 }
 
 pub fn run() {
+    // The installer and the uninstaller open this same exe in their own mode (setup.rs).
+    let args: Vec<String> = std::env::args().collect();
+    if args.iter().any(|a| a == "--wipe") {
+        setup::wipe_everything();
+        return;
+    }
+    if let Some(mode) = setup::mode_from_args(&args) {
+        setup::run(mode, tauri::generate_context!());
+        return;
+    }
     let loaded = Store::load();
     let settings = loaded.settings();
     let gate = Arc::new(PollGate::new());

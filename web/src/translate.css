@@ -908,6 +908,24 @@ html[data-dir="rtl"] .target-select {
     gap: 0;
   }
 }
+/* Narrower still (a narrow island with big text, or a long Persian label): the icons sit closer,
+   and the active label is the last to give way, so no tab is ever pushed off the edge. */
+@container setcard (max-width: 40em) {
+  .settings-nav {
+    gap: 4px;
+  }
+  .settings-nav-btn:not(.on) {
+    padding-inline: calc(7px * var(--fs, 1));
+  }
+  .settings-nav-btn.on {
+    flex-shrink: 1;
+    min-width: 0;
+  }
+  .settings-nav-btn.on > span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
 
 .settings-panel {
   flex: 1 1 auto;
@@ -1331,12 +1349,30 @@ html[data-dir="rtl"] .tab-chevron {
   scroll-behavior: smooth;
 }
 
+/* When the label and its control do not both fit on one line (a narrow island, big text, a long
+   Persian label), the control moves under the label at full width instead of being squeezed:
+   a dropdown no longer shrinks to "De…" and the engine buttons stay one line each. */
 .set-row {
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
+  row-gap: 8px;
 }
 
 .set-row-text {
   min-width: 110px;
+  flex: 1 1 12em;
+}
+
+.set-row-control {
+  margin-inline-start: auto;
+}
+.set-row-control:has(> .set-model-wrap) {
+  flex-grow: 1;
+}
+.set-row-control > .set-model-wrap {
+  flex: 1 1 auto;
+}
+.set-row .seg-btn {
+  white-space: nowrap;
 }
 
 .set-select,

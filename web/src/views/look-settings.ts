@@ -1,7 +1,9 @@
 // Settings → Island look: the size, see-through level, text size, corners and floating
 // position of the island, each with its own "default" button, plus one button that puts
-// all of them back. Dragging a slider shows the change at once on the real island;
-// letting go saves it.
+// all of them back. Dragging a slider moves its readout (and the capsule preview) at once;
+// letting go applies and saves it. Only the see-through level and the corners are also
+// shown on the real island mid-drag: every other one resizes the window, and doing that on
+// each step makes the island flicker.
 
 import { h, svg } from "./dom";
 import { ICONS } from "./icons";
@@ -38,6 +40,9 @@ function rows(): Row[] {
 /** The preview is drawn at this fraction of the real size, so the widest capsule still fits the settings page. */
 const PREVIEW_SCALE = 0.6;
 const PREVIEW_MINIS = ["#4285F4", "#A78BFA", "#1DB954", "#2DD4BF"];
+
+/** Shown on the island while their slider moves: they change its surface and corners, never its size or the window's. */
+const LIVE_KEYS: ReadonlySet<NumKey> = new Set<NumKey>(["uiTransparency", "uiCorner"]);
 
 export function buildLookSettings(
   actions: ViewActions,
@@ -86,7 +91,7 @@ export function buildLookSettings(
     return b;
   };
 
-  /** A slider row: live readout, its own reset, preview while dragging, save on release. */
+  /** A slider row: live readout, its own reset, preview while dragging (LIVE_KEYS only), apply and save on release. */
   const sliderRow = (row: Row, dimmed = false): HTMLElement => {
     const s = LOOK[row.key];
     const value = look[row.key];
@@ -114,7 +119,7 @@ export function buildLookSettings(
       const shown = { ...look, ...(State.lookPreview ?? {}), [row.key]: next } as Look;
       resetAll.toggleAttribute("disabled", allDefault(shown));
       paintPreview(shown);
-      actions.previewLook({ ...(State.lookPreview ?? {}), [row.key]: next });
+      if (LIVE_KEYS.has(row.key)) actions.previewLook({ ...(State.lookPreview ?? {}), [row.key]: next });
     });
     for (const type of ["change", "pointerup", "pointercancel", "blur"]) input.addEventListener(type, commit);
 

@@ -19,6 +19,7 @@ export default defineConfig({
         island: resolve(__dirname, "index.html"),
         settings: resolve(__dirname, "settings.html"),
         bubble: resolve(__dirname, "bubble.html"),
+        setup: resolve(__dirname, "setup.html"),
       },
     },
   },

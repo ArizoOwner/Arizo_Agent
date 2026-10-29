@@ -15,7 +15,29 @@
   scale or the taskbar changes.
 - **Tabs never run past the island.** When the tab row does not fit (the narrow Muse tab, bigger
   text, more tabs), the other tabs drop their names first and keep their Ari; the open one keeps
-  its name while there is room.
+  its name while there is room. They fit themselves again when the island's width or text size
+  changes.
+- **No more flicker while sizing the island.** In Settings → Island look, the width, height and
+  text size sliders apply when you let go, instead of resizing the window at every step of the
+  drag. Transparency and corners still follow the slider live.
+- **Football fits the smallest island.** At the narrowest and shortest island, and at any text
+  size, the dates and the opponents' names stay whole: what is said twice gives way first (the
+  "in 7 d" beside the date, the small crest, the home / away label), a long name such as Paris
+  Saint-Germain takes a second line, the two lists stack when the text is large, and the lists
+  scroll instead of losing their last rows. The "@" before away opponents is gone.
+- **Settings at the smallest island.** A setting's control moves under its text when the row is
+  too narrow (the AI model picker no longer shrinks to "De…"), and the tab of the open section
+  no longer runs past the panel in Persian with large text.
+- **A new installer, with Ari in it.** Installing, updating and removing Arizo-Agent now happen
+  in one dark, modern window, in Persian or English (switch with one click), with Ari alive
+  beside the words: his eyes follow the pointer, a click is a pat (three are too many), he works
+  while the bar fills, cheers when it is done, and looks sad when you are about to remove him.
+  Choose the desktop shortcut and see where it installs; an update keeps everything. Without
+  WebView2 the classic installer still runs, and installs it.
+- **Removing the app removes all of its data.** Uninstalling now deletes, by default, every
+  trace of Arizo-Agent: settings, history and the log, the saved AI key, the Spotify and
+  exchange tokens in the Windows Credential Manager, the start-up entry and the registry keys.
+  Before, settings and tokens stayed behind. Clear the box to keep them for a later install.
 
 ## 3.5.0 — Muse in the island
 

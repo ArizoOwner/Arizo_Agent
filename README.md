@@ -279,6 +279,10 @@ The installer is **not code-signed**, so Windows SmartScreen shows a warning the
 
 The app lives in the notification area. Closing the island only hides it; quit from the tray menu.
 
+**The installer has Ari in it.** Since 3.5.1, installing, updating and removing happen in one window, in Persian or English, with Ari beside the words: he follows the pointer, works while the bar fills and cheers when it is done. Choose the desktop shortcut and see where it installs; an update keeps your settings and accounts. Without WebView2 the classic installer runs instead, and installs it.
+
+**Uninstalling removes everything.** By default, removing Arizo-Agent also deletes all of its data: settings, history and the log, the saved AI key, the Spotify and exchange tokens in the Windows Credential Manager, the start-up entry and the registry keys. Clear the **Also delete all my data** box to keep them for a later install.
+
 **Upgrading from 2.x?** The first launch imports the settings and history of the Electron version (`%USERPROFILE%\.aphra-translate`). Its API key was encrypted for that app and cannot be read by this one: enter it once in **Settings**.
 
 <img src="assets/readme/banner-privacy.svg" width="100%" alt="Private by design">
@@ -293,6 +297,7 @@ The app lives in the notification area. Closing the island only hides it; quit f
 - Football: the island asks ESPN's public football data for your team's id (and, for a live game, its league and day) — nothing about you is sent, no account or key is involved, and the team you chose is only stored in your settings file. Turn it off in Settings and nothing is requested.
 - Crypto: you bring your own exchange key. It is kept in the Windows Credential Manager (one entry per exchange), never in a file and never in the page, and **Change API** deletes it. The app only sends read requests — prices, candles and a check that the key works — straight to the exchange you chose (Nobitex, Binance or Toobit); there is no server of ours in between, and prices are only requested while the Crypto section is on screen. Turn the section off in Settings and nothing is requested. The one exception is the coin icons, which load from public image servers (cdn.nobitex.ir, with assets.coincap.io as a fallback): those servers see which coins are drawn and your IP address.
 - Your clipboard is borrowed for a moment to read a selection or paste a translation, and given back (text and images).
+- **Nothing stays behind.** Uninstalling deletes, unless you clear its box, every file, key, token and registry entry the app wrote.
 
 <img src="assets/readme/banner-dev.svg" width="100%" alt="For developers">
 

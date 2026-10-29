@@ -3,6 +3,9 @@
 .fb-shell {
   height: 100%; min-width: 0; padding: 14px 18px 10px;
   padding-inline-start: 100px; display: flex; flex-direction: column; gap: 8px;
+  container: fb / inline-size;
+  /* Only the unit the queries below measure in (every text here sets its own), so they follow the text size. */
+  font-size: calc(10px * var(--fs, 1));
 }
 .fb-heading { display: flex; align-items: center; min-height: 24px; gap: 10px; }
 .fb-brand { color: var(--fb-accent); font-size: calc(13px * var(--fs, 1)); font-weight: 750; letter-spacing: -.2px; }
@@ -35,7 +38,8 @@
 .fb-note { font-size: calc(10px * var(--fs, 1)); color: var(--dim); min-height: 14px; }
 
 /* The team page */
-.fb-page { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 8px; }
+/* Its font size is only the unit the stacked-lists query below measures in (every text here sets its own). */
+.fb-page { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 8px; container: fbpage / inline-size; font-size: calc(10px * var(--fs, 1)); }
 .fb-team { display: flex; align-items: center; gap: 9px; min-height: 28px; }
 .fb-team-name { font-size: calc(16px * var(--fs, 1)); font-weight: 700; color: var(--ink); }
 .fb-status { margin-inline-start: auto; font-size: calc(10px * var(--fs, 1)); color: var(--dim); }
@@ -60,7 +64,8 @@
 .fb-side { display: flex; align-items: center; gap: 8px; min-width: 0; color: var(--ink-2); font-size: calc(12px * var(--fs, 1)); }
 .fb-side.rev { flex-direction: row-reverse; text-align: end; }
 .fb-side.mine { color: var(--ink); font-weight: 700; }
-.fb-side-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* A long name (Paris Saint-Germain) takes a second line rather than losing its end. */
+.fb-side-name { overflow: hidden; overflow-wrap: anywhere; line-height: 1.2; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
 .fb-score { display: flex; align-items: baseline; gap: 8px; font-family: var(--mono); color: var(--ink); }
 .fb-score b { font-size: calc(34px * var(--fs, 1)); line-height: 1.05; font-weight: 800; }
 .fb-score em { font-style: normal; color: var(--dim); }
@@ -76,11 +81,11 @@
 .fb-next-eta { font-size: calc(10.5px * var(--fs, 1)); color: var(--fb-accent); }
 .fb-goals { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-top: 2px; font-size: calc(10px * var(--fs, 1)); color: var(--dim); min-height: 13px; }
 
-.fb-lists { flex: 1; min-height: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.fb-lists { flex: 1; min-height: 0; display: grid; grid-template-columns: 1fr 1fr; align-content: start; gap: 14px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgb(var(--fg) / .2) transparent; }
 .fb-col { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
 .fb-col-title { font-size: calc(10px * var(--fs, 1)); font-weight: 700; color: var(--dim); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 1px; }
 .fb-none { font-size: calc(10.5px * var(--fs, 1)); color: var(--dim-3); padding: 6px 0; }
-.fb-row { display: grid; grid-template-columns: 112px 1fr auto; align-items: center; gap: 8px; padding: 4px 8px; border-radius: 10px; background: rgb(var(--fg) / .04); }
+.fb-row { display: grid; grid-template-columns: calc(112px * var(--fs, 1)) minmax(0, 1fr) auto; align-items: center; gap: 8px; padding: 4px 8px; border-radius: 10px; background: rgb(var(--fg) / .04); }
 .fb-row-when { display: flex; flex-direction: column; min-width: 0; font-size: calc(10.5px * var(--fs, 1)); color: var(--ink-2); line-height: 1.35; }
 .fb-row-when > span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .fb-row-when small { font-size: calc(9px * var(--fs, 1)); color: var(--dim-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: flex; gap: 5px; }
@@ -101,6 +106,32 @@
 @keyframes fb-pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .35; transform: scale(.7); } }
 @media (max-width: 650px) {
   .fb-shell { padding-inline-start: 88px; }
+}
+/* A narrower island (Settings → Island look) or bigger text (the widths are in text units): the gaps give way, and what is said
+   twice goes (home/away: the H / A label; "in 7 d": the date beside it; the small crest),
+   so the date and the opponent's name keep their room instead of being cut to a letter. */
+@container fb (max-width: 60em) {
+  .fb-lists { gap: 10px; }
+  .fb-row { grid-template-columns: calc(96px * var(--fs, 1)) minmax(0, 1fr) auto; gap: 6px; padding: 4px 7px; }
+  .fb-row-res.pre, .fb-row-eta, .fb-row-opp .fb-crest { display: none; }
+  /* A result's date is only a day and a month ("26 Oct"): its column gives the rest to the opponent. */
+  .fb-col-past .fb-row { grid-template-columns: calc(64px * var(--fs, 1)) minmax(0, 1fr) auto; }
+  .fb-row-opp { gap: 5px; }
+  .fb-row-res { gap: 4px; }
+  .fb-score-row { gap: 8px; }
+  .fb-next-when { min-width: 0; }
+}
+@container fb (max-width: 47em) {
+  .fb-row { grid-template-columns: calc(80px * var(--fs, 1)) minmax(0, 1fr) auto; }
+}
+/* Text too big for two lists side by side (the width is in text units, so it follows the text size):
+   one under the other, at full width, and the pair scrolls if it is taller than the room left. */
+@container fbpage (max-width: 44em) {
+  .fb-lists { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .fb-row, .fb-col-past .fb-row { grid-template-columns: calc(112px * var(--fs, 1)) minmax(0, 1fr) auto; }
+  .fb-row-opp .fb-crest { display: inline-grid; }
+  .fb-row-eta { display: inline; }
+  .fb-row-res.pre { display: flex; }
 }
 
 /* ── The goal celebration: a stage over the island, then a rain of balls and confetti ── */
