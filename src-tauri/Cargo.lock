@@ -69,7 +69,7 @@ dependencies = [
 
 [[package]]
 name = "arizo-agent"
-version = "3.5.1"
+version = "3.5.5"
 dependencies = [
  "arboard",
  "base64 0.22.1",

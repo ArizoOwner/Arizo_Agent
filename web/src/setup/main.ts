@@ -2,21 +2,25 @@
 // itself is the NSIS installer run silently by the backend (src-tauri/src/setup.rs);
 // this page is the face of it, in Persian or English.
 //
-// Ari is the app's own engine (ari/engine.ts): the eyes follow the pointer, a
-// click is a pat (three are too many), the buttons make him look and lean, the
-// progress makes him work, the end makes him cheer, and leaving makes him sad.
+// Ari is the app's own engine (ari/engine.ts): the eyes follow the pointer, out
+// of the window too, a click is a pat (three are too many), the buttons make him
+// look and lean, the progress makes him work, the end makes him cheer, and
+// leaving makes him sad. The installer has his wardrobe: what he wears here, he
+// wears in the app.
 
 import "../style.css";
 import "./setup.css";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { BotEngine } from "../ari/engine";
-import { SeasonCache } from "../ari/wardrobe";
+import { drawWardrobeIcon } from "../ari/outfits";
+import { OUTFIT_KEYS, OUTFIT_SELECTIONS, SeasonCache, parseOutfit, seasonalOutfit, type OutfitSelection } from "../ari/wardrobe";
+import { lookup } from "../i18n/i18n";
 import { Sound } from "../core/sound";
 import { h, svg } from "../views/dom";
 
 type Lang = "fa" | "en";
-interface Info { mode: "install" | "uninstall"; version: string; installed: string | null; dir: string; lang: Lang }
+interface Info { mode: "install" | "uninstall"; version: string; installed: string | null; dir: string; lang: Lang; outfit?: string | null }
 type Phase = "welcome" | "working" | "done" | "failed";
 
 const IS_TAURI = "__TAURI_INTERNALS__" in window;
@@ -38,7 +42,7 @@ const TEXT = {
     uninstall: "Uninstall", keep: "Keep Ari", unWorking: "Removing…", unSteps: ["Closing Arizo-Agent", "Removing the files", "Cleaning up"],
     unDoneTitle: "Goodbye for now", unDoneLead: "Arizo-Agent has been removed.", unDoneWiped: "Arizo-Agent and all of its data have been removed.",
     unFailLead: "Removal could not finish. Close Arizo-Agent and try again.",
-    minimize: "Minimize", lang: "فارسی",
+    minimize: "Minimize", lang: "فارسی", wardrobe: "Wardrobe",
   },
   fa: {
     installTitle: "با آری آشنا شو", installLead: "همراه داینامیک آیلند تو: ترجمه با یک کلید، موسیقی، تیم و ارزهای تو، همه بالای صفحه.",
@@ -55,7 +59,7 @@ const TEXT = {
     uninstall: "حذف", keep: "آری بماند", unWorking: "در حال حذف…", unSteps: ["بستن Arizo-Agent", "حذف فایل‌ها", "پاک‌سازی"],
     unDoneTitle: "فعلاً خداحافظ", unDoneLead: "Arizo-Agent حذف شد.", unDoneWiped: "Arizo-Agent و همه داده‌هایش حذف شد.",
     unFailLead: "حذف کامل نشد. Arizo-Agent را ببند و دوباره امتحان کن.",
-    minimize: "کوچک کردن", lang: "English",
+    minimize: "کوچک کردن", lang: "English", wardrobe: "کمد لباس",
   },
 } as const;
 
@@ -70,6 +74,9 @@ let progress = 0;
 let shown = 0;
 let desktop = true;
 let wipe = true;
+let outfit: OutfitSelection = "auto";
+/** The outfit under the pointer in the wardrobe: Ari tries it on. */
+let trying: OutfitSelection | null = null;
 
 const tr = (k: Key, vars: Record<string, string> = {}): string => {
   const v = TEXT[lang][k];
@@ -90,6 +97,8 @@ stage.append(glow, ring, canvas);
 const ARI = 196; // CSS px of the canvas (the body is 60 % of it)
 const OVERHANG = 60;
 const mouse = { x: -1, y: -1 };
+/** The pointer outside the window, from the backend (setup_cursor); null when unknown. */
+let far: { x: number; y: number } | null = null;
 let lastFrame = performance.now();
 
 function sizeCanvas() {
@@ -106,16 +115,17 @@ function frame(now: number) {
   const r = canvas.getBoundingClientRect();
   const cx = r.left + r.width / 2;
   const cy = r.top + OVERHANG / 2 + ARI / 2;
-  if (mouse.x >= 0) {
-    engine.lookX = Math.tanh((mouse.x - cx) / 220);
-    engine.lookY = -Math.tanh((mouse.y - cy) / 180);
+  const at = mouse.x >= 0 ? mouse : far;
+  if (at) {
+    engine.lookX = Math.tanh((at.x - cx) / 220);
+    engine.lookY = -Math.tanh((at.y - cy) / 180);
   } else if (phase === "working") {
     // Watching the progress bar under him.
     engine.lookX = lang === "fa" ? 0.25 : -0.25;
     engine.lookY = -0.55;
   }
   engine.particleOverhang = OVERHANG;
-  engine.setOutfit(seasons.get("auto"), false);
+  engine.setOutfit(seasons.get(trying ?? outfit));
   engine.setDancing(phase === "done" && info.mode === "install");
   engine.update(dt);
   const ctx = canvas.getContext("2d");
@@ -162,6 +172,71 @@ const versionEl = h("span", { class: "su-version" });
 const bar_ = h("header", { class: "su-titlebar", "data-tauri-drag-region": "" },
   h("span", { class: "su-brand", "data-tauri-drag-region": "" }, h("b", { text: "Arizo" }), h("span", { text: "Agent" }), versionEl),
   h("div", { class: "su-titlebar-actions" }, langBtn, minBtn, closeBtn));
+// The wardrobe: a hanger under Ari opens his outfits. Resting on one tries it on, a click keeps it.
+const ICON = 26;
+const wardrobeGrid = h("div", { class: "su-wardrobe-grid", role: "listbox" });
+const wardrobeName = h("span", { class: "su-wardrobe-name" });
+const wardrobe = h("div", { class: "su-wardrobe", hidden: "" }, wardrobeName, wardrobeGrid);
+const hanger = h("button", { class: "su-hanger", type: "button", "aria-haspopup": "listbox", onclick: () => openWardrobe(wardrobe.hidden) },
+  svg("M12 7a2 2 0 1 1 2-2M12 7v1.5L3.6 14.2a1.5 1.5 0 0 0 .9 2.8h15a1.5 1.5 0 0 0 .9-2.8L12 8.5", 18, { stroke: 1.7 }));
+const outfitButtons = new Map<OutfitSelection, HTMLButtonElement>();
+const outfitName = (sel: OutfitSelection): string => {
+  const en = OUTFIT_KEYS[sel];
+  return lang === "en" ? en : lookup(en, lang) ?? en;
+};
+for (const sel of OUTFIT_SELECTIONS) {
+  const c = h("canvas", { "aria-hidden": "true" });
+  const b = h("button", { class: "su-outfit", type: "button", role: "option" }, c) as HTMLButtonElement;
+  b.addEventListener("pointerenter", () => { trying = sel; wardrobeName.textContent = outfitName(sel); });
+  b.addEventListener("pointerleave", () => { if (trying === sel) trying = null; wardrobeName.textContent = outfitName(outfit); });
+  b.addEventListener("click", () => chooseOutfit(sel));
+  outfitButtons.set(sel, b);
+  wardrobeGrid.append(b);
+}
+stage.append(wardrobe, hanger);
+
+function drawOutfits() {
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
+  const season = seasonalOutfit(new Date());
+  const auto = lang === "en" ? "AUTO" : lookup("AUTO", lang) ?? "AUTO";
+  for (const [sel, b] of outfitButtons) {
+    const c = b.firstElementChild as HTMLCanvasElement;
+    c.width = Math.round(ICON * dpr);
+    c.height = Math.round(ICON * dpr);
+    c.style.width = c.style.height = `${ICON}px`;
+    const ctx = c.getContext("2d");
+    if (!ctx) continue;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    drawWardrobeIcon(ctx, ICON, sel, season, auto);
+    b.title = outfitName(sel);
+    b.setAttribute("aria-label", outfitName(sel));
+    b.classList.toggle("on", sel === outfit);
+    b.setAttribute("aria-selected", String(sel === outfit));
+  }
+  wardrobeName.textContent = outfitName(trying ?? outfit);
+}
+
+function openWardrobe(open: boolean) {
+  wardrobe.hidden = !open;
+  hanger.classList.toggle("on", open);
+  hanger.setAttribute("aria-expanded", String(open));
+  trying = null;
+  if (open) { drawOutfits(); engine.triggerEmote("surprised", 0.6); Sound.play("hover"); }
+}
+
+function chooseOutfit(sel: OutfitSelection) {
+  const changed = sel !== outfit;
+  outfit = sel;
+  trying = null;
+  drawOutfits();
+  if (changed) {
+    engine.triggerEmote(sel === "none" ? "wink" : "happy", 1.1);
+    engine.emit("spark", 4);
+    Sound.play("love");
+    void call("setup_outfit", { outfit: sel });
+  }
+}
+
 const panel = h("section", { class: "su-panel" }, titleEl, leadEl, body, progressBox, actions);
 root.append(h("div", { class: "su-shell" }, h("div", { class: "su-aurora", "aria-hidden": "true" }, h("i", {}), h("i", {}), h("i", {})), bar_, h("main", { class: "su-main" }, stage, panel)));
 
@@ -191,6 +266,12 @@ function render() {
   langBtn.textContent = tr("lang");
   minBtn.title = tr("minimize");
   closeBtn.title = tr("close");
+  hanger.title = tr("wardrobe");
+  hanger.setAttribute("aria-label", tr("wardrobe"));
+  // Dressing Ari is part of installing him; the uninstaller has no use for it.
+  hanger.hidden = info.mode !== "install";
+  if (hanger.hidden) openWardrobe(false);
+  else if (!wardrobe.hidden) drawOutfits();
   closeBtn.disabled = phase === "working";
   versionEl.textContent = info.version ? `v${info.version}` : "";
   root.dataset.phase = phase;
@@ -276,6 +357,8 @@ function finish(ok: boolean) {
     phase = ok ? "done" : "failed";
     if (ok && info.mode === "install") {
       engine.setState("finished");
+      // The happy eyes and the roll of "finished", without its badge: nothing sits on Ari.
+      engine.setBadge(null);
       engine.triggerEmote("proud", 2.2);
       engine.emit("heart", 5);
       Sound.play("finish");
@@ -306,10 +389,25 @@ async function close() {
 
 window.addEventListener("pointermove", (e) => { mouse.x = e.clientX; mouse.y = e.clientY; Sound.resume(); });
 document.addEventListener("pointerleave", () => { mouse.x = -1; mouse.y = -1; });
+// Outside the window the page hears nothing: the backend tells where the pointer is.
+if (IS_TAURI) {
+  let asking = false;
+  window.setInterval(async () => {
+    if (mouse.x >= 0 || asking) return;
+    asking = true;
+    const p = await call<[number, number]>("setup_cursor");
+    asking = false;
+    far = p ? { x: p[0], y: p[1] } : null;
+  }, 33);
+}
+// A click elsewhere closes the wardrobe.
+document.addEventListener("pointerdown", (e) => {
+  if (!wardrobe.hidden && !wardrobe.contains(e.target as Node) && !hanger.contains(e.target as Node)) openWardrobe(false);
+});
 canvas.addEventListener("pointerdown", () => { engine.slap(); });
 canvas.addEventListener("pointerenter", () => { if (phase === "welcome") engine.triggerEmote(info.mode === "install" ? "happy" : "surprised", 0.7); });
 window.addEventListener("keydown", (e) => {
-  if (e.key === "Escape") void close();
+  if (e.key === "Escape") { if (!wardrobe.hidden) openWardrobe(false); else void close(); return; }
   if (e.key === "Enter" && phase !== "working") (actions.querySelector(".su-btn-primary") as HTMLButtonElement | null)?.click();
 });
 
@@ -318,10 +416,11 @@ async function boot() {
   const params = new URLSearchParams(location.search);
   info = got ?? {
     mode: params.get("mode") === "uninstall" ? "uninstall" : "install",
-    version: "3.5.1", installed: params.get("installed"), dir: "C:\\Users\\you\\AppData\\Local\\Arizo-Agent",
+    version: "3.5.5", installed: params.get("installed"), dir: "C:\\Users\\you\\AppData\\Local\\Arizo-Agent",
     lang: params.get("lang") === "fa" ? "fa" : "en",
   };
   lang = info.lang;
+  outfit = parseOutfit(info.outfit);
   if (IS_TAURI) {
     await listen<number>("setup-progress", (e) => { progress = Math.max(progress, e.payload); });
     await listen<{ ok: boolean }>("setup-done", (e) => finish(e.payload.ok));

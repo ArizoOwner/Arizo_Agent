@@ -35,6 +35,10 @@ const CREDENTIAL_SERVICE: &str = "com.arizo.translate";
 static BUSY: AtomicBool = AtomicBool::new(false);
 /// Removed after this process exits (remove_after_exit).
 static LEFTOVERS: Mutex<Vec<PathBuf>> = Mutex::new(Vec::new());
+/// The outfit picked on the page, kept until the app is installed and then saved in its settings.
+static OUTFIT: Mutex<Option<String>> = Mutex::new(None);
+/// The install has finished: an outfit picked now is saved at once.
+static INSTALLED: AtomicBool = AtomicBool::new(false);
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum Mode {
@@ -87,7 +91,7 @@ pub fn setup_info(app: AppHandle) -> Value {
     match mode(&app) {
         Mode::Install(_) => json!({
             "mode": "install", "version": version, "installed": installed_version(),
-            "dir": install_dir().to_string_lossy(), "lang": lang,
+            "dir": install_dir().to_string_lossy(), "lang": lang, "outfit": saved_setting("ariOutfit"),
         }),
         Mode::Uninstall(dir) => json!({
             "mode": "uninstall", "version": installed_version().unwrap_or(version),
@@ -96,13 +100,42 @@ pub fn setup_info(app: AppHandle) -> Value {
     }
 }
 
-/// The language of a previous install, read from its settings file without loading (or creating) the store.
-fn saved_language() -> Option<String> {
+/// A setting of a previous install, read from its settings file without loading (or creating) the store.
+fn saved_setting(key: &str) -> Option<String> {
     let file = crate::store::config_dir().join("settings.json");
     let v: Value = serde_json::from_str(&std::fs::read_to_string(file).ok()?).ok()?;
-    let pick = |k: &str| v.get(k).and_then(Value::as_str).filter(|l| !l.is_empty()).map(str::to_string);
-    let lang = pick("language").or_else(|| pick("appLanguage"))?;
+    v.get(key).and_then(Value::as_str).filter(|s| !s.is_empty()).map(str::to_string)
+}
+
+fn saved_language() -> Option<String> {
+    let lang = saved_setting("language").or_else(|| saved_setting("appLanguage"))?;
     matches!(lang.as_str(), "en" | "fa").then_some(lang)
+}
+
+/// What Ari wears in the app: picked on the page, saved once the app is there.
+#[tauri::command]
+pub fn setup_outfit(outfit: String) {
+    *OUTFIT.lock().unwrap() = Some(outfit);
+    if INSTALLED.load(Ordering::SeqCst) {
+        save_outfit();
+    }
+}
+
+fn save_outfit() {
+    let Some(outfit) = OUTFIT.lock().unwrap().take() else { return };
+    // The app's own store, so the value is checked and written like any setting.
+    let _ = crate::store::Store::load().save_settings(&json!({ "ariOutfit": outfit }));
+}
+
+/// The pointer, in the page's CSS pixels from the window's top left: Ari's eyes follow it
+/// out of the window too.
+#[tauri::command]
+pub fn setup_cursor(app: AppHandle) -> Option<(f64, f64)> {
+    let win = app.get_webview_window(LABEL)?;
+    let (x, y) = crate::platform::cursor_physical()?;
+    let at = win.inner_position().ok()?;
+    let scale = win.scale_factor().ok()?;
+    Some(((x - at.x as f64) / scale, (y - at.y as f64) / scale))
 }
 
 /// Persian when Windows speaks it, English otherwise.
@@ -128,6 +161,10 @@ pub fn setup_install(app: AppHandle, desktop: bool) -> Result<bool, String> {
             if let Some(desktop) = desktop_dir() {
                 let _ = std::fs::remove_file(desktop.join(format!("{PRODUCT}.lnk")));
             }
+        }
+        if ok {
+            INSTALLED.store(true, Ordering::SeqCst);
+            save_outfit();
         }
         BUSY.store(false, Ordering::SeqCst);
         let _ = app.emit_to(LABEL, "setup-done", json!({ "ok": ok }));
@@ -337,7 +374,7 @@ pub fn run(mode: Mode, mut context: tauri::Context) {
     LEFTOVERS.lock().unwrap().push(webview_dir());
     tauri::Builder::default()
         .manage(mode)
-        .invoke_handler(tauri::generate_handler![setup_info, setup_install, setup_uninstall, setup_launch, setup_close, setup_minimize])
+        .invoke_handler(tauri::generate_handler![setup_info, setup_install, setup_uninstall, setup_launch, setup_close, setup_minimize, setup_outfit, setup_cursor])
         .setup(|app| {
             let handle = app.handle().clone();
             let url = page_url(&handle);

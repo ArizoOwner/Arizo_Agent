@@ -56,7 +56,22 @@ html[dir="rtl"] .su-main { padding: 0 18px 26px 34px; }
 .su-ring { position: absolute; width: 210px; height: 210px; border-radius: 50%; border: 1px solid rgb(255 255 255 / .07); box-shadow: inset 0 0 40px rgb(167 139 250 / .12); animation: su-breathe 4.5s ease-in-out infinite reverse; }
 .su-stage::after { content: ""; position: absolute; bottom: 16%; width: 120px; height: 18px; border-radius: 50%; background: radial-gradient(ellipse, rgb(0 0 0 / .55), transparent 70%); }
 [data-phase="working"] .su-ring { border-color: transparent; border-top-color: var(--su-violet); border-inline-end-color: var(--su-blue); animation: su-spin 1.4s linear infinite; }
-[data-phase="done"][data-mode="install"] .su-glow { background: radial-gradient(circle, rgb(45 212 191 / .45), rgb(96 165 250 / .16) 50%, transparent 70%); }
+[data-phase="done"][data-mode="install"] .su-glow { background: radial-gradient(circle, rgb(167 139 250 / .5), rgb(96 165 250 / .18) 50%, transparent 70%); }
+
+/* The wardrobe: a hanger under Ari, and his outfits on a glass card above it. */
+.su-hanger { position: absolute; z-index: 3; bottom: 9%; inset-inline-end: 22px; width: 36px; height: 36px; display: grid; place-items: center; border: 0; border-radius: 12px; background: rgb(255 255 255 / .07); color: var(--su-dim); cursor: pointer; box-shadow: inset 0 0 0 1px var(--su-line); transition: background .15s, color .15s, transform .15s; }
+.su-hanger:hover, .su-hanger.on { background: rgb(167 139 250 / .2); color: var(--su-ink); }
+.su-hanger:active { transform: scale(.94); }
+.su-hanger[hidden] { display: none; }
+.su-wardrobe { position: absolute; z-index: 4; bottom: calc(9% + 44px); inset-inline: 8px; display: flex; flex-direction: column; gap: 6px; padding: 9px; border-radius: 16px; background: rgb(22 24 34 / .9); backdrop-filter: blur(14px); box-shadow: inset 0 0 0 1px var(--su-line), 0 16px 40px -12px rgb(0 0 0 / .7); animation: su-pop .18s ease-out; }
+.su-wardrobe[hidden] { display: none; }
+.su-wardrobe-name { font-size: 11.5px; font-weight: 600; color: var(--su-dim); text-align: center; min-height: 15px; }
+.su-wardrobe-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
+.su-outfit { height: 38px; display: grid; place-items: center; border: 0; border-radius: 10px; background: rgb(255 255 255 / .04); cursor: pointer; transition: background .12s, box-shadow .12s; }
+.su-outfit:hover { background: rgb(255 255 255 / .1); }
+.su-outfit.on { background: rgb(167 139 250 / .22); box-shadow: inset 0 0 0 1.5px var(--su-violet); }
+.su-outfit canvas { display: block; pointer-events: none; }
+@keyframes su-pop { from { opacity: 0; transform: translateY(6px) scale(.97); } to { opacity: 1; transform: none; } }
 [data-mode="uninstall"][data-phase="welcome"] .su-glow { background: radial-gradient(circle, rgb(244 114 182 / .3), rgb(167 139 250 / .12) 50%, transparent 70%); }
 @keyframes su-breathe { 0%, 100% { transform: scale(1); opacity: .9; } 50% { transform: scale(1.06); opacity: 1; } }
 @keyframes su-spin { to { transform: rotate(360deg); } }
@@ -145,6 +160,6 @@ html[lang="fa"] .su-pct { font-family: "Vazirmatn", var(--font); }
 @keyframes su-flow { to { background-position: 300% 0; } }
 
 @media (prefers-reduced-motion: reduce) {
-  .su-aurora i, .su-glow, .su-ring, .su-btn-primary::after, .su-bar i { animation: none; }
+  .su-aurora i, .su-glow, .su-ring, .su-btn-primary::after, .su-bar i, .su-wardrobe { animation: none; }
   .su-enter > * { animation-duration: .01s; }
 }

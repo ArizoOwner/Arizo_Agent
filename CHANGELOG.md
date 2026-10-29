@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.5.1 — An island that fits every screen
+## 3.5.5 — An island that fits every screen
 
 - **Fixed: the island was cut off on some PCs.** With Windows' **Text size** above 100 %
   (Settings → Accessibility), the island was drawn bigger than its own window: tabs cut on one
@@ -34,6 +34,10 @@
   while the bar fills, cheers when it is done, and looks sad when you are about to remove him.
   Choose the desktop shortcut and see where it installs; an update keeps everything. Without
   WebView2 the classic installer still runs, and installs it.
+- **Dress Ari in the installer.** The hanger under Ari opens his wardrobe: rest on an outfit to
+  try it on, click to keep it. What he wears in the installer he wears in the app.
+- **Ari's eyes follow the pointer everywhere,** outside the installer window too, and nothing
+  sits on him any more when the install is done.
 - **Removing the app removes all of its data.** Uninstalling now deletes, by default, every
   trace of Arizo-Agent: settings, history and the log, the saved AI key, the Spotify and
   exchange tokens in the Windows Credential Manager, the start-up entry and the registry keys.

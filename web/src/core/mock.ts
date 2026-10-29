@@ -188,7 +188,7 @@ export async function mockInvoke(cmd: string, args: Record<string, unknown> = {}
   switch (cmd) {
     case "boot":
       return {
-        settings, version: "3.5.1", cursorPoll: false,
+        settings, version: "3.5.5", cursorPoll: false,
         screen: mockScreen(),
       };
     case "screen_info":

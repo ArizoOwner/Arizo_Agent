@@ -4,7 +4,7 @@
 
 <br>
 
-[![Version](https://img.shields.io/badge/version-3.5.1-8b5cf6?logo=github)](https://github.com/ArizoOwner/Arizo_Agent/releases)
+[![Version](https://img.shields.io/badge/version-3.5.5-8b5cf6?logo=github)](https://github.com/ArizoOwner/Arizo_Agent/releases)
 ![Windows 10/11](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4?logo=windows&logoColor=white)
 ![Tauri 2](https://img.shields.io/badge/Tauri-2-FFC131?logo=tauri&logoColor=black)
 ![Rust](https://img.shields.io/badge/Rust-backend-000000?logo=rust)
@@ -271,15 +271,15 @@ Download from the [Releases](https://github.com/ArizoOwner/Arizo_Agent/releases)
 
 | File | What it is |
 | :--- | :--- |
-| `Arizo-Agent-Setup-3.5.1.exe` | Installer for the current user — no administrator rights |
-| `Arizo-Agent-3.5.1-Portable.exe` | One executable, runs without installing |
+| `Arizo-Agent-Setup-3.5.5.exe` | Installer for the current user — no administrator rights |
+| `Arizo-Agent-3.5.5-Portable.exe` | One executable, runs without installing |
 | `SHA256SUMS.txt` | Checksums of both |
 
 The installer is **not code-signed**, so Windows SmartScreen shows a warning the first time: click **More info → Run anyway**. The app is open source — read it, or build it yourself.
 
 The app lives in the notification area. Closing the island only hides it; quit from the tray menu.
 
-**The installer has Ari in it.** Since 3.5.1, installing, updating and removing happen in one window, in Persian or English, with Ari beside the words: he follows the pointer, works while the bar fills and cheers when it is done. Choose the desktop shortcut and see where it installs; an update keeps your settings and accounts. Without WebView2 the classic installer runs instead, and installs it.
+**The installer has Ari in it.** Since 3.5.5, installing, updating and removing happen in one window, in Persian or English, with Ari beside the words: he follows the pointer anywhere on the screen, works while the bar fills and cheers when it is done. The hanger under him opens his wardrobe: what he wears there, he wears in the app. Choose the desktop shortcut and see where it installs; an update keeps your settings and accounts. Without WebView2 the classic installer runs instead, and installs it.
 
 **Uninstalling removes everything.** By default, removing Arizo-Agent also deletes all of its data: settings, history and the log, the saved AI key, the Spotify and exchange tokens in the Windows Credential Manager, the start-up entry and the registry keys. Clear the **Also delete all my data** box to keep them for a later install.
 
