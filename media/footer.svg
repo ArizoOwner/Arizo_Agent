@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 190" width="1200" height="190" role="img" aria-label="Made by ArizoTeam — arizoteam.ir">
+
+<defs>
+  
+  <linearGradient id="fb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fbfbfd"/><stop offset="1" stop-color="#c4c8d3"/></linearGradient>
+  <radialGradient id="fe" cx="0.5" cy="0.5" r="0.62"><stop offset="0.62" stop-color="#8e94a8" stop-opacity="0"/><stop offset="1" stop-color="#8e94a8" stop-opacity="0.5"/></radialGradient>
+  <radialGradient id="fh" cx="0.36" cy="0.3" r="0.45"><stop offset="0" stop-color="#fff" stop-opacity="0.85"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+  <linearGradient id="fg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1F2333"/><stop offset="1" stop-color="#0A0C14"/></linearGradient>
+  <filter id="eyeglow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="3.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  <linearGradient id="fbg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a0a12"/><stop offset="1" stop-color="#16101f"/></linearGradient>
+  <linearGradient id="w1" x1="0" x2="1"><stop offset="0" stop-color="#3b82f6" stop-opacity=".5"/><stop offset="1" stop-color="#a78bfa" stop-opacity=".5"/></linearGradient>
+  <clipPath id="fc"><rect width="1200" height="190" rx="26"/></clipPath>
+</defs>
+<style>
+  text{font-family:'Segoe UI','Inter',system-ui,-apple-system,Arial,sans-serif}
+  .float{animation:float 5s ease-in-out infinite}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+  .breathe{transform-box:fill-box;transform-origin:50% 100%;animation:breathe 4s ease-in-out infinite}
+  @keyframes breathe{0%,100%{transform:scale(1,1)}50%{transform:scale(1.025,.972)}}
+  .eye{transform-box:fill-box;transform-origin:center;animation:blink 5s infinite}
+  @keyframes blink{0%,91%,100%{transform:scaleY(1)}94%{transform:scaleY(.08)}}
+  .look{animation:look 9s ease-in-out infinite}
+  @keyframes look{0%,100%{transform:translate(0,0)}15%{transform:translate(-14px,3px)}35%{transform:translate(12px,-3px)}55%{transform:translate(0,6px)}75%{transform:translate(8px,2px)}}
+  .spark{transform-box:fill-box;transform-origin:center;animation:spark 3s ease-in-out infinite}
+  @keyframes spark{0%,100%{transform:scale(.2) rotate(0);opacity:0}50%{transform:scale(1) rotate(45deg);opacity:1}}
+  .drift{animation:drift 7s ease-in-out infinite}
+  @keyframes drift{0%,100%{transform:translate(0,0)}50%{transform:translate(0,-14px)}}
+  .twinkle{animation:twinkle 4s ease-in-out infinite}
+  @keyframes twinkle{0%,100%{opacity:.15}50%{opacity:.9}}
+  .pair{transform-box:fill-box;transform-origin:center;animation:pair 9s infinite both;opacity:0}
+  @keyframes pair{0%{opacity:0;transform:scale(.7) translateY(10px)}4%{opacity:1;transform:scale(1.04) translateY(0)}6%{transform:scale(1)}29%{opacity:1;transform:scale(1)}33%{opacity:0;transform:scale(.9) translateY(-8px)}100%{opacity:0}}
+</style>
+<g clip-path="url(#fc)">
+  <rect width="1200" height="190" fill="url(#fbg)"/>
+  <path fill="url(#w1)" opacity=".5"><animate attributeName="d" dur="9s" repeatCount="indefinite" values="M0 120 C 200 80, 400 160, 600 120 S 1000 160, 1200 120 V190 H0 Z;M0 140 C 200 100, 400 180, 600 140 S 1000 110, 1200 150 V190 H0 Z;M0 120 C 200 80, 400 160, 600 120 S 1000 160, 1200 120 V190 H0 Z"/></path>
+  <path fill="url(#w1)" opacity=".35"><animate attributeName="d" dur="12s" repeatCount="indefinite" values="M0 150 C 200 110, 400 190, 600 150 S 1000 120, 1200 160 V190 H0 Z;M0 130 C 200 90, 400 170, 600 130 S 1000 170, 1200 120 V190 H0 Z;M0 150 C 200 110, 400 190, 600 150 S 1000 120, 1200 160 V190 H0 Z"/></path>
+  <g transform="translate(600 196) scale(.62)"><g class="drift">
+  <g class="breathe">
+    <path d="M120.6 0.0L120.5 18.4L120.0 27.6L119.3 35.0L118.2 41.3L116.8 46.9L115.2 52.0L113.2 56.6L110.9 60.9L108.2 64.8L105.3 68.3L102.0 71.6L98.4 74.6L94.4 77.4L90.1 79.9L85.4 82.1L80.2 84.1L74.7 85.8L68.6 87.4L61.9 88.6L54.5 89.7L46.1 90.5L36.4 91.1L24.3 91.4L0.0 91.5L-24.3 91.4L-36.4 91.1L-46.1 90.5L-54.5 89.7L-61.9 88.6L-68.6 87.4L-74.7 85.8L-80.2 84.1L-85.4 82.1L-90.1 79.9L-94.4 77.4L-98.4 74.6L-102.0 71.6L-105.3 68.3L-108.2 64.8L-110.9 60.9L-113.2 56.6L-115.2 52.0L-116.8 46.9L-118.2 41.3L-119.3 35.0L-120.0 27.6L-120.5 18.4L-120.6 0.0L-120.5 -18.4L-120.0 -27.6L-119.3 -35.0L-118.2 -41.3L-116.8 -46.9L-115.2 -52.0L-113.2 -56.6L-110.9 -60.9L-108.2 -64.8L-105.3 -68.3L-102.0 -71.6L-98.4 -74.6L-94.4 -77.4L-90.1 -79.9L-85.4 -82.1L-80.2 -84.1L-74.7 -85.8L-68.6 -87.4L-61.9 -88.6L-54.5 -89.7L-46.1 -90.5L-36.4 -91.1L-24.3 -91.4L-0.0 -91.5L24.3 -91.4L36.4 -91.1L46.1 -90.5L54.5 -89.7L61.9 -88.6L68.6 -87.4L74.7 -85.8L80.2 -84.1L85.4 -82.1L90.1 -79.9L94.4 -77.4L98.4 -74.6L102.0 -71.6L105.3 -68.3L108.2 -64.8L110.9 -60.9L113.2 -56.6L115.2 -52.0L116.8 -46.9L118.2 -41.3L119.3 -35.0L120.0 -27.6L120.5 -18.4Z" fill="url(#fb)"/>
+    <path d="M120.6 0.0L120.5 18.4L120.0 27.6L119.3 35.0L118.2 41.3L116.8 46.9L115.2 52.0L113.2 56.6L110.9 60.9L108.2 64.8L105.3 68.3L102.0 71.6L98.4 74.6L94.4 77.4L90.1 79.9L85.4 82.1L80.2 84.1L74.7 85.8L68.6 87.4L61.9 88.6L54.5 89.7L46.1 90.5L36.4 91.1L24.3 91.4L0.0 91.5L-24.3 91.4L-36.4 91.1L-46.1 90.5L-54.5 89.7L-61.9 88.6L-68.6 87.4L-74.7 85.8L-80.2 84.1L-85.4 82.1L-90.1 79.9L-94.4 77.4L-98.4 74.6L-102.0 71.6L-105.3 68.3L-108.2 64.8L-110.9 60.9L-113.2 56.6L-115.2 52.0L-116.8 46.9L-118.2 41.3L-119.3 35.0L-120.0 27.6L-120.5 18.4L-120.6 0.0L-120.5 -18.4L-120.0 -27.6L-119.3 -35.0L-118.2 -41.3L-116.8 -46.9L-115.2 -52.0L-113.2 -56.6L-110.9 -60.9L-108.2 -64.8L-105.3 -68.3L-102.0 -71.6L-98.4 -74.6L-94.4 -77.4L-90.1 -79.9L-85.4 -82.1L-80.2 -84.1L-74.7 -85.8L-68.6 -87.4L-61.9 -88.6L-54.5 -89.7L-46.1 -90.5L-36.4 -91.1L-24.3 -91.4L-0.0 -91.5L24.3 -91.4L36.4 -91.1L46.1 -90.5L54.5 -89.7L61.9 -88.6L68.6 -87.4L74.7 -85.8L80.2 -84.1L85.4 -82.1L90.1 -79.9L94.4 -77.4L98.4 -74.6L102.0 -71.6L105.3 -68.3L108.2 -64.8L110.9 -60.9L113.2 -56.6L115.2 -52.0L116.8 -46.9L118.2 -41.3L119.3 -35.0L120.0 -27.6L120.5 -18.4Z" fill="url(#fe)"/>
+    <path d="M120.6 0.0L120.5 18.4L120.0 27.6L119.3 35.0L118.2 41.3L116.8 46.9L115.2 52.0L113.2 56.6L110.9 60.9L108.2 64.8L105.3 68.3L102.0 71.6L98.4 74.6L94.4 77.4L90.1 79.9L85.4 82.1L80.2 84.1L74.7 85.8L68.6 87.4L61.9 88.6L54.5 89.7L46.1 90.5L36.4 91.1L24.3 91.4L0.0 91.5L-24.3 91.4L-36.4 91.1L-46.1 90.5L-54.5 89.7L-61.9 88.6L-68.6 87.4L-74.7 85.8L-80.2 84.1L-85.4 82.1L-90.1 79.9L-94.4 77.4L-98.4 74.6L-102.0 71.6L-105.3 68.3L-108.2 64.8L-110.9 60.9L-113.2 56.6L-115.2 52.0L-116.8 46.9L-118.2 41.3L-119.3 35.0L-120.0 27.6L-120.5 18.4L-120.6 0.0L-120.5 -18.4L-120.0 -27.6L-119.3 -35.0L-118.2 -41.3L-116.8 -46.9L-115.2 -52.0L-113.2 -56.6L-110.9 -60.9L-108.2 -64.8L-105.3 -68.3L-102.0 -71.6L-98.4 -74.6L-94.4 -77.4L-90.1 -79.9L-85.4 -82.1L-80.2 -84.1L-74.7 -85.8L-68.6 -87.4L-61.9 -88.6L-54.5 -89.7L-46.1 -90.5L-36.4 -91.1L-24.3 -91.4L-0.0 -91.5L24.3 -91.4L36.4 -91.1L46.1 -90.5L54.5 -89.7L61.9 -88.6L68.6 -87.4L74.7 -85.8L80.2 -84.1L85.4 -82.1L90.1 -79.9L94.4 -77.4L98.4 -74.6L102.0 -71.6L105.3 -68.3L108.2 -64.8L110.9 -60.9L113.2 -56.6L115.2 -52.0L116.8 -46.9L118.2 -41.3L119.3 -35.0L120.0 -27.6L120.5 -18.4Z" fill="url(#fh)"/>
+    
+    <rect x="-95.11999999999999" y="-45.2" width="190.23999999999998" height="90.4" rx="45.2" fill="#DFE3EC"/>
+    <rect x="-91.52" y="-41.6" width="183.04" height="83.2" rx="41.6" fill="url(#fg)"/>
+    <path d="M-62.4 -32.6 H-5.2" stroke="#fff" stroke-opacity=".12" stroke-width="5" stroke-linecap="round"/>
+    <g class="look" filter="url(#eyeglow)"><g class="eye"><rect x="-45.76" y="-19.76" width="20.8" height="39.52" rx="10.4" fill="#5EC8FF"/></g><g class="eye"><rect x="24.96" y="-19.76" width="20.8" height="39.52" rx="10.4" fill="#5EC8FF"/></g></g>
+    
+  </g></g></g>
+  <text x="48" y="74" font-size="22" font-weight="700" fill="#fff">Made with <tspan fill="#ff7a9c">♥</tspan> by ArizoTeam</text>
+  <text x="48" y="104" font-size="15" fill="#9aa0b8">Download Ari and meet him on your desktop.</text>
+  <text x="1152" y="74" text-anchor="end" font-size="20" font-weight="700" fill="#fff">arizoteam.ir</text>
+  <text x="1152" y="104" text-anchor="start" font-size="15" fill="#9aa0b8" direction="rtl" style="font-family:Vazirmatn,Tahoma,'Segoe UI',sans-serif">آری را دانلود کنید و روی دسکتاپ با او آشنا شوید</text>
+  <g transform="translate(300 140) scale(0.9)"><path class="spark" style="animation-delay:0s" d="M0-10 L2.6-2.6 10 0 2.6 2.6 0 10 -2.6 2.6 -10 0 -2.6-2.6Z" fill="#fff"/></g><g transform="translate(900 60) scale(1.1)"><path class="spark" style="animation-delay:1s" d="M0-10 L2.6-2.6 10 0 2.6 2.6 0 10 -2.6 2.6 -10 0 -2.6-2.6Z" fill="#fff"/></g><g transform="translate(1010 150) scale(0.7)"><path class="spark" style="animation-delay:2s" d="M0-10 L2.6-2.6 10 0 2.6 2.6 0 10 -2.6 2.6 -10 0 -2.6-2.6Z" fill="#fff"/></g>
+</g>
+<rect width="1200" height="190" rx="26" fill="none" stroke="#ffffff14"/>
+</svg>
