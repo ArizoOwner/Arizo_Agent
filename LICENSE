@@ -1,7 +1,87 @@
+Arizo-Agent — Proprietary License
+Version 1.0, 2026
+
 Copyright (c) 2026 ArizoTeam. All rights reserved.
 
-Arizo-Agent, its name, its mascot Ari, and the images, recordings and text in this
-repository are the property of ArizoTeam. Nothing here may be copied, modified,
-redistributed or used to make other works without written permission.
+1. Ownership
+   Arizo-Agent (the "Software"), including its source code, object code, design, user
+   interface, its name, its mascot "Ari", its logos, icons, sounds, animations, artwork,
+   recordings, documentation and text, is the property of ArizoTeam and is protected by
+   copyright and other intellectual-property laws. The Software is licensed, not sold.
 
-The application is free to download and use from https://arizoteam.ir.
+2. What you may do
+   You may download the Software only from https://arizoteam.ir (or a place ArizoTeam names
+   there) and install and use it on computers you own or control, for personal or work use,
+   free of charge.
+
+3. What you may not do
+   Without prior written permission from ArizoTeam you may not:
+   a. copy, modify, adapt, translate or create derivative works of the Software;
+   b. decompile, disassemble or reverse engineer it, except where the law allows this
+      despite this limitation;
+   c. redistribute, publish, sell, rent, lend, sublicense or host it for others, including
+      re-uploading the installer to another website or store;
+   d. remove or change any copyright, trademark or other notice in it;
+   e. use its name, "Ari", its logos or its artwork in another product, service or domain
+      name, or in a way that suggests ArizoTeam endorses you.
+
+4. Trademarks
+   "Arizo", "Arizo-Agent", "ArizoTeam" and "Ari", and their logos, are trademarks of
+   ArizoTeam. Other names shown in the Software (for example Spotify, Google, Binance or
+   football clubs) belong to their owners; their use only identifies the services the
+   Software works with and does not mean that those owners endorse it.
+
+5. Third-party components
+   Components bundled with the Software keep their own licenses; see NOTICE.md. Nothing in
+   this license limits rights those licenses give you.
+
+6. Third-party services
+   Features that use outside services (translation, AI engines, Spotify, football data,
+   exchanges) are subject to those services' own terms. You are responsible for the
+   accounts and keys you connect.
+
+7. Privacy
+   The Software has no telemetry. Text is sent only to the service you choose to use, and
+   keys and tokens are stored on your computer.
+
+8. No warranty
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+   INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+   PURPOSE AND NONINFRINGEMENT.
+
+9. Limitation of liability
+   TO THE EXTENT THE LAW ALLOWS, IN NO EVENT SHALL ARIZOTEAM BE LIABLE FOR ANY CLAIM,
+   DAMAGES OR OTHER LIABILITY ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR
+   ITS USE.
+
+10. Termination
+   This license ends automatically if you break it. You must then delete every copy of the
+   Software you have.
+
+11. Governing law
+   This license is governed by the laws of the Islamic Republic of Iran, including the Law
+   on the Protection of the Rights of Software Creators (1379 SH).
+
+Contact: https://arizoteam.ir · ArizoSupport@gmail.com
+
+──────────────────────────────────────────────────────────────────────────────────────────
+
+آریزو ایجنت — مجوز اختصاصی (ترجمه)
+
+© ۲۰۲۶ ArizoTeam. همه‌ی حقوق محفوظ است.
+
+آریزو ایجنت، شامل کد منبع، طراحی، رابط کاربری، نام، شخصیت «آری»، لوگوها، آیکن‌ها، صداها،
+انیمیشن‌ها، تصاویر و متن‌های آن، متعلق به ArizoTeam است و تحت حمایت قانون حمایت از حقوق
+پدیدآورندگان نرم‌افزارهای رایانه‌ای (مصوب ۱۳۷۹) و دیگر قوانین مالکیت فکری قرار دارد.
+
+- دانلود فقط از https://arizoteam.ir و استفاده‌ی رایگان روی رایانه‌های خودتان مجاز است.
+- بدون اجازه‌ی کتبی ArizoTeam، کپی، تغییر، ترجمه، مهندسی معکوس، انتشار دوباره، فروش،
+  اجاره یا بارگذاری نصب‌کننده در سایت یا فروشگاه دیگر ممنوع است.
+- حذف یا تغییر اعلان‌های کپی‌رایت و نشان تجاری ممنوع است.
+- نام‌های «Arizo»، «Arizo-Agent»، «ArizoTeam» و «آری» نشان‌های ArizoTeam هستند و استفاده از
+  آن‌ها در محصول یا دامنه‌ی دیگر مجاز نیست.
+- نرم‌افزار «همان‌گونه که هست» ارائه می‌شود و ArizoTeam مسئول خسارت ناشی از استفاده از آن
+  نیست.
+- با نقض این مجوز، حق استفاده خودبه‌خود لغو می‌شود.
+
+در صورت اختلاف، متن انگلیسی بالا ملاک است.
