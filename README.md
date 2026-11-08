@@ -54,9 +54,9 @@
 </td>
 <td width="50%" valign="top">
 
-<img src="media/phone-en.gif" width="100%" alt="Your phone, here">
+<img src="media/phone-en.gif" width="100%" alt="The Bridge">
 
-**Your phone, here**<br>Notifications and files from your phone, in the island.
+**The Bridge**<br>Files and text with your phone, from home or from anywhere through your own relay, and another PC linked in.
 
 </td>
 </tr>
