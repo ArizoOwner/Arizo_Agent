@@ -3,6 +3,7 @@
 <a href="https://arizoteam.ir"><img src="media/header.svg" width="100%" alt="Arizo-Agent"></a>
 
 [![Website](https://img.shields.io/badge/website-arizoteam.ir-8b5cf6?style=for-the-badge)](https://arizoteam.ir)
+[![Latest release](https://img.shields.io/github/v/release/ArizoOwner/Arizo_Agent?style=for-the-badge&color=34d399&label=latest)](https://github.com/ArizoOwner/Arizo_Agent/releases/latest)
 ![Windows](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4?style=for-the-badge&logo=windows&logoColor=white)
 
 [فارسی](README.fa.md)
@@ -10,6 +11,29 @@
 **A Dynamic Island for your Windows desktop.** It translates anything, plays your music, follows your football team, watches your crypto prices, brings Muse in and links your phone — while a little robot named **Ari** keeps you company.
 
 <img src="media/marquee.svg" width="100%" alt="">
+
+<table>
+<tr>
+<td width="46%" valign="middle">
+
+### New in 1.3 · Your PC's AI, on your phone
+
+Chat with **Claude Code** and **Antigravity's agent** on your PC from your phone — at home or from anywhere.
+
+- Start a new chat or pick up an old one, in any project or **on the computer** itself
+- Watch every tool it runs, live, and **allow or deny** each step that asks
+- Switch the model, the effort and the mode — **Bypass permissions** included
+
+[**Download 1.3 →**](https://github.com/ArizoOwner/Arizo_Agent/releases/latest)
+
+</td>
+<td width="54%" valign="top">
+
+<img src="media/control-en.gif" width="100%" alt="On the phone: Claude Code opened, a new chat on the computer, a message sent; the agent reads a file, asks to run npm test, Allow is tapped, and it answers">
+
+</td>
+</tr>
+</table>
 
 <table>
 <tr>
@@ -64,7 +88,7 @@
 
 <img src="media/cards.svg" width="100%" alt="">
 
-🪟 Windows 10 & 11 &nbsp;·&nbsp; 🌐 English & فارسی &nbsp;·&nbsp; 🔒 No telemetry — your keys stay on your PC
+🪟 Windows 10 & 11 &nbsp;·&nbsp; 🌐 English & فارسی &nbsp;·&nbsp; 🔒 No telemetry — your keys stay on your PC &nbsp;·&nbsp; 🛰️ Your own relay, sealed end to end
 
 <a href="https://arizoteam.ir"><img src="media/website-en.svg" width="70%" alt="arizoteam.ir"></a>
 

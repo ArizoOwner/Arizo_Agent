@@ -3,6 +3,7 @@
 <a href="https://arizoteam.ir"><img src="media/header.svg" width="100%" alt="Arizo-Agent"></a>
 
 [![وب‌سایت](https://img.shields.io/badge/website-arizoteam.ir-8b5cf6?style=for-the-badge)](https://arizoteam.ir)
+[![آخرین نسخه](https://img.shields.io/github/v/release/ArizoOwner/Arizo_Agent?style=for-the-badge&color=34d399&label=latest)](https://github.com/ArizoOwner/Arizo_Agent/releases/latest)
 ![Windows](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4?style=for-the-badge&logo=windows&logoColor=white)
 
 [English](README.md)
@@ -10,6 +11,29 @@
 **یک «داینامیک آیلند» برای دسکتاپ ویندوز.** هر متنی را ترجمه می‌کند، موسیقی‌تان را پخش می‌کند، تیم فوتبال‌تان را دنبال می‌کند، قیمت ارز دیجیتال را زنده نشان می‌دهد، Muse را می‌آورد و گوشی‌تان را وصل می‌کند — و رباتی کوچک به نام **آری** همراه‌تان است.
 
 <img src="media/marquee.svg" width="100%" alt="">
+
+<table>
+<tr>
+<td width="54%" valign="top">
+
+<img src="media/control-fa.gif" width="100%" alt="روی گوشی: باز کردن Claude Code، یک چت تازه روی خود کامپیوتر و فرستادن پیام؛ ایجنت فایلی را می‌خواند، برای اجرای npm test اجازه می‌خواهد، «اجازه» زده می‌شود و جواب می‌دهد">
+
+</td>
+<td width="46%" valign="middle" dir="rtl">
+
+### تازه در ۱٫۳ · هوش مصنوعی کامپیوترتان، روی گوشی
+
+از گوشی با **Claude Code** و **ایجنت Antigravity** روی کامپیوترتان چت کنید؛ در خانه یا از هر جا.
+
+- چت تازه بسازید یا گفتگوی قبلی را ادامه دهید؛ در هر پروژه یا **روی خود کامپیوتر**
+- هر ابزاری که اجرا می‌کند را زنده ببینید و هر قدمی که اجازه می‌خواهد را **تأیید یا رد** کنید
+- مدل، میزان تلاش و حالت را عوض کنید؛ حتی حالت **بدون اجازه گرفتن**
+
+[**دانلود ۱٫۳ ←**](https://github.com/ArizoOwner/Arizo_Agent/releases/latest)
+
+</td>
+</tr>
+</table>
 
 <table>
 <tr>
@@ -64,7 +88,7 @@
 
 <img src="media/cards.svg" width="100%" alt="">
 
-🪟 ویندوز ۱۰ و ۱۱ &nbsp;·&nbsp; 🌐 فارسی و English &nbsp;·&nbsp; 🔒 بدون تلمتری — کلیدهای شما روی کامپیوتر خودتان می‌ماند
+🪟 ویندوز ۱۰ و ۱۱ &nbsp;·&nbsp; 🌐 فارسی و English &nbsp;·&nbsp; 🔒 بدون تلمتری — کلیدهای شما روی کامپیوتر خودتان می‌ماند &nbsp;·&nbsp; 🛰️ رله‌ی خودتان، رمزنگاری‌شده از سر تا ته
 
 <a href="https://arizoteam.ir"><img src="media/website-fa.svg" width="70%" alt="arizoteam.ir"></a>
 
