@@ -16,15 +16,15 @@
 <tr>
 <td width="46%" valign="middle">
 
-### New in 1.3 · Your PC's AI, on your phone
+### New in 1.4 · The island, one piece
 
-Chat with **Claude Code** and **Antigravity's agent** on your PC from your phone — at home or from anywhere.
+- **One piece with the screen:** at the top edge the island's black bends down into it, like a notch, and the neon ring follows the bends
+- **Round the screen:** the ring's light leaves the island, runs along the top edge or the whole screen, and comes back in
+- **Peek on hover:** the song playing with its controls, your team's live game, the coin's price and the date, without opening the island
 
-- Start a new chat or pick up an old one, in any project or **on the computer** itself
-- Watch every tool it runs, live, and **allow or deny** each step that asks
-- Switch the model, the effort and the mode — **Bypass permissions** included
+Also in 1.3: chat with **Claude Code** and **Antigravity's agent** on your PC from your phone.
 
-[**Download 1.3 →**](https://github.com/ArizoOwner/Arizo_Agent/releases/latest)
+[**Download 1.4 →**](https://github.com/ArizoOwner/Arizo_Agent/releases/latest)
 
 </td>
 <td width="54%" valign="top">
