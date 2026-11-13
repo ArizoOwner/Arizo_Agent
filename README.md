@@ -22,15 +22,16 @@
 - **Free days, then a plan:** 1, 3, 6 or 12 months, paid in TON from any wallet and confirmed by itself
 - **Support:** Telegram or a live ticket, right from your account page
 - **Updates by themselves,** and a tidy new Settings with search
+- **New in 2.0.1:** Free or VIP on every account, and the free days the service gives shown live
 
 Also in 1.4: the island in one piece with the screen, and peek on hover.
 
-[**Download 2.0 (pre-release) →**](https://github.com/ArizoOwner/Arizo_Agent/releases/tag/v2.0.0)
+[**Download 2.0.1 →**](https://github.com/ArizoOwner/Arizo_Agent/releases/latest)
 
 </td>
 <td width="54%" valign="top">
 
-<img src="media/account-en.gif" width="100%" alt="The island opens on its sign-in card: an e-mail and a password are typed and Sign in is pressed; the island opens, then Settings shows Account (the free days left, the PCs) and Updates (v2.0.0, installs by itself), and Sign out brings the card back">
+<img src="media/account-en.gif" width="100%" alt="The island opens on its sign-in card: an e-mail and a password are typed and Sign in is pressed; the island opens, then Settings shows Account (the free days left, the PCs) and Updates (installs by itself), and Sign out brings the card back">
 
 </td>
 </tr>
