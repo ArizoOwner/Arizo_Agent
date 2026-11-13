@@ -30,7 +30,7 @@ Also in 1.4: the island in one piece with the screen, and peek on hover.
 </td>
 <td width="54%" valign="top">
 
-<img src="media/control-en.gif" width="100%" alt="On the phone: Claude Code opened, a new chat on the computer, a message sent; the agent reads a file, asks to run npm test, Allow is tapped, and it answers">
+<img src="media/account-en.gif" width="100%" alt="The island opens on its sign-in card: an e-mail and a password are typed and Sign in is pressed; the island opens, then Settings shows Account (the free days left, the PCs) and Updates (v2.0.0, installs by itself), and Sign out brings the card back">
 
 </td>
 </tr>
