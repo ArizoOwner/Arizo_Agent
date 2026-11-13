@@ -16,15 +16,16 @@
 <tr>
 <td width="46%" valign="middle">
 
-### New in 1.4 · The island, one piece
+### New in 2.0 · Your account, everywhere
 
-- **One piece with the screen:** at the top edge the island's black bends down into it, like a notch, and the neon ring follows the bends
-- **Round the screen:** the ring's light leaves the island, runs along the top edge or the whole screen, and comes back in
-- **Peek on hover:** the song playing with its controls, your team's live game, the coin's price and the date, without opening the island
+- **An account for the island:** sign up in the island or on the site, with an e-mail or with Google, one account on every PC
+- **Free days, then a plan:** 1, 3, 6 or 12 months, paid in TON from any wallet and confirmed by itself
+- **Support:** Telegram or a live ticket, right from your account page
+- **Updates by themselves,** and a tidy new Settings with search
 
-Also in 1.3: chat with **Claude Code** and **Antigravity's agent** on your PC from your phone.
+Also in 1.4: the island in one piece with the screen, and peek on hover.
 
-[**Download 1.4 →**](https://github.com/ArizoOwner/Arizo_Agent/releases/latest)
+[**Download 2.0 (pre-release) →**](https://github.com/ArizoOwner/Arizo_Agent/releases/tag/v2.0.0)
 
 </td>
 <td width="54%" valign="top">
