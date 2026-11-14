@@ -22,11 +22,11 @@
 - **Free days, then a plan:** 1, 3, 6 or 12 months, paid in TON from any wallet and confirmed by itself
 - **Support:** Telegram or a live ticket, right from your account page
 - **Updates by themselves,** and a tidy new Settings with search
-- **New in 2.0.1:** Free or VIP on every account, and the free days the service gives shown live
+- **New in 2.0.1 and 2.0.2:** Free or VIP on every account, the free days shown live, and a new account confirms its e-mail with a code
 
 Also in 1.4: the island in one piece with the screen, and peek on hover.
 
-[**Download 2.0.1 →**](https://github.com/ArizoOwner/Arizo_Agent/releases/latest)
+[**Download 2.0.2 →**](https://github.com/ArizoOwner/Arizo_Agent/releases/latest)
 
 </td>
 <td width="54%" valign="top">
