@@ -22,11 +22,11 @@
 - **Free days, then a plan:** 1, 3, 6 or 12 months, paid in TON from any wallet and confirmed by itself
 - **Support:** Telegram or a live ticket, right from your account page
 - **Updates by themselves,** and a tidy new Settings with search
-- **New in 2.1:** folded, the island is Ari himself: his visor and eyes, black or white with the theme; a safer phone link and safer accounts; settings that survive a power cut
+- **New in 2.1:** folded, the island is Ari himself: his visor and eyes, black or white with the theme; a safer phone link and safer accounts; settings that survive a power cut; and from 2.1.1 the island stays on top of every app after the PC starts
 
 Also in 1.4: the island in one piece with the screen, and peek on hover.
 
-[**Download 2.1.0 →**](https://github.com/ArizoOwner/Arizo_Agent/releases/latest)
+[**Download 2.1.1 →**](https://github.com/ArizoOwner/Arizo_Agent/releases/latest)
 
 </td>
 <td width="54%" valign="top">
