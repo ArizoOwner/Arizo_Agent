@@ -23,11 +23,11 @@
 - **Support:** Telegram or a live ticket, right from your account page
 - **Updates by themselves,** and a tidy new Settings with search
 - **New in 2.1:** folded, the island is Ari himself: his visor and eyes, black or white with the theme; a safer phone link and safer accounts; settings that survive a power cut; and from 2.1.1 the island stays on top of every app after the PC starts
-- **New in 2.2 · Game Mode:** when a game fills the screen, Ari powers up and the island shows your FPS, CPU, GPU and temperature beside him; a hotkey opens an overlay of tools over the game, and nothing pops up while you play; from 2.2.1 a calm new entrance with its own soundtrack, and numbers in the size and colour you pick
+- **New in 2.2 · Game Mode:** when a game fills the screen, Ari powers up and the island shows your FPS, CPU, GPU and temperature beside him; a hotkey opens an overlay of tools over the game, and nothing pops up while you play; from 2.2.1 a calm new entrance with its own soundtrack, and numbers in the size and colour you pick; from 2.2.2 a real FPS counter and CPU and GPU numbers that match Task Manager
 
 Also in 1.4: the island in one piece with the screen, and peek on hover.
 
-[**Download 2.2.1 →**](https://github.com/ArizoOwner/Arizo_Agent/releases/latest)
+[**Download 2.2.2 →**](https://github.com/ArizoOwner/Arizo_Agent/releases/latest)
 
 </td>
 <td width="54%" valign="top">
