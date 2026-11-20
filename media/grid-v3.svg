@@ -1,0 +1,235 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 500" width="1200" height="500" role="img" aria-label="Everything Arizo-Agent does: translate in place, Game Mode, Spotify, live football, live crypto, the Bridge, your PC's AI, Muse, the wardrobe, your own look, one account, private">
+
+<defs>
+  <linearGradient id="g3sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0a0820"/><stop offset=".55" stop-color="#05040d"/><stop offset="1" stop-color="#020208"/></linearGradient>
+  <radialGradient id="g3a1" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#6d5cff" stop-opacity=".75"/><stop offset="1" stop-color="#6d5cff" stop-opacity="0"/></radialGradient>
+  <radialGradient id="g3a2" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#22d3ee" stop-opacity=".55"/><stop offset="1" stop-color="#22d3ee" stop-opacity="0"/></radialGradient>
+  <radialGradient id="g3a3" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#e879f9" stop-opacity=".5"/><stop offset="1" stop-color="#e879f9" stop-opacity="0"/></radialGradient>
+  <linearGradient id="g3glass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity=".13"/><stop offset=".5" stop-color="#ffffff" stop-opacity=".04"/><stop offset="1" stop-color="#ffffff" stop-opacity=".09"/></linearGradient>
+  <linearGradient id="g3edge" x1="0" y1="0" x2="1" y2="0" gradientUnits="objectBoundingBox">
+    <stop offset="0" stop-color="#22d3ee"/><stop offset=".35" stop-color="#6d5cff"/><stop offset=".7" stop-color="#e879f9"/><stop offset="1" stop-color="#fbbf24"/>
+    <animateTransform attributeName="gradientTransform" type="rotate" values="0 .5 .5;360 .5 .5" dur="9s" repeatCount="indefinite"/>
+  </linearGradient>
+  <linearGradient id="g3title" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="700" y2="0" spreadMethod="reflect">
+    <stop offset="0" stop-color="#22d3ee"/><stop offset=".33" stop-color="#ffffff"/><stop offset=".66" stop-color="#e879f9"/><stop offset="1" stop-color="#fbbf24"/>
+    <animateTransform attributeName="gradientTransform" type="translate" from="-700 0" to="700 0" dur="8s" repeatCount="indefinite"/>
+  </linearGradient>
+  <linearGradient id="g3floorfade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".25" stop-color="#fff" stop-opacity=".9"/><stop offset="1" stop-color="#fff" stop-opacity=".15"/></linearGradient>
+  <linearGradient id="g3refl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".32"/><stop offset=".6" stop-color="#fff" stop-opacity="0"/></linearGradient>
+  <filter id="g3blur" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="46"/></filter>
+  <filter id="g3soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="9"/></filter>
+  <filter id="g3glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter><clipPath id="g3clip"><rect width="1200" height="500" rx="32"/></clipPath></defs>
+<style>
+  text{font-family:'Segoe UI','Inter',system-ui,-apple-system,Arial,sans-serif}
+  .float{animation:float 5s ease-in-out infinite}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+  .breathe{transform-box:fill-box;transform-origin:50% 100%;animation:breathe 4s ease-in-out infinite}
+  @keyframes breathe{0%,100%{transform:scale(1,1)}50%{transform:scale(1.025,.972)}}
+  .eye{transform-box:fill-box;transform-origin:center;animation:blink 5s infinite}
+  @keyframes blink{0%,91%,100%{transform:scaleY(1)}94%{transform:scaleY(.08)}}
+  .look{animation:look 9s ease-in-out infinite}
+  @keyframes look{0%,100%{transform:translate(0,0)}15%{transform:translate(-14px,3px)}35%{transform:translate(12px,-3px)}55%{transform:translate(0,6px)}75%{transform:translate(8px,2px)}}
+  .spark{transform-box:fill-box;transform-origin:center;animation:spark 3s ease-in-out infinite}
+  @keyframes spark{0%,100%{transform:scale(.2) rotate(0);opacity:0}50%{transform:scale(1) rotate(45deg);opacity:1}}
+  .drift{animation:drift 7s ease-in-out infinite}
+  @keyframes drift{0%,100%{transform:translate(0,0)}50%{transform:translate(0,-14px)}}
+  .twinkle{animation:twinkle 4s ease-in-out infinite}
+  @keyframes twinkle{0%,100%{opacity:.15}50%{opacity:.9}}
+  .pair{transform-box:fill-box;transform-origin:center;animation:pair 9s infinite both;opacity:0}
+  @keyframes pair{0%{opacity:0;transform:scale(.7) translateY(10px)}4%{opacity:1;transform:scale(1.04) translateY(0)}6%{transform:scale(1)}29%{opacity:1;transform:scale(1)}33%{opacity:0;transform:scale(.9) translateY(-8px)}100%{opacity:0}}
+
+  text{font-family:'Segoe UI','Inter',system-ui,-apple-system,Arial,sans-serif}
+  .fa{font-family:Vazirmatn,Tahoma,'Segoe UI',sans-serif}
+  .mono{font-family:'Cascadia Code','JetBrains Mono',Consolas,monospace}
+  .aur{transform-box:fill-box;transform-origin:center;animation:aur 14s ease-in-out infinite}
+  @keyframes aur{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(60px,-24px) scale(1.12)}66%{transform:translate(-50px,20px) scale(.92)}}
+  .scroll{animation:scroll 2.6s linear infinite}
+  @keyframes scroll{from{transform:translateY(0)}to{transform:translateY(var(--step))}}
+  .bob{animation:bob 6s ease-in-out infinite}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+  .tilt{transform-box:fill-box;transform-origin:center;animation:tilt 8s ease-in-out infinite}
+  @keyframes tilt{0%,100%{transform:rotate(-1.4deg)}50%{transform:rotate(1.4deg)}}
+  .rise{opacity:0;animation:rise 1s cubic-bezier(.2,.8,.2,1) forwards}
+  @keyframes rise{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+  .orbit{transform-box:view-box;animation:orbit 18s linear infinite}
+  @keyframes orbit{to{transform:rotate(360deg)}}
+  .pulse{transform-box:fill-box;transform-origin:center;animation:pulse 3.4s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:.35;transform:scale(.92)}50%{opacity:.9;transform:scale(1.06)}}
+  .shine{animation:shine 5.5s ease-in-out infinite}
+  @keyframes shine{0%,55%{transform:translateX(-260px)}100%{transform:translateX(1500px)}}
+  .caret{animation:caret 1s steps(1) infinite}
+  @keyframes caret{50%{opacity:0}}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important}.rise{opacity:1}}</style>
+<g clip-path="url(#g3clip)">
+  
+  <rect width="1200" height="500" fill="url(#g3sky)"/>
+  <ellipse class="aur" cx="264" cy="150" rx="384" ry="210" fill="url(#g3a1)" filter="url(#g3blur)"/>
+  <ellipse class="aur" style="animation-delay:-5s" cx="936" cy="140" rx="336.00000000000006" ry="190" fill="url(#g3a3)" filter="url(#g3blur)"/>
+  <ellipse class="aur" style="animation-delay:-9s" cx="660" cy="310" rx="360" ry="150" fill="url(#g3a2)" filter="url(#g3blur)"/>
+  
+  <mask id="g3fm"><rect y="454" width="1200" height="46" fill="url(#g3floorfade)"/></mask>
+  <g mask="url(#g3fm)" stroke="#6d5cff" stroke-opacity=".32" stroke-width="1">
+    <line x1="530" y1="454" x2="-720" y2="500"/><line x1="535.8333333333334" y1="454" x2="-610" y2="500"/><line x1="541.6666666666666" y1="454" x2="-500" y2="500"/><line x1="547.5" y1="454" x2="-390.0000000000001" y2="500"/><line x1="553.3333333333334" y1="454" x2="-280.0000000000001" y2="500"/><line x1="559.1666666666666" y1="454" x2="-170.0000000000001" y2="500"/><line x1="565" y1="454" x2="-60" y2="500"/><line x1="570.8333333333334" y1="454" x2="50" y2="500"/><line x1="576.6666666666666" y1="454" x2="159.99999999999994" y2="500"/><line x1="582.5" y1="454" x2="270" y2="500"/><line x1="588.3333333333334" y1="454" x2="380" y2="500"/><line x1="594.1666666666666" y1="454" x2="490" y2="500"/><line x1="600" y1="454" x2="600" y2="500"/><line x1="605.8333333333334" y1="454" x2="710" y2="500"/><line x1="611.6666666666666" y1="454" x2="820" y2="500"/><line x1="617.5" y1="454" x2="930" y2="500"/><line x1="623.3333333333334" y1="454" x2="1040" y2="500"/><line x1="629.1666666666666" y1="454" x2="1150" y2="500"/><line x1="635" y1="454" x2="1260" y2="500"/><line x1="640.8333333333334" y1="454" x2="1370" y2="500"/><line x1="646.6666666666666" y1="454" x2="1480" y2="500"/><line x1="652.5" y1="454" x2="1590" y2="500"/><line x1="658.3333333333334" y1="454" x2="1700" y2="500"/><line x1="664.1666666666666" y1="454" x2="1810" y2="500"/><line x1="670" y1="454" x2="1920" y2="500"/>
+    <g class="scroll" style="--step:4.6px"><line x1="0" y1="454.0" x2="1200" y2="454.0"/><line x1="0" y1="454.7" x2="1200" y2="454.7"/><line x1="0" y1="456.6" x2="1200" y2="456.6"/><line x1="0" y1="459.7" x2="1200" y2="459.7"/><line x1="0" y1="463.9" x2="1200" y2="463.9"/><line x1="0" y1="469.1" x2="1200" y2="469.1"/><line x1="0" y1="475.3" x2="1200" y2="475.3"/><line x1="0" y1="482.5" x2="1200" y2="482.5"/><line x1="0" y1="490.8" x2="1200" y2="490.8"/><line x1="0" y1="500.0" x2="1200" y2="500.0"/></g>
+  </g>
+  <rect x="0" y="453" width="1200" height="2" fill="#6d5cff" opacity=".55" filter="url(#g3glow)"/>
+  <g class="rise" style="animation-delay:0.00s">
+  <g >
+    <rect x="50" y="58" width="260" height="112" rx="20" fill="#000" opacity=".45" filter="url(#g3soft)"/>
+    <rect x="44" y="53" width="260" height="112" rx="20" fill="#1a1636"/>
+    <rect x="44" y="48" width="260" height="112" rx="20" fill="#100e24"/>
+    <rect x="44" y="48" width="260" height="112" rx="20" fill="url(#g3glass)"/>
+    <rect x="44.75" y="48.75" width="258.5" height="110.5" rx="20" fill="none" stroke="url(#g3edge)" stroke-width="1.5" opacity=".9"/>
+    <path d="M64 49.2 H284" stroke="#fff" stroke-opacity=".35" stroke-width="1"/>
+  </g>
+    <circle cx="88" cy="104" r="26" fill="#22d3ee" opacity=".16"/><circle class="pulse" style="animation-delay:0.0s" cx="88" cy="104" r="26" fill="none" stroke="#22d3ee" stroke-opacity=".6"/>
+    <text x="88" y="114" text-anchor="middle" font-size="26" style="font-family:'Segoe UI Emoji','Apple Color Emoji',sans-serif">⚡</text>
+    <text x="130" y="98" font-size="17" font-weight="800" fill="#fff">Translate in place</text>
+    <text x="130" y="122" font-size="13.5" fill="#9aa3c7">Alt+Shift+D in any app</text>
+    <rect x="130" y="134" width="40" height="3" rx="1.5" fill="#22d3ee"/></g><g class="rise" style="animation-delay:0.08s">
+  <g >
+    <rect x="334" y="58" width="260" height="112" rx="20" fill="#000" opacity=".45" filter="url(#g3soft)"/>
+    <rect x="328" y="53" width="260" height="112" rx="20" fill="#1a1636"/>
+    <rect x="328" y="48" width="260" height="112" rx="20" fill="#100e24"/>
+    <rect x="328" y="48" width="260" height="112" rx="20" fill="url(#g3glass)"/>
+    <rect x="328.75" y="48.75" width="258.5" height="110.5" rx="20" fill="none" stroke="url(#g3edge)" stroke-width="1.5" opacity=".9"/>
+    <path d="M348 49.2 H568" stroke="#fff" stroke-opacity=".35" stroke-width="1"/>
+  </g>
+    <circle cx="372" cy="104" r="26" fill="#e879f9" opacity=".16"/><circle class="pulse" style="animation-delay:0.3s" cx="372" cy="104" r="26" fill="none" stroke="#e879f9" stroke-opacity=".6"/>
+    <text x="372" y="114" text-anchor="middle" font-size="26" style="font-family:'Segoe UI Emoji','Apple Color Emoji',sans-serif">🎮</text>
+    <text x="414" y="98" font-size="17" font-weight="800" fill="#fff">Game Mode</text>
+    <text x="414" y="122" font-size="13.5" fill="#9aa3c7">Real FPS, CPU and GPU</text>
+    <rect x="414" y="134" width="40" height="3" rx="1.5" fill="#e879f9"/></g><g class="rise" style="animation-delay:0.16s">
+  <g >
+    <rect x="618" y="58" width="260" height="112" rx="20" fill="#000" opacity=".45" filter="url(#g3soft)"/>
+    <rect x="612" y="53" width="260" height="112" rx="20" fill="#1a1636"/>
+    <rect x="612" y="48" width="260" height="112" rx="20" fill="#100e24"/>
+    <rect x="612" y="48" width="260" height="112" rx="20" fill="url(#g3glass)"/>
+    <rect x="612.75" y="48.75" width="258.5" height="110.5" rx="20" fill="none" stroke="url(#g3edge)" stroke-width="1.5" opacity=".9"/>
+    <path d="M632 49.2 H852" stroke="#fff" stroke-opacity=".35" stroke-width="1"/>
+  </g>
+    <circle cx="656" cy="104" r="26" fill="#34d399" opacity=".16"/><circle class="pulse" style="animation-delay:0.6s" cx="656" cy="104" r="26" fill="none" stroke="#34d399" stroke-opacity=".6"/>
+    <text x="656" y="114" text-anchor="middle" font-size="26" style="font-family:'Segoe UI Emoji','Apple Color Emoji',sans-serif">🎵</text>
+    <text x="698" y="98" font-size="17" font-weight="800" fill="#fff">Spotify</text>
+    <text x="698" y="122" font-size="13.5" fill="#9aa3c7">And Ari dances to it</text>
+    <rect x="698" y="134" width="40" height="3" rx="1.5" fill="#34d399"/></g><g class="rise" style="animation-delay:0.24s">
+  <g >
+    <rect x="902" y="58" width="260" height="112" rx="20" fill="#000" opacity=".45" filter="url(#g3soft)"/>
+    <rect x="896" y="53" width="260" height="112" rx="20" fill="#1a1636"/>
+    <rect x="896" y="48" width="260" height="112" rx="20" fill="#100e24"/>
+    <rect x="896" y="48" width="260" height="112" rx="20" fill="url(#g3glass)"/>
+    <rect x="896.75" y="48.75" width="258.5" height="110.5" rx="20" fill="none" stroke="url(#g3edge)" stroke-width="1.5" opacity=".9"/>
+    <path d="M916 49.2 H1136" stroke="#fff" stroke-opacity=".35" stroke-width="1"/>
+  </g>
+    <circle cx="940" cy="104" r="26" fill="#60a5fa" opacity=".16"/><circle class="pulse" style="animation-delay:0.9s" cx="940" cy="104" r="26" fill="none" stroke="#60a5fa" stroke-opacity=".6"/>
+    <text x="940" y="114" text-anchor="middle" font-size="26" style="font-family:'Segoe UI Emoji','Apple Color Emoji',sans-serif">⚽</text>
+    <text x="982" y="98" font-size="17" font-weight="800" fill="#fff">Live football</text>
+    <text x="982" y="122" font-size="13.5" fill="#9aa3c7">A show for every goal</text>
+    <rect x="982" y="134" width="40" height="3" rx="1.5" fill="#60a5fa"/></g><g class="rise" style="animation-delay:0.32s">
+  <g >
+    <rect x="50" y="192" width="260" height="112" rx="20" fill="#000" opacity=".45" filter="url(#g3soft)"/>
+    <rect x="44" y="187" width="260" height="112" rx="20" fill="#1a1636"/>
+    <rect x="44" y="182" width="260" height="112" rx="20" fill="#100e24"/>
+    <rect x="44" y="182" width="260" height="112" rx="20" fill="url(#g3glass)"/>
+    <rect x="44.75" y="182.75" width="258.5" height="110.5" rx="20" fill="none" stroke="url(#g3edge)" stroke-width="1.5" opacity=".9"/>
+    <path d="M64 183.2 H284" stroke="#fff" stroke-opacity=".35" stroke-width="1"/>
+  </g>
+    <circle cx="88" cy="238" r="26" fill="#fbbf24" opacity=".16"/><circle class="pulse" style="animation-delay:1.2s" cx="88" cy="238" r="26" fill="none" stroke="#fbbf24" stroke-opacity=".6"/>
+    <text x="88" y="248" text-anchor="middle" font-size="26" style="font-family:'Segoe UI Emoji','Apple Color Emoji',sans-serif">₿</text>
+    <text x="130" y="232" font-size="17" font-weight="800" fill="#fff">Live crypto</text>
+    <text x="130" y="256" font-size="13.5" fill="#9aa3c7">Your own exchange</text>
+    <rect x="130" y="268" width="40" height="3" rx="1.5" fill="#fbbf24"/></g><g class="rise" style="animation-delay:0.40s">
+  <g >
+    <rect x="334" y="192" width="260" height="112" rx="20" fill="#000" opacity=".45" filter="url(#g3soft)"/>
+    <rect x="328" y="187" width="260" height="112" rx="20" fill="#1a1636"/>
+    <rect x="328" y="182" width="260" height="112" rx="20" fill="#100e24"/>
+    <rect x="328" y="182" width="260" height="112" rx="20" fill="url(#g3glass)"/>
+    <rect x="328.75" y="182.75" width="258.5" height="110.5" rx="20" fill="none" stroke="url(#g3edge)" stroke-width="1.5" opacity=".9"/>
+    <path d="M348 183.2 H568" stroke="#fff" stroke-opacity=".35" stroke-width="1"/>
+  </g>
+    <circle cx="372" cy="238" r="26" fill="#a78bfa" opacity=".16"/><circle class="pulse" style="animation-delay:1.5s" cx="372" cy="238" r="26" fill="none" stroke="#a78bfa" stroke-opacity=".6"/>
+    <text x="372" y="248" text-anchor="middle" font-size="26" style="font-family:'Segoe UI Emoji','Apple Color Emoji',sans-serif">📱</text>
+    <text x="414" y="232" font-size="17" font-weight="800" fill="#fff">The Bridge</text>
+    <text x="414" y="256" font-size="13.5" fill="#9aa3c7">Your phone and a 2nd PC</text>
+    <rect x="414" y="268" width="40" height="3" rx="1.5" fill="#a78bfa"/></g><g class="rise" style="animation-delay:0.48s">
+  <g >
+    <rect x="618" y="192" width="260" height="112" rx="20" fill="#000" opacity=".45" filter="url(#g3soft)"/>
+    <rect x="612" y="187" width="260" height="112" rx="20" fill="#1a1636"/>
+    <rect x="612" y="182" width="260" height="112" rx="20" fill="#100e24"/>
+    <rect x="612" y="182" width="260" height="112" rx="20" fill="url(#g3glass)"/>
+    <rect x="612.75" y="182.75" width="258.5" height="110.5" rx="20" fill="none" stroke="url(#g3edge)" stroke-width="1.5" opacity=".9"/>
+    <path d="M632 183.2 H852" stroke="#fff" stroke-opacity=".35" stroke-width="1"/>
+  </g>
+    <circle cx="656" cy="238" r="26" fill="#22d3ee" opacity=".16"/><circle class="pulse" style="animation-delay:1.8s" cx="656" cy="238" r="26" fill="none" stroke="#22d3ee" stroke-opacity=".6"/>
+    <text x="656" y="248" text-anchor="middle" font-size="26" style="font-family:'Segoe UI Emoji','Apple Color Emoji',sans-serif">🤖</text>
+    <text x="698" y="232" font-size="17" font-weight="800" fill="#fff">Your PC's AI</text>
+    <text x="698" y="256" font-size="13.5" fill="#9aa3c7">Claude Code from the phone</text>
+    <rect x="698" y="268" width="40" height="3" rx="1.5" fill="#22d3ee"/></g><g class="rise" style="animation-delay:0.56s">
+  <g >
+    <rect x="902" y="192" width="260" height="112" rx="20" fill="#000" opacity=".45" filter="url(#g3soft)"/>
+    <rect x="896" y="187" width="260" height="112" rx="20" fill="#1a1636"/>
+    <rect x="896" y="182" width="260" height="112" rx="20" fill="#100e24"/>
+    <rect x="896" y="182" width="260" height="112" rx="20" fill="url(#g3glass)"/>
+    <rect x="896.75" y="182.75" width="258.5" height="110.5" rx="20" fill="none" stroke="url(#g3edge)" stroke-width="1.5" opacity=".9"/>
+    <path d="M916 183.2 H1136" stroke="#fff" stroke-opacity=".35" stroke-width="1"/>
+  </g>
+    <circle cx="940" cy="238" r="26" fill="#fb7185" opacity=".16"/><circle class="pulse" style="animation-delay:2.1s" cx="940" cy="238" r="26" fill="none" stroke="#fb7185" stroke-opacity=".6"/>
+    <text x="940" y="248" text-anchor="middle" font-size="26" style="font-family:'Segoe UI Emoji','Apple Color Emoji',sans-serif">💬</text>
+    <text x="982" y="232" font-size="17" font-weight="800" fill="#fff">Muse inside</text>
+    <text x="982" y="256" font-size="13.5" fill="#9aa3c7">Off until you want it</text>
+    <rect x="982" y="268" width="40" height="3" rx="1.5" fill="#fb7185"/></g><g class="rise" style="animation-delay:0.64s">
+  <g >
+    <rect x="50" y="326" width="260" height="112" rx="20" fill="#000" opacity=".45" filter="url(#g3soft)"/>
+    <rect x="44" y="321" width="260" height="112" rx="20" fill="#1a1636"/>
+    <rect x="44" y="316" width="260" height="112" rx="20" fill="#100e24"/>
+    <rect x="44" y="316" width="260" height="112" rx="20" fill="url(#g3glass)"/>
+    <rect x="44.75" y="316.75" width="258.5" height="110.5" rx="20" fill="none" stroke="url(#g3edge)" stroke-width="1.5" opacity=".9"/>
+    <path d="M64 317.2 H284" stroke="#fff" stroke-opacity=".35" stroke-width="1"/>
+  </g>
+    <circle cx="88" cy="372" r="26" fill="#fb923c" opacity=".16"/><circle class="pulse" style="animation-delay:2.4s" cx="88" cy="372" r="26" fill="none" stroke="#fb923c" stroke-opacity=".6"/>
+    <text x="88" y="382" text-anchor="middle" font-size="26" style="font-family:'Segoe UI Emoji','Apple Color Emoji',sans-serif">🎩</text>
+    <text x="130" y="366" font-size="17" font-weight="800" fill="#fff">Ari's wardrobe</text>
+    <text x="130" y="390" font-size="13.5" fill="#9aa3c7">Hats, seasons, Halloween</text>
+    <rect x="130" y="402" width="40" height="3" rx="1.5" fill="#fb923c"/></g><g class="rise" style="animation-delay:0.72s">
+  <g >
+    <rect x="334" y="326" width="260" height="112" rx="20" fill="#000" opacity=".45" filter="url(#g3soft)"/>
+    <rect x="328" y="321" width="260" height="112" rx="20" fill="#1a1636"/>
+    <rect x="328" y="316" width="260" height="112" rx="20" fill="#100e24"/>
+    <rect x="328" y="316" width="260" height="112" rx="20" fill="url(#g3glass)"/>
+    <rect x="328.75" y="316.75" width="258.5" height="110.5" rx="20" fill="none" stroke="url(#g3edge)" stroke-width="1.5" opacity=".9"/>
+    <path d="M348 317.2 H568" stroke="#fff" stroke-opacity=".35" stroke-width="1"/>
+  </g>
+    <circle cx="372" cy="372" r="26" fill="#e879f9" opacity=".16"/><circle class="pulse" style="animation-delay:2.7s" cx="372" cy="372" r="26" fill="none" stroke="#e879f9" stroke-opacity=".6"/>
+    <text x="372" y="382" text-anchor="middle" font-size="26" style="font-family:'Segoe UI Emoji','Apple Color Emoji',sans-serif">🎛️</text>
+    <text x="414" y="366" font-size="17" font-weight="800" fill="#fff">Make it yours</text>
+    <text x="414" y="390" font-size="13.5" fill="#9aa3c7">Size, colour, see-through</text>
+    <rect x="414" y="402" width="40" height="3" rx="1.5" fill="#e879f9"/></g><g class="rise" style="animation-delay:0.80s">
+  <g >
+    <rect x="618" y="326" width="260" height="112" rx="20" fill="#000" opacity=".45" filter="url(#g3soft)"/>
+    <rect x="612" y="321" width="260" height="112" rx="20" fill="#1a1636"/>
+    <rect x="612" y="316" width="260" height="112" rx="20" fill="#100e24"/>
+    <rect x="612" y="316" width="260" height="112" rx="20" fill="url(#g3glass)"/>
+    <rect x="612.75" y="316.75" width="258.5" height="110.5" rx="20" fill="none" stroke="url(#g3edge)" stroke-width="1.5" opacity=".9"/>
+    <path d="M632 317.2 H852" stroke="#fff" stroke-opacity=".35" stroke-width="1"/>
+  </g>
+    <circle cx="656" cy="372" r="26" fill="#34d399" opacity=".16"/><circle class="pulse" style="animation-delay:3.0s" cx="656" cy="372" r="26" fill="none" stroke="#34d399" stroke-opacity=".6"/>
+    <text x="656" y="382" text-anchor="middle" font-size="26" style="font-family:'Segoe UI Emoji','Apple Color Emoji',sans-serif">👤</text>
+    <text x="698" y="366" font-size="17" font-weight="800" fill="#fff">One account</text>
+    <text x="698" y="390" font-size="13.5" fill="#9aa3c7">Every PC, free days first</text>
+    <rect x="698" y="402" width="40" height="3" rx="1.5" fill="#34d399"/></g><g class="rise" style="animation-delay:0.88s">
+  <g >
+    <rect x="902" y="326" width="260" height="112" rx="20" fill="#000" opacity=".45" filter="url(#g3soft)"/>
+    <rect x="896" y="321" width="260" height="112" rx="20" fill="#1a1636"/>
+    <rect x="896" y="316" width="260" height="112" rx="20" fill="#100e24"/>
+    <rect x="896" y="316" width="260" height="112" rx="20" fill="url(#g3glass)"/>
+    <rect x="896.75" y="316.75" width="258.5" height="110.5" rx="20" fill="none" stroke="url(#g3edge)" stroke-width="1.5" opacity=".9"/>
+    <path d="M916 317.2 H1136" stroke="#fff" stroke-opacity=".35" stroke-width="1"/>
+  </g>
+    <circle cx="940" cy="372" r="26" fill="#22c55e" opacity=".16"/><circle class="pulse" style="animation-delay:3.3s" cx="940" cy="372" r="26" fill="none" stroke="#22c55e" stroke-opacity=".6"/>
+    <text x="940" y="382" text-anchor="middle" font-size="26" style="font-family:'Segoe UI Emoji','Apple Color Emoji',sans-serif">🔒</text>
+    <text x="982" y="366" font-size="17" font-weight="800" fill="#fff">Private</text>
+    <text x="982" y="390" font-size="13.5" fill="#9aa3c7">No telemetry, ever</text>
+    <rect x="982" y="402" width="40" height="3" rx="1.5" fill="#22c55e"/></g>
+</g>
+<rect x=".75" y=".75" width="1198.5" height="498.5" rx="32" fill="none" stroke="url(#g3edge)" stroke-width="1.5" opacity=".55"/>
+</svg>

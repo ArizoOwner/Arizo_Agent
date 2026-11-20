@@ -1,0 +1,112 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 300" width="1200" height="300" role="img" aria-label="Ari is waiting for you — Download at arizoteam.ir">
+
+<defs>
+  <linearGradient id="d3ensky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0a0820"/><stop offset=".55" stop-color="#05040d"/><stop offset="1" stop-color="#020208"/></linearGradient>
+  <radialGradient id="d3ena1" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#6d5cff" stop-opacity=".75"/><stop offset="1" stop-color="#6d5cff" stop-opacity="0"/></radialGradient>
+  <radialGradient id="d3ena2" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#22d3ee" stop-opacity=".55"/><stop offset="1" stop-color="#22d3ee" stop-opacity="0"/></radialGradient>
+  <radialGradient id="d3ena3" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#e879f9" stop-opacity=".5"/><stop offset="1" stop-color="#e879f9" stop-opacity="0"/></radialGradient>
+  <linearGradient id="d3englass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity=".13"/><stop offset=".5" stop-color="#ffffff" stop-opacity=".04"/><stop offset="1" stop-color="#ffffff" stop-opacity=".09"/></linearGradient>
+  <linearGradient id="d3enedge" x1="0" y1="0" x2="1" y2="0" gradientUnits="objectBoundingBox">
+    <stop offset="0" stop-color="#22d3ee"/><stop offset=".35" stop-color="#6d5cff"/><stop offset=".7" stop-color="#e879f9"/><stop offset="1" stop-color="#fbbf24"/>
+    <animateTransform attributeName="gradientTransform" type="rotate" values="0 .5 .5;360 .5 .5" dur="9s" repeatCount="indefinite"/>
+  </linearGradient>
+  <linearGradient id="d3entitle" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="700" y2="0" spreadMethod="reflect">
+    <stop offset="0" stop-color="#22d3ee"/><stop offset=".33" stop-color="#ffffff"/><stop offset=".66" stop-color="#e879f9"/><stop offset="1" stop-color="#fbbf24"/>
+    <animateTransform attributeName="gradientTransform" type="translate" from="-700 0" to="700 0" dur="8s" repeatCount="indefinite"/>
+  </linearGradient>
+  <linearGradient id="d3enfloorfade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".25" stop-color="#fff" stop-opacity=".9"/><stop offset="1" stop-color="#fff" stop-opacity=".15"/></linearGradient>
+  <linearGradient id="d3enrefl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".32"/><stop offset=".6" stop-color="#fff" stop-opacity="0"/></linearGradient>
+  <filter id="d3enblur" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="46"/></filter>
+  <filter id="d3ensoft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="9"/></filter>
+  <filter id="d3englow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  <linearGradient id="d3enb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fbfbfd"/><stop offset="1" stop-color="#c4c8d3"/></linearGradient>
+  <radialGradient id="d3ene" cx="0.5" cy="0.5" r="0.62"><stop offset="0.62" stop-color="#8e94a8" stop-opacity="0"/><stop offset="1" stop-color="#8e94a8" stop-opacity="0.5"/></radialGradient>
+  <radialGradient id="d3enh" cx="0.36" cy="0.3" r="0.45"><stop offset="0" stop-color="#fff" stop-opacity="0.85"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+  <linearGradient id="d3eng" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1F2333"/><stop offset="1" stop-color="#0A0C14"/></linearGradient>
+  <filter id="eyeglow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="3.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter><clipPath id="d3enclip"><rect width="1200" height="300" rx="32"/></clipPath>
+  <linearGradient id="d3enbtn" x1="0" x2="1"><stop offset="0" stop-color="#22d3ee"/><stop offset=".5" stop-color="#6d5cff"/><stop offset="1" stop-color="#e879f9"/>
+    <animateTransform attributeName="gradientTransform" type="translate" values="-.25 0;.25 0;-.25 0" dur="6s" repeatCount="indefinite"/></linearGradient>
+  <clipPath id="d3enpill"><rect x="640" y="170" width="440" height="72" rx="36"/></clipPath>
+</defs>
+<style>
+  text{font-family:'Segoe UI','Inter',system-ui,-apple-system,Arial,sans-serif}
+  .float{animation:float 5s ease-in-out infinite}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+  .breathe{transform-box:fill-box;transform-origin:50% 100%;animation:breathe 4s ease-in-out infinite}
+  @keyframes breathe{0%,100%{transform:scale(1,1)}50%{transform:scale(1.025,.972)}}
+  .eye{transform-box:fill-box;transform-origin:center;animation:blink 5s infinite}
+  @keyframes blink{0%,91%,100%{transform:scaleY(1)}94%{transform:scaleY(.08)}}
+  .look{animation:look 9s ease-in-out infinite}
+  @keyframes look{0%,100%{transform:translate(0,0)}15%{transform:translate(-14px,3px)}35%{transform:translate(12px,-3px)}55%{transform:translate(0,6px)}75%{transform:translate(8px,2px)}}
+  .spark{transform-box:fill-box;transform-origin:center;animation:spark 3s ease-in-out infinite}
+  @keyframes spark{0%,100%{transform:scale(.2) rotate(0);opacity:0}50%{transform:scale(1) rotate(45deg);opacity:1}}
+  .drift{animation:drift 7s ease-in-out infinite}
+  @keyframes drift{0%,100%{transform:translate(0,0)}50%{transform:translate(0,-14px)}}
+  .twinkle{animation:twinkle 4s ease-in-out infinite}
+  @keyframes twinkle{0%,100%{opacity:.15}50%{opacity:.9}}
+  .pair{transform-box:fill-box;transform-origin:center;animation:pair 9s infinite both;opacity:0}
+  @keyframes pair{0%{opacity:0;transform:scale(.7) translateY(10px)}4%{opacity:1;transform:scale(1.04) translateY(0)}6%{transform:scale(1)}29%{opacity:1;transform:scale(1)}33%{opacity:0;transform:scale(.9) translateY(-8px)}100%{opacity:0}}
+
+  text{font-family:'Segoe UI','Inter',system-ui,-apple-system,Arial,sans-serif}
+  .fa{font-family:Vazirmatn,Tahoma,'Segoe UI',sans-serif}
+  .mono{font-family:'Cascadia Code','JetBrains Mono',Consolas,monospace}
+  .aur{transform-box:fill-box;transform-origin:center;animation:aur 14s ease-in-out infinite}
+  @keyframes aur{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(60px,-24px) scale(1.12)}66%{transform:translate(-50px,20px) scale(.92)}}
+  .scroll{animation:scroll 2.6s linear infinite}
+  @keyframes scroll{from{transform:translateY(0)}to{transform:translateY(var(--step))}}
+  .bob{animation:bob 6s ease-in-out infinite}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+  .tilt{transform-box:fill-box;transform-origin:center;animation:tilt 8s ease-in-out infinite}
+  @keyframes tilt{0%,100%{transform:rotate(-1.4deg)}50%{transform:rotate(1.4deg)}}
+  .rise{opacity:0;animation:rise 1s cubic-bezier(.2,.8,.2,1) forwards}
+  @keyframes rise{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+  .orbit{transform-box:view-box;animation:orbit 18s linear infinite}
+  @keyframes orbit{to{transform:rotate(360deg)}}
+  .pulse{transform-box:fill-box;transform-origin:center;animation:pulse 3.4s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:.35;transform:scale(.92)}50%{opacity:.9;transform:scale(1.06)}}
+  .shine{animation:shine 5.5s ease-in-out infinite}
+  @keyframes shine{0%,55%{transform:translateX(-260px)}100%{transform:translateX(1500px)}}
+  .caret{animation:caret 1s steps(1) infinite}
+  @keyframes caret{50%{opacity:0}}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important}.rise{opacity:1}}
+  .nudge{animation:nudge 1.6s ease-in-out infinite}
+  @keyframes nudge{0%,100%{transform:translateX(0)}50%{transform:translateX(7px)}}
+</style>
+<g clip-path="url(#d3enclip)">
+  
+  <rect width="1200" height="300" fill="url(#d3ensky)"/>
+  <ellipse class="aur" cx="264" cy="90" rx="384" ry="126" fill="url(#d3ena1)" filter="url(#d3enblur)"/>
+  <ellipse class="aur" style="animation-delay:-5s" cx="936" cy="84.00000000000001" rx="336.00000000000006" ry="114" fill="url(#d3ena3)" filter="url(#d3enblur)"/>
+  <ellipse class="aur" style="animation-delay:-9s" cx="660" cy="186" rx="360" ry="90" fill="url(#d3ena2)" filter="url(#d3enblur)"/>
+  <circle class="twinkle" style="animation-delay:1.52s" cx="392" cy="94" r="1.7" fill="#fff"/><circle class="twinkle" style="animation-delay:0.08s" cx="859" cy="10" r="1.2" fill="#fff"/><circle class="twinkle" style="animation-delay:3.05s" cx="792" cy="99" r="1.6" fill="#fff"/><circle class="twinkle" style="animation-delay:0.74s" cx="934" cy="88" r="1.1" fill="#fff"/><circle class="twinkle" style="animation-delay:1.64s" cx="603" cy="33" r="1.0" fill="#fff"/><circle class="twinkle" style="animation-delay:1.07s" cx="217" cy="7" r="1.0" fill="#fff"/><circle class="twinkle" style="animation-delay:2.72s" cx="391" cy="47" r="0.5" fill="#fff"/><circle class="twinkle" style="animation-delay:1.56s" cx="1015" cy="157" r="0.6" fill="#fff"/><circle class="twinkle" style="animation-delay:1.61s" cx="409" cy="174" r="0.5" fill="#fff"/><circle class="twinkle" style="animation-delay:3.33s" cx="936" cy="93" r="1.6" fill="#fff"/><circle class="twinkle" style="animation-delay:4.00s" cx="178" cy="46" r="0.5" fill="#fff"/><circle class="twinkle" style="animation-delay:3.74s" cx="1064" cy="61" r="1.4" fill="#fff"/><circle class="twinkle" style="animation-delay:2.76s" cx="243" cy="159" r="1.2" fill="#fff"/><circle class="twinkle" style="animation-delay:0.29s" cx="699" cy="107" r="0.8" fill="#fff"/><circle class="twinkle" style="animation-delay:2.92s" cx="100" cy="179" r="1.1" fill="#fff"/><circle class="twinkle" style="animation-delay:2.73s" cx="273" cy="11" r="0.8" fill="#fff"/><circle class="twinkle" style="animation-delay:2.93s" cx="705" cy="44" r="0.9" fill="#fff"/><circle class="twinkle" style="animation-delay:1.46s" cx="449" cy="32" r="1.5" fill="#fff"/><circle class="twinkle" style="animation-delay:0.18s" cx="754" cy="94" r="1.7" fill="#fff"/><circle class="twinkle" style="animation-delay:0.16s" cx="982" cy="145" r="0.8" fill="#fff"/><circle class="twinkle" style="animation-delay:0.72s" cx="1136" cy="36" r="1.5" fill="#fff"/><circle class="twinkle" style="animation-delay:0.66s" cx="566" cy="95" r="1.3" fill="#fff"/><circle class="twinkle" style="animation-delay:1.33s" cx="767" cy="179" r="0.8" fill="#fff"/><circle class="twinkle" style="animation-delay:0.10s" cx="50" cy="88" r="1.3" fill="#fff"/><circle class="twinkle" style="animation-delay:3.72s" cx="591" cy="59" r="0.6" fill="#fff"/><circle class="twinkle" style="animation-delay:0.28s" cx="635" cy="152" r="1.2" fill="#fff"/><circle class="twinkle" style="animation-delay:1.08s" cx="166" cy="52" r="1.6" fill="#fff"/><circle class="twinkle" style="animation-delay:1.31s" cx="634" cy="133" r="1.6" fill="#fff"/><circle class="twinkle" style="animation-delay:0.79s" cx="16" cy="30" r="1.6" fill="#fff"/><circle class="twinkle" style="animation-delay:3.51s" cx="426" cy="150" r="1.5" fill="#fff"/>
+  
+  <mask id="d3enfm"><rect y="230" width="1200" height="70" fill="url(#d3enfloorfade)"/></mask>
+  <g mask="url(#d3enfm)" stroke="#22d3ee" stroke-opacity=".32" stroke-width="1">
+    <line x1="530" y1="230" x2="-720" y2="300"/><line x1="535.8333333333334" y1="230" x2="-610" y2="300"/><line x1="541.6666666666666" y1="230" x2="-500" y2="300"/><line x1="547.5" y1="230" x2="-390.0000000000001" y2="300"/><line x1="553.3333333333334" y1="230" x2="-280.0000000000001" y2="300"/><line x1="559.1666666666666" y1="230" x2="-170.0000000000001" y2="300"/><line x1="565" y1="230" x2="-60" y2="300"/><line x1="570.8333333333334" y1="230" x2="50" y2="300"/><line x1="576.6666666666666" y1="230" x2="159.99999999999994" y2="300"/><line x1="582.5" y1="230" x2="270" y2="300"/><line x1="588.3333333333334" y1="230" x2="380" y2="300"/><line x1="594.1666666666666" y1="230" x2="490" y2="300"/><line x1="600" y1="230" x2="600" y2="300"/><line x1="605.8333333333334" y1="230" x2="710" y2="300"/><line x1="611.6666666666666" y1="230" x2="820" y2="300"/><line x1="617.5" y1="230" x2="930" y2="300"/><line x1="623.3333333333334" y1="230" x2="1040" y2="300"/><line x1="629.1666666666666" y1="230" x2="1150" y2="300"/><line x1="635" y1="230" x2="1260" y2="300"/><line x1="640.8333333333334" y1="230" x2="1370" y2="300"/><line x1="646.6666666666666" y1="230" x2="1480" y2="300"/><line x1="652.5" y1="230" x2="1590" y2="300"/><line x1="658.3333333333334" y1="230" x2="1700" y2="300"/><line x1="664.1666666666666" y1="230" x2="1810" y2="300"/><line x1="670" y1="230" x2="1920" y2="300"/>
+    <g class="scroll" style="--step:7.0px"><line x1="0" y1="230.0" x2="1200" y2="230.0"/><line x1="0" y1="231.1" x2="1200" y2="231.1"/><line x1="0" y1="234.0" x2="1200" y2="234.0"/><line x1="0" y1="238.7" x2="1200" y2="238.7"/><line x1="0" y1="245.0" x2="1200" y2="245.0"/><line x1="0" y1="252.9" x2="1200" y2="252.9"/><line x1="0" y1="262.4" x2="1200" y2="262.4"/><line x1="0" y1="273.4" x2="1200" y2="273.4"/><line x1="0" y1="286.0" x2="1200" y2="286.0"/><line x1="0" y1="300.0" x2="1200" y2="300.0"/></g>
+  </g>
+  <rect x="0" y="229" width="1200" height="2" fill="#22d3ee" opacity=".55" filter="url(#d3englow)"/>
+  <g transform="translate(240 140) scale(.62)"><g class="bob">
+  <g class="breathe">
+    <path d="M120.6 0.0L120.5 18.4L120.0 27.6L119.3 35.0L118.2 41.3L116.8 46.9L115.2 52.0L113.2 56.6L110.9 60.9L108.2 64.8L105.3 68.3L102.0 71.6L98.4 74.6L94.4 77.4L90.1 79.9L85.4 82.1L80.2 84.1L74.7 85.8L68.6 87.4L61.9 88.6L54.5 89.7L46.1 90.5L36.4 91.1L24.3 91.4L0.0 91.5L-24.3 91.4L-36.4 91.1L-46.1 90.5L-54.5 89.7L-61.9 88.6L-68.6 87.4L-74.7 85.8L-80.2 84.1L-85.4 82.1L-90.1 79.9L-94.4 77.4L-98.4 74.6L-102.0 71.6L-105.3 68.3L-108.2 64.8L-110.9 60.9L-113.2 56.6L-115.2 52.0L-116.8 46.9L-118.2 41.3L-119.3 35.0L-120.0 27.6L-120.5 18.4L-120.6 0.0L-120.5 -18.4L-120.0 -27.6L-119.3 -35.0L-118.2 -41.3L-116.8 -46.9L-115.2 -52.0L-113.2 -56.6L-110.9 -60.9L-108.2 -64.8L-105.3 -68.3L-102.0 -71.6L-98.4 -74.6L-94.4 -77.4L-90.1 -79.9L-85.4 -82.1L-80.2 -84.1L-74.7 -85.8L-68.6 -87.4L-61.9 -88.6L-54.5 -89.7L-46.1 -90.5L-36.4 -91.1L-24.3 -91.4L-0.0 -91.5L24.3 -91.4L36.4 -91.1L46.1 -90.5L54.5 -89.7L61.9 -88.6L68.6 -87.4L74.7 -85.8L80.2 -84.1L85.4 -82.1L90.1 -79.9L94.4 -77.4L98.4 -74.6L102.0 -71.6L105.3 -68.3L108.2 -64.8L110.9 -60.9L113.2 -56.6L115.2 -52.0L116.8 -46.9L118.2 -41.3L119.3 -35.0L120.0 -27.6L120.5 -18.4Z" fill="url(#d3enb)"/>
+    <path d="M120.6 0.0L120.5 18.4L120.0 27.6L119.3 35.0L118.2 41.3L116.8 46.9L115.2 52.0L113.2 56.6L110.9 60.9L108.2 64.8L105.3 68.3L102.0 71.6L98.4 74.6L94.4 77.4L90.1 79.9L85.4 82.1L80.2 84.1L74.7 85.8L68.6 87.4L61.9 88.6L54.5 89.7L46.1 90.5L36.4 91.1L24.3 91.4L0.0 91.5L-24.3 91.4L-36.4 91.1L-46.1 90.5L-54.5 89.7L-61.9 88.6L-68.6 87.4L-74.7 85.8L-80.2 84.1L-85.4 82.1L-90.1 79.9L-94.4 77.4L-98.4 74.6L-102.0 71.6L-105.3 68.3L-108.2 64.8L-110.9 60.9L-113.2 56.6L-115.2 52.0L-116.8 46.9L-118.2 41.3L-119.3 35.0L-120.0 27.6L-120.5 18.4L-120.6 0.0L-120.5 -18.4L-120.0 -27.6L-119.3 -35.0L-118.2 -41.3L-116.8 -46.9L-115.2 -52.0L-113.2 -56.6L-110.9 -60.9L-108.2 -64.8L-105.3 -68.3L-102.0 -71.6L-98.4 -74.6L-94.4 -77.4L-90.1 -79.9L-85.4 -82.1L-80.2 -84.1L-74.7 -85.8L-68.6 -87.4L-61.9 -88.6L-54.5 -89.7L-46.1 -90.5L-36.4 -91.1L-24.3 -91.4L-0.0 -91.5L24.3 -91.4L36.4 -91.1L46.1 -90.5L54.5 -89.7L61.9 -88.6L68.6 -87.4L74.7 -85.8L80.2 -84.1L85.4 -82.1L90.1 -79.9L94.4 -77.4L98.4 -74.6L102.0 -71.6L105.3 -68.3L108.2 -64.8L110.9 -60.9L113.2 -56.6L115.2 -52.0L116.8 -46.9L118.2 -41.3L119.3 -35.0L120.0 -27.6L120.5 -18.4Z" fill="url(#d3ene)"/>
+    <path d="M120.6 0.0L120.5 18.4L120.0 27.6L119.3 35.0L118.2 41.3L116.8 46.9L115.2 52.0L113.2 56.6L110.9 60.9L108.2 64.8L105.3 68.3L102.0 71.6L98.4 74.6L94.4 77.4L90.1 79.9L85.4 82.1L80.2 84.1L74.7 85.8L68.6 87.4L61.9 88.6L54.5 89.7L46.1 90.5L36.4 91.1L24.3 91.4L0.0 91.5L-24.3 91.4L-36.4 91.1L-46.1 90.5L-54.5 89.7L-61.9 88.6L-68.6 87.4L-74.7 85.8L-80.2 84.1L-85.4 82.1L-90.1 79.9L-94.4 77.4L-98.4 74.6L-102.0 71.6L-105.3 68.3L-108.2 64.8L-110.9 60.9L-113.2 56.6L-115.2 52.0L-116.8 46.9L-118.2 41.3L-119.3 35.0L-120.0 27.6L-120.5 18.4L-120.6 0.0L-120.5 -18.4L-120.0 -27.6L-119.3 -35.0L-118.2 -41.3L-116.8 -46.9L-115.2 -52.0L-113.2 -56.6L-110.9 -60.9L-108.2 -64.8L-105.3 -68.3L-102.0 -71.6L-98.4 -74.6L-94.4 -77.4L-90.1 -79.9L-85.4 -82.1L-80.2 -84.1L-74.7 -85.8L-68.6 -87.4L-61.9 -88.6L-54.5 -89.7L-46.1 -90.5L-36.4 -91.1L-24.3 -91.4L-0.0 -91.5L24.3 -91.4L36.4 -91.1L46.1 -90.5L54.5 -89.7L61.9 -88.6L68.6 -87.4L74.7 -85.8L80.2 -84.1L85.4 -82.1L90.1 -79.9L94.4 -77.4L98.4 -74.6L102.0 -71.6L105.3 -68.3L108.2 -64.8L110.9 -60.9L113.2 -56.6L115.2 -52.0L116.8 -46.9L118.2 -41.3L119.3 -35.0L120.0 -27.6L120.5 -18.4Z" fill="url(#d3enh)"/>
+    
+    <rect x="-95.11999999999999" y="-45.2" width="190.23999999999998" height="90.4" rx="45.2" fill="#DFE3EC"/>
+    <rect x="-91.52" y="-41.6" width="183.04" height="83.2" rx="41.6" fill="url(#d3eng)"/>
+    <path d="M-62.4 -32.6 H-5.2" stroke="#fff" stroke-opacity=".12" stroke-width="5" stroke-linecap="round"/>
+    <g class="look" filter="url(#eyeglow)"><path d="M-50.36 6 Q-35.36 -20 -20.36 6" fill="none" stroke="#5EC8FF" stroke-width="9" stroke-linecap="round"/><path d="M20.36 6 Q35.36 -20 50.36 6" fill="none" stroke="#5EC8FF" stroke-width="9" stroke-linecap="round"/></g>
+    
+  </g></g></g>
+  <ellipse class="pulse" cx="240" cy="226" rx="90" ry="10" fill="none" stroke="#22d3ee" stroke-opacity=".7"/>
+  <text x="640" y="96"  font-size="40" font-weight="900" fill="url(#d3entitle)">Ari is waiting for you</text>
+  <text x="640" y="134"  font-size="16" fill="#9aa3c7">Windows 10 &amp; 11 · no admin rights · English &amp; Persian</text>
+  <rect x="660" y="182" width="400" height="60" rx="30" fill="url(#d3enbtn)" filter="url(#d3ensoft)" opacity=".8"/>
+  <rect x="640" y="170" width="440" height="72" rx="36" fill="url(#d3enbtn)"/>
+  <g clip-path="url(#d3enpill)"><rect class="shine" x="0" y="170" width="140" height="72" fill="#fff" opacity=".35" transform="skewX(-20)"/></g>
+  <rect x="641" y="171" width="438" height="70" rx="35" fill="none" stroke="#fff" stroke-opacity=".35"/>
+  <text x="860" y="214" text-anchor="middle" font-size="21" font-weight="800" fill="#fff" >Download at arizoteam.ir</text>
+  <g class="nudge"><path d="M1032 206 h22 m-9 -10 l10 10 l-10 10" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></g>
+</g>
+<rect x=".75" y=".75" width="1198.5" height="298.5" rx="32" fill="none" stroke="url(#d3enedge)" stroke-width="1.5" opacity=".7"/>
+</svg>

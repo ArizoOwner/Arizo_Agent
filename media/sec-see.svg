@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 96" width="1200" height="96" role="img" aria-label="SEE IT MOVE">
+
+<defs>
+  <linearGradient id="sseesky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0a0820"/><stop offset=".55" stop-color="#05040d"/><stop offset="1" stop-color="#020208"/></linearGradient>
+  <radialGradient id="sseea1" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#6d5cff" stop-opacity=".75"/><stop offset="1" stop-color="#6d5cff" stop-opacity="0"/></radialGradient>
+  <radialGradient id="sseea2" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#22d3ee" stop-opacity=".55"/><stop offset="1" stop-color="#22d3ee" stop-opacity="0"/></radialGradient>
+  <radialGradient id="sseea3" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#e879f9" stop-opacity=".5"/><stop offset="1" stop-color="#e879f9" stop-opacity="0"/></radialGradient>
+  <linearGradient id="sseeglass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity=".13"/><stop offset=".5" stop-color="#ffffff" stop-opacity=".04"/><stop offset="1" stop-color="#ffffff" stop-opacity=".09"/></linearGradient>
+  <linearGradient id="sseeedge" x1="0" y1="0" x2="1" y2="0" gradientUnits="objectBoundingBox">
+    <stop offset="0" stop-color="#22d3ee"/><stop offset=".35" stop-color="#6d5cff"/><stop offset=".7" stop-color="#e879f9"/><stop offset="1" stop-color="#fbbf24"/>
+    <animateTransform attributeName="gradientTransform" type="rotate" values="0 .5 .5;360 .5 .5" dur="9s" repeatCount="indefinite"/>
+  </linearGradient>
+  <linearGradient id="sseetitle" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="700" y2="0" spreadMethod="reflect">
+    <stop offset="0" stop-color="#22d3ee"/><stop offset=".33" stop-color="#ffffff"/><stop offset=".66" stop-color="#e879f9"/><stop offset="1" stop-color="#fbbf24"/>
+    <animateTransform attributeName="gradientTransform" type="translate" from="-700 0" to="700 0" dur="8s" repeatCount="indefinite"/>
+  </linearGradient>
+  <linearGradient id="sseefloorfade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".25" stop-color="#fff" stop-opacity=".9"/><stop offset="1" stop-color="#fff" stop-opacity=".15"/></linearGradient>
+  <linearGradient id="sseerefl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".32"/><stop offset=".6" stop-color="#fff" stop-opacity="0"/></linearGradient>
+  <filter id="sseeblur" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="46"/></filter>
+  <filter id="sseesoft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="9"/></filter>
+  <filter id="sseeglow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  <linearGradient id="sseeln" x1="0" x2="1"><stop offset="0" stop-color="#22d3ee" stop-opacity="0"/><stop offset=".5" stop-color="#22d3ee"/><stop offset="1" stop-color="#22d3ee" stop-opacity="0"/></linearGradient>
+</defs>
+<style>
+  text{font-family:'Segoe UI','Inter',system-ui,-apple-system,Arial,sans-serif}
+  .float{animation:float 5s ease-in-out infinite}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+  .breathe{transform-box:fill-box;transform-origin:50% 100%;animation:breathe 4s ease-in-out infinite}
+  @keyframes breathe{0%,100%{transform:scale(1,1)}50%{transform:scale(1.025,.972)}}
+  .eye{transform-box:fill-box;transform-origin:center;animation:blink 5s infinite}
+  @keyframes blink{0%,91%,100%{transform:scaleY(1)}94%{transform:scaleY(.08)}}
+  .look{animation:look 9s ease-in-out infinite}
+  @keyframes look{0%,100%{transform:translate(0,0)}15%{transform:translate(-14px,3px)}35%{transform:translate(12px,-3px)}55%{transform:translate(0,6px)}75%{transform:translate(8px,2px)}}
+  .spark{transform-box:fill-box;transform-origin:center;animation:spark 3s ease-in-out infinite}
+  @keyframes spark{0%,100%{transform:scale(.2) rotate(0);opacity:0}50%{transform:scale(1) rotate(45deg);opacity:1}}
+  .drift{animation:drift 7s ease-in-out infinite}
+  @keyframes drift{0%,100%{transform:translate(0,0)}50%{transform:translate(0,-14px)}}
+  .twinkle{animation:twinkle 4s ease-in-out infinite}
+  @keyframes twinkle{0%,100%{opacity:.15}50%{opacity:.9}}
+  .pair{transform-box:fill-box;transform-origin:center;animation:pair 9s infinite both;opacity:0}
+  @keyframes pair{0%{opacity:0;transform:scale(.7) translateY(10px)}4%{opacity:1;transform:scale(1.04) translateY(0)}6%{transform:scale(1)}29%{opacity:1;transform:scale(1)}33%{opacity:0;transform:scale(.9) translateY(-8px)}100%{opacity:0}}
+
+  text{font-family:'Segoe UI','Inter',system-ui,-apple-system,Arial,sans-serif}
+  .fa{font-family:Vazirmatn,Tahoma,'Segoe UI',sans-serif}
+  .mono{font-family:'Cascadia Code','JetBrains Mono',Consolas,monospace}
+  .aur{transform-box:fill-box;transform-origin:center;animation:aur 14s ease-in-out infinite}
+  @keyframes aur{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(60px,-24px) scale(1.12)}66%{transform:translate(-50px,20px) scale(.92)}}
+  .scroll{animation:scroll 2.6s linear infinite}
+  @keyframes scroll{from{transform:translateY(0)}to{transform:translateY(var(--step))}}
+  .bob{animation:bob 6s ease-in-out infinite}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+  .tilt{transform-box:fill-box;transform-origin:center;animation:tilt 8s ease-in-out infinite}
+  @keyframes tilt{0%,100%{transform:rotate(-1.4deg)}50%{transform:rotate(1.4deg)}}
+  .rise{opacity:0;animation:rise 1s cubic-bezier(.2,.8,.2,1) forwards}
+  @keyframes rise{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+  .orbit{transform-box:view-box;animation:orbit 18s linear infinite}
+  @keyframes orbit{to{transform:rotate(360deg)}}
+  .pulse{transform-box:fill-box;transform-origin:center;animation:pulse 3.4s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:.35;transform:scale(.92)}50%{opacity:.9;transform:scale(1.06)}}
+  .shine{animation:shine 5.5s ease-in-out infinite}
+  @keyframes shine{0%,55%{transform:translateX(-260px)}100%{transform:translateX(1500px)}}
+  .caret{animation:caret 1s steps(1) infinite}
+  @keyframes caret{50%{opacity:0}}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important}.rise{opacity:1}}</style>
+<rect x="150" y="47" width="900" height="2" fill="url(#sseeln)" opacity=".7"/>
+<circle cx="600" cy="48" r="4" fill="#fff" filter="url(#sseeglow)"><animate attributeName="cx" values="160;1040;160" dur="7s" repeatCount="indefinite"/></circle>
+<rect x="430" y="18" width="340" height="60" rx="30" fill="#05040d"/>
+<rect x="430" y="18" width="340" height="60" rx="30" fill="#22d3ee" fill-opacity=".1" stroke="#22d3ee" stroke-opacity=".6"/>
+<text x="600" y="56" text-anchor="middle" font-size="22" font-weight="800" fill="#fff" letter-spacing="1">SEE IT MOVE</text>
+
+</svg>

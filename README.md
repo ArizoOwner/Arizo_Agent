@@ -1,44 +1,46 @@
 <div align="center">
 
-<a href="https://arizoteam.ir"><img src="media/header.svg" width="100%" alt="Arizo-Agent"></a>
+<a href="https://arizoteam.ir"><img src="media/hero-v3.svg" width="100%" alt="Arizo-Agent: a Dynamic Island for Windows, with a little robot named Ari"></a>
 
-[![Website](https://img.shields.io/badge/website-arizoteam.ir-8b5cf6?style=for-the-badge)](https://arizoteam.ir)
-[![Latest release](https://img.shields.io/github/v/release/ArizoOwner/Arizo_Agent?style=for-the-badge&color=34d399&label=latest)](https://github.com/ArizoOwner/Arizo_Agent/releases/latest)
-![Windows](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4?style=for-the-badge&logo=windows&logoColor=white)
+[![Website](https://img.shields.io/badge/website-arizoteam.ir-6d5cff?style=for-the-badge&labelColor=05040d)](https://arizoteam.ir)
+[![Latest release](https://img.shields.io/github/v/release/ArizoOwner/Arizo_Agent?style=for-the-badge&color=22d3ee&labelColor=05040d&label=latest)](https://github.com/ArizoOwner/Arizo_Agent/releases/latest)
+![Windows](https://img.shields.io/badge/Windows-10%20%7C%2011-e879f9?style=for-the-badge&logo=windows&logoColor=white&labelColor=05040d)
 
-[فارسی](README.fa.md)
+**English** · [فارسی](README.fa.md)
 
-**A Dynamic Island for your Windows desktop.** It translates anything, plays your music, follows your football team, watches your crypto prices, brings Muse in and links your phone — while a little robot named **Ari** keeps you company.
+**A Dynamic Island for your Windows desktop.** It translates anything, plays your music, follows your football team, watches your crypto prices, shows your game's FPS and links your phone — while a little robot named **Ari** keeps you company.
 
-<img src="media/marquee.svg" width="100%" alt="">
+<a href="https://github.com/ArizoOwner/Arizo_Agent/releases/latest"><img src="media/new-v3.svg" width="100%" alt="What's new in 2.2: Game Mode"></a>
 
-<table>
-<tr>
-<td width="46%" valign="middle">
+</div>
 
-### New in 2.0 · Your account, everywhere
+<div>
 
-- **An account for the island:** sign up in the island or on the site, with an e-mail or with Google, one account on every PC
-- **Free days, then a plan:** 1, 3, 6 or 12 months, paid in TON from any wallet and confirmed by itself
-- **Support:** Telegram or a live ticket, right from your account page
-- **Updates by themselves,** and a tidy new Settings with search
-- **New in 2.1:** folded, the island is Ari himself: his visor and eyes, black or white with the theme; a safer phone link and safer accounts; settings that survive a power cut; and from 2.1.1 the island stays on top of every app after the PC starts
-- **New in 2.2 · Game Mode:** when a game fills the screen, Ari powers up and the island shows your FPS, CPU, GPU and temperature beside him; a hotkey opens an overlay of tools over the game, and nothing pops up while you play; from 2.2.1 a calm new entrance with its own soundtrack, and numbers in the size and colour you pick; from 2.2.2 a real FPS counter and CPU and GPU numbers that match Task Manager
+### What's new in 2.2
 
-Also in 1.4: the island in one piece with the screen, and peek on hover.
+- **Game Mode:** when a game fills the screen, Ari powers up and the island shows FPS, CPU, GPU and temperature beside him; a hotkey opens a tool overlay, and nothing pops up while you play
+- **A real FPS counter,** read the way Xbox Game Bar reads it, and CPU and GPU numbers that match Task Manager
+- **A calm new entrance** with its own soundtrack, and numbers in the size and colour you pick
+- **Your account, everywhere:** e-mail or Google, free days, then a plan paid in TON
 
 [**Download 2.2.2 →**](https://github.com/ArizoOwner/Arizo_Agent/releases/latest)
 
-</td>
-<td width="54%" valign="top">
+</div>
 
-<img src="media/account-en.gif" width="100%" alt="The island opens on its sign-in card: an e-mail and a password are typed and Sign in is pressed; the island opens, then Settings shows Account (the free days left, the PCs) and Updates (installs by itself), and Sign out brings the card back">
+<div align="center">
+
+<img src="media/sec-see.svg" width="100%" alt="See it move">
+
+<table>
+<tr>
+<td colspan="2" valign="top">
+
+<img src="media/account-en.gif" width="100%" alt="Your account, everywhere">
+
+**Your account, everywhere**<br>Sign in once, in the island or on the site: free days, then a plan.
 
 </td>
 </tr>
-</table>
-
-<table>
 <tr>
 <td width="50%" valign="top">
 
@@ -83,21 +85,23 @@ Also in 1.4: the island in one piece with the screen, and peek on hover.
 
 <img src="media/phone-en.gif" width="100%" alt="The Bridge">
 
-**The Bridge**<br>Files and text with your phone, from home or from anywhere through your own relay, and another PC linked in.
+**The Bridge**<br>Files and text with your phone, from home or from anywhere through your own relay.
 
 </td>
 </tr>
 </table>
 
-<img src="media/cards.svg" width="100%" alt="">
+<img src="media/sec-all.svg" width="100%" alt="Everything in one island">
+
+<img src="media/grid-v3.svg" width="100%" alt="Translate, Game Mode, Spotify, football, crypto, the Bridge and more, in one island">
 
 🪟 Windows 10 & 11 &nbsp;·&nbsp; 🌐 English & فارسی &nbsp;·&nbsp; 🔒 No telemetry — your keys stay on your PC &nbsp;·&nbsp; 🛰️ Your own relay, sealed end to end
 
-<a href="https://arizoteam.ir"><img src="media/website-en.svg" width="70%" alt="arizoteam.ir"></a>
+<a href="https://arizoteam.ir"><img src="media/download-v3-en.svg" width="100%" alt="arizoteam.ir"></a>
 
 Downloads, the full feature tour and news live on **[arizoteam.ir](https://arizoteam.ir)**.
 
-<a href="https://arizoteam.ir"><img src="media/footer.svg" width="100%" alt="arizoteam.ir"></a>
+<a href="https://arizoteam.ir"><img src="media/footer-v3.svg" width="100%" alt="arizoteam.ir"></a>
 
 <sub>© 2026 ArizoTeam. All rights reserved. Arizo-Agent is proprietary software; see [LICENSE](LICENSE).</sub>
 

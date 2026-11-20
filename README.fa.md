@@ -1,44 +1,46 @@
 <div align="center" dir="rtl">
 
-<a href="https://arizoteam.ir"><img src="media/header.svg" width="100%" alt="Arizo-Agent"></a>
+<a href="https://arizoteam.ir"><img src="media/hero-v3.svg" width="100%" alt="Arizo-Agent: a Dynamic Island for Windows, with a little robot named Ari"></a>
 
-[![وب‌سایت](https://img.shields.io/badge/website-arizoteam.ir-8b5cf6?style=for-the-badge)](https://arizoteam.ir)
-[![آخرین نسخه](https://img.shields.io/github/v/release/ArizoOwner/Arizo_Agent?style=for-the-badge&color=34d399&label=latest)](https://github.com/ArizoOwner/Arizo_Agent/releases/latest)
-![Windows](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4?style=for-the-badge&logo=windows&logoColor=white)
+[![وب‌سایت](https://img.shields.io/badge/website-arizoteam.ir-6d5cff?style=for-the-badge&labelColor=05040d)](https://arizoteam.ir)
+[![Latest release](https://img.shields.io/github/v/release/ArizoOwner/Arizo_Agent?style=for-the-badge&color=22d3ee&labelColor=05040d&label=latest)](https://github.com/ArizoOwner/Arizo_Agent/releases/latest)
+![Windows](https://img.shields.io/badge/Windows-10%20%7C%2011-e879f9?style=for-the-badge&logo=windows&logoColor=white&labelColor=05040d)
 
-[English](README.md)
+[English](README.md) · **فارسی**
 
-**یک «داینامیک آیلند» برای دسکتاپ ویندوز.** هر متنی را ترجمه می‌کند، موسیقی‌تان را پخش می‌کند، تیم فوتبال‌تان را دنبال می‌کند، قیمت ارز دیجیتال را زنده نشان می‌دهد، Muse را می‌آورد و گوشی‌تان را وصل می‌کند — و رباتی کوچک به نام **آری** همراه‌تان است.
+**یک «داینامیک آیلند» برای دسکتاپ ویندوز.** هر متنی را ترجمه می‌کند، موسیقی‌تان را پخش می‌کند، تیم فوتبال‌تان را دنبال می‌کند، قیمت ارز دیجیتال را زنده نشان می‌دهد، FPS بازی‌تان را می‌گوید و گوشی‌تان را وصل می‌کند — و رباتی کوچک به نام **آری** همراه‌تان است.
 
-<img src="media/marquee.svg" width="100%" alt="">
+<a href="https://github.com/ArizoOwner/Arizo_Agent/releases/latest"><img src="media/new-v3.svg" width="100%" alt="تازه‌های ۲٫۲: Game Mode"></a>
 
-<table>
-<tr>
-<td width="54%" valign="top">
+</div>
 
-<img src="media/account-fa.gif" width="100%" alt="جزیره با کارت ورود باز می‌شود: ایمیل و رمز عبور نوشته و «ورود» زده می‌شود؛ جزیره باز می‌شود، سپس تنظیمات بخش «حساب کاربری» (روزهای رایگان باقی‌مانده، رایانه‌ها) و «به‌روزرسانی» (نسخه‌ی ۲٫۰٫۰ با نصب خودکار) را نشان می‌دهد و «خروج از حساب» کارت ورود را برمی‌گرداند">
+<div dir="rtl">
 
-</td>
-<td width="46%" valign="middle" dir="rtl">
+### تازه‌های ۲٫۲
 
-### تازه در ۲٫۰ · حساب شما، همه‌جا
-
-- **حساب کاربری برای جزیره:** در خود جزیره یا روی سایت، با ایمیل یا گوگل؛ یک حساب برای همه‌ی کامپیوترها
-- **روزهای رایگان، بعد اشتراک:** ۱، ۳، ۶ یا ۱۲ ماهه، با پرداخت TON از هر کیف پولی که خودکار تأیید می‌شود
-- **پشتیبانی:** تلگرام یا تیکت زنده، مستقیم از صفحه‌ی حساب
-- **به‌روزرسانی خودکار** و تنظیماتی تازه و مرتب با جستجو
-- **تازه در ۲٫۱:** جزیره‌ی جمع‌شده خودِ آری است: کپسول و چشم‌هایش، سیاه یا سفید هماهنگ با تم؛ پل و حساب امن‌تر؛ تنظیماتی که با قطع برق از بین نمی‌رود؛ و از ۲٫۱٫۱ جزیره بعد از روشن شدن کامپیوتر روی همه‌ی برنامه‌ها می‌ماند
-- **تازه در ۲٫۲ · گیم مود:** وقتی بازی تمام صفحه را می‌گیرد، آری روشن می‌شود و جزیره FPS، CPU، GPU و دما را کنارش نشان می‌دهد؛ با یک کلید اورلی ابزارها روی بازی باز می‌شود و هنگام بازی هیچ اعلانی مزاحم نمی‌شود؛ و از ۲٫۲٫۱ ورودی آرام و تازه با موسیقی مخصوص خودش، و اعدادی با اندازه و رنگ دلخواه؛ و از ۲٫۲٫۲ شمارنده‌ی FPS واقعی و آمار CPU و GPU هم‌خوان با Task Manager
-
-همچنین در ۱٫۴: آیلند یک‌تکه با صفحه و پیش‌نمایش با رفتن موس.
+- **گیم مود:** وقتی بازی تمام صفحه را می‌گیرد، آری روشن می‌شود و جزیره FPS، CPU، GPU و دما را کنارش نشان می‌دهد؛ با یک کلید اورلی ابزارها باز می‌شود و هنگام بازی هیچ اعلانی مزاحم نمی‌شود
+- **شمارنده‌ی FPS واقعی** به همان روشی که Xbox Game Bar می‌خواند، و آمار CPU و GPU هم‌خوان با Task Manager
+- **ورودی آرام و تازه** با موسیقی مخصوص خودش، و اعدادی با اندازه و رنگ دلخواه
+- **حساب شما، همه‌جا:** با ایمیل یا گوگل، روزهای رایگان، بعد اشتراک با پرداخت TON
 
 [**دانلود ۲٫۲٫۲ ←**](https://github.com/ArizoOwner/Arizo_Agent/releases/latest)
 
-</td>
-</tr>
-</table>
+</div>
+
+<div align="center" dir="rtl">
+
+<img src="media/sec-see.svg" width="100%" alt="See it move">
 
 <table>
+<tr>
+<td colspan="2" valign="top" dir="rtl">
+
+<img src="media/account-fa.gif" width="100%" alt="حساب شما، همه‌جا">
+
+**حساب شما، همه‌جا**<br>یک بار وارد شوید، در جزیره یا روی سایت: روزهای رایگان، بعد اشتراک.
+
+</td>
+</tr>
 <tr>
 <td width="50%" valign="top" dir="rtl">
 
@@ -81,23 +83,25 @@
 </td>
 <td width="50%" valign="top" dir="rtl">
 
-<img src="media/phone-fa.gif" width="100%" alt="پل ارتباطی">
+<img src="media/phone-fa.gif" width="100%" alt="پل">
 
-**پل ارتباطی**<br>فایل و متن با گوشی، در خانه یا از هر جا با رله‌ی خودتان؛ کامپیوتر دیگری را هم وصل کنید.
+**پل**<br>فایل و متن با گوشی، در خانه یا از هر جا از راه رله‌ی خودتان.
 
 </td>
 </tr>
 </table>
 
-<img src="media/cards.svg" width="100%" alt="">
+<img src="media/sec-all.svg" width="100%" alt="Everything in one island">
 
-🪟 ویندوز ۱۰ و ۱۱ &nbsp;·&nbsp; 🌐 فارسی و English &nbsp;·&nbsp; 🔒 بدون تلمتری — کلیدهای شما روی کامپیوتر خودتان می‌ماند &nbsp;·&nbsp; 🛰️ رله‌ی خودتان، رمزنگاری‌شده از سر تا ته
+<img src="media/grid-v3.svg" width="100%" alt="Translate, Game Mode, Spotify, football, crypto, the Bridge and more, in one island">
 
-<a href="https://arizoteam.ir"><img src="media/website-fa.svg" width="70%" alt="arizoteam.ir"></a>
+🪟 ویندوز ۱۰ و ۱۱ &nbsp;·&nbsp; 🌐 فارسی و English &nbsp;·&nbsp; 🔒 بدون تلمتری — کلیدهای شما روی کامپیوتر خودتان می‌ماند &nbsp;·&nbsp; 🛰️ رله‌ی خودتان، رمزشده از دو سر
+
+<a href="https://arizoteam.ir"><img src="media/download-v3-fa.svg" width="100%" alt="arizoteam.ir"></a>
 
 دانلود، معرفی کامل قابلیت‌ها و اخبار در **[arizoteam.ir](https://arizoteam.ir)**.
 
-<a href="https://arizoteam.ir"><img src="media/footer.svg" width="100%" alt="arizoteam.ir"></a>
+<a href="https://arizoteam.ir"><img src="media/footer-v3.svg" width="100%" alt="arizoteam.ir"></a>
 
 <sub>© ۲۰۲۶ ArizoTeam. همه‌ی حقوق محفوظ است. آریزو ایجنت نرم‌افزاری اختصاصی است؛ [LICENSE](LICENSE) را ببینید.</sub>
 

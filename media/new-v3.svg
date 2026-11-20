@@ -1,0 +1,127 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 300" width="1200" height="300" role="img" aria-label="New in 2.2: Game Mode, a real FPS counter and your own numbers beside Ari">
+
+<defs>
+  <linearGradient id="n3sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0a0820"/><stop offset=".55" stop-color="#05040d"/><stop offset="1" stop-color="#020208"/></linearGradient>
+  <radialGradient id="n3a1" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#6d5cff" stop-opacity=".75"/><stop offset="1" stop-color="#6d5cff" stop-opacity="0"/></radialGradient>
+  <radialGradient id="n3a2" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#22d3ee" stop-opacity=".55"/><stop offset="1" stop-color="#22d3ee" stop-opacity="0"/></radialGradient>
+  <radialGradient id="n3a3" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#e879f9" stop-opacity=".5"/><stop offset="1" stop-color="#e879f9" stop-opacity="0"/></radialGradient>
+  <linearGradient id="n3glass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity=".13"/><stop offset=".5" stop-color="#ffffff" stop-opacity=".04"/><stop offset="1" stop-color="#ffffff" stop-opacity=".09"/></linearGradient>
+  <linearGradient id="n3edge" x1="0" y1="0" x2="1" y2="0" gradientUnits="objectBoundingBox">
+    <stop offset="0" stop-color="#22d3ee"/><stop offset=".35" stop-color="#6d5cff"/><stop offset=".7" stop-color="#e879f9"/><stop offset="1" stop-color="#fbbf24"/>
+    <animateTransform attributeName="gradientTransform" type="rotate" values="0 .5 .5;360 .5 .5" dur="9s" repeatCount="indefinite"/>
+  </linearGradient>
+  <linearGradient id="n3title" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="700" y2="0" spreadMethod="reflect">
+    <stop offset="0" stop-color="#22d3ee"/><stop offset=".33" stop-color="#ffffff"/><stop offset=".66" stop-color="#e879f9"/><stop offset="1" stop-color="#fbbf24"/>
+    <animateTransform attributeName="gradientTransform" type="translate" from="-700 0" to="700 0" dur="8s" repeatCount="indefinite"/>
+  </linearGradient>
+  <linearGradient id="n3floorfade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".25" stop-color="#fff" stop-opacity=".9"/><stop offset="1" stop-color="#fff" stop-opacity=".15"/></linearGradient>
+  <linearGradient id="n3refl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".32"/><stop offset=".6" stop-color="#fff" stop-opacity="0"/></linearGradient>
+  <filter id="n3blur" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="46"/></filter>
+  <filter id="n3soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="9"/></filter>
+  <filter id="n3glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  <linearGradient id="n3b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fbfbfd"/><stop offset="1" stop-color="#c4c8d3"/></linearGradient>
+  <radialGradient id="n3e" cx="0.5" cy="0.5" r="0.62"><stop offset="0.62" stop-color="#8e94a8" stop-opacity="0"/><stop offset="1" stop-color="#8e94a8" stop-opacity="0.5"/></radialGradient>
+  <radialGradient id="n3h" cx="0.36" cy="0.3" r="0.45"><stop offset="0" stop-color="#fff" stop-opacity="0.85"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+  <linearGradient id="n3g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1F2333"/><stop offset="1" stop-color="#0A0C14"/></linearGradient>
+  <filter id="eyeglow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="3.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter><clipPath id="n3clip"><rect width="1200" height="300" rx="30"/></clipPath></defs>
+<style>
+  text{font-family:'Segoe UI','Inter',system-ui,-apple-system,Arial,sans-serif}
+  .float{animation:float 5s ease-in-out infinite}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+  .breathe{transform-box:fill-box;transform-origin:50% 100%;animation:breathe 4s ease-in-out infinite}
+  @keyframes breathe{0%,100%{transform:scale(1,1)}50%{transform:scale(1.025,.972)}}
+  .eye{transform-box:fill-box;transform-origin:center;animation:blink 5s infinite}
+  @keyframes blink{0%,91%,100%{transform:scaleY(1)}94%{transform:scaleY(.08)}}
+  .look{animation:look 9s ease-in-out infinite}
+  @keyframes look{0%,100%{transform:translate(0,0)}15%{transform:translate(-14px,3px)}35%{transform:translate(12px,-3px)}55%{transform:translate(0,6px)}75%{transform:translate(8px,2px)}}
+  .spark{transform-box:fill-box;transform-origin:center;animation:spark 3s ease-in-out infinite}
+  @keyframes spark{0%,100%{transform:scale(.2) rotate(0);opacity:0}50%{transform:scale(1) rotate(45deg);opacity:1}}
+  .drift{animation:drift 7s ease-in-out infinite}
+  @keyframes drift{0%,100%{transform:translate(0,0)}50%{transform:translate(0,-14px)}}
+  .twinkle{animation:twinkle 4s ease-in-out infinite}
+  @keyframes twinkle{0%,100%{opacity:.15}50%{opacity:.9}}
+  .pair{transform-box:fill-box;transform-origin:center;animation:pair 9s infinite both;opacity:0}
+  @keyframes pair{0%{opacity:0;transform:scale(.7) translateY(10px)}4%{opacity:1;transform:scale(1.04) translateY(0)}6%{transform:scale(1)}29%{opacity:1;transform:scale(1)}33%{opacity:0;transform:scale(.9) translateY(-8px)}100%{opacity:0}}
+
+  text{font-family:'Segoe UI','Inter',system-ui,-apple-system,Arial,sans-serif}
+  .fa{font-family:Vazirmatn,Tahoma,'Segoe UI',sans-serif}
+  .mono{font-family:'Cascadia Code','JetBrains Mono',Consolas,monospace}
+  .aur{transform-box:fill-box;transform-origin:center;animation:aur 14s ease-in-out infinite}
+  @keyframes aur{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(60px,-24px) scale(1.12)}66%{transform:translate(-50px,20px) scale(.92)}}
+  .scroll{animation:scroll 2.6s linear infinite}
+  @keyframes scroll{from{transform:translateY(0)}to{transform:translateY(var(--step))}}
+  .bob{animation:bob 6s ease-in-out infinite}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+  .tilt{transform-box:fill-box;transform-origin:center;animation:tilt 8s ease-in-out infinite}
+  @keyframes tilt{0%,100%{transform:rotate(-1.4deg)}50%{transform:rotate(1.4deg)}}
+  .rise{opacity:0;animation:rise 1s cubic-bezier(.2,.8,.2,1) forwards}
+  @keyframes rise{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+  .orbit{transform-box:view-box;animation:orbit 18s linear infinite}
+  @keyframes orbit{to{transform:rotate(360deg)}}
+  .pulse{transform-box:fill-box;transform-origin:center;animation:pulse 3.4s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:.35;transform:scale(.92)}50%{opacity:.9;transform:scale(1.06)}}
+  .shine{animation:shine 5.5s ease-in-out infinite}
+  @keyframes shine{0%,55%{transform:translateX(-260px)}100%{transform:translateX(1500px)}}
+  .caret{animation:caret 1s steps(1) infinite}
+  @keyframes caret{50%{opacity:0}}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important}.rise{opacity:1}}</style>
+<g clip-path="url(#n3clip)">
+  
+  <rect width="1200" height="300" fill="url(#n3sky)"/>
+  <ellipse class="aur" cx="264" cy="90" rx="384" ry="126" fill="url(#n3a1)" filter="url(#n3blur)"/>
+  <ellipse class="aur" style="animation-delay:-5s" cx="936" cy="84.00000000000001" rx="336.00000000000006" ry="114" fill="url(#n3a3)" filter="url(#n3blur)"/>
+  <ellipse class="aur" style="animation-delay:-9s" cx="660" cy="186" rx="360" ry="90" fill="url(#n3a2)" filter="url(#n3blur)"/>
+  <circle class="twinkle" style="animation-delay:3.40s" cx="567" cy="34" r="0.6" fill="#fff"/><circle class="twinkle" style="animation-delay:1.60s" cx="258" cy="28" r="0.9" fill="#fff"/><circle class="twinkle" style="animation-delay:3.59s" cx="369" cy="156" r="1.5" fill="#fff"/><circle class="twinkle" style="animation-delay:1.09s" cx="172" cy="298" r="1.0" fill="#fff"/><circle class="twinkle" style="animation-delay:3.73s" cx="1142" cy="292" r="0.8" fill="#fff"/><circle class="twinkle" style="animation-delay:0.96s" cx="781" cy="253" r="0.9" fill="#fff"/><circle class="twinkle" style="animation-delay:3.15s" cx="1185" cy="44" r="0.6" fill="#fff"/><circle class="twinkle" style="animation-delay:2.71s" cx="928" cy="203" r="1.1" fill="#fff"/><circle class="twinkle" style="animation-delay:0.49s" cx="372" cy="138" r="1.4" fill="#fff"/><circle class="twinkle" style="animation-delay:0.35s" cx="395" cy="280" r="0.8" fill="#fff"/><circle class="twinkle" style="animation-delay:3.18s" cx="25" cy="232" r="1.2" fill="#fff"/><circle class="twinkle" style="animation-delay:1.07s" cx="1174" cy="56" r="0.7" fill="#fff"/><circle class="twinkle" style="animation-delay:1.23s" cx="176" cy="199" r="1.4" fill="#fff"/><circle class="twinkle" style="animation-delay:2.08s" cx="106" cy="133" r="0.9" fill="#fff"/><circle class="twinkle" style="animation-delay:1.21s" cx="193" cy="74" r="1.4" fill="#fff"/><circle class="twinkle" style="animation-delay:3.73s" cx="500" cy="299" r="0.7" fill="#fff"/><circle class="twinkle" style="animation-delay:0.52s" cx="387" cy="174" r="1.2" fill="#fff"/><circle class="twinkle" style="animation-delay:2.98s" cx="728" cy="262" r="1.6" fill="#fff"/><circle class="twinkle" style="animation-delay:1.90s" cx="994" cy="183" r="1.5" fill="#fff"/><circle class="twinkle" style="animation-delay:2.92s" cx="590" cy="238" r="1.0" fill="#fff"/><circle class="twinkle" style="animation-delay:0.18s" cx="929" cy="208" r="1.3" fill="#fff"/><circle class="twinkle" style="animation-delay:2.73s" cx="260" cy="218" r="0.8" fill="#fff"/><circle class="twinkle" style="animation-delay:1.29s" cx="1115" cy="201" r="1.3" fill="#fff"/><circle class="twinkle" style="animation-delay:3.80s" cx="200" cy="7" r="1.6" fill="#fff"/>
+  <text x="60" y="78" font-size="13" font-weight="800" fill="#22d3ee" letter-spacing="4">NEW IN 2.2</text>
+  <text x="60" y="120" font-size="38" font-weight="900" fill="url(#n3title)">Game Mode</text>
+  <text x="60" y="150" font-size="16" fill="#9aa3c7">Ari powers up with</text>
+  <text x="60" y="172" font-size="16" fill="#9aa3c7">your game.</text>
+  <g transform="translate(160 232) scale(.42)"><g class="bob">
+  <g class="breathe">
+    <path d="M120.6 0.0L120.5 18.4L120.0 27.6L119.3 35.0L118.2 41.3L116.8 46.9L115.2 52.0L113.2 56.6L110.9 60.9L108.2 64.8L105.3 68.3L102.0 71.6L98.4 74.6L94.4 77.4L90.1 79.9L85.4 82.1L80.2 84.1L74.7 85.8L68.6 87.4L61.9 88.6L54.5 89.7L46.1 90.5L36.4 91.1L24.3 91.4L0.0 91.5L-24.3 91.4L-36.4 91.1L-46.1 90.5L-54.5 89.7L-61.9 88.6L-68.6 87.4L-74.7 85.8L-80.2 84.1L-85.4 82.1L-90.1 79.9L-94.4 77.4L-98.4 74.6L-102.0 71.6L-105.3 68.3L-108.2 64.8L-110.9 60.9L-113.2 56.6L-115.2 52.0L-116.8 46.9L-118.2 41.3L-119.3 35.0L-120.0 27.6L-120.5 18.4L-120.6 0.0L-120.5 -18.4L-120.0 -27.6L-119.3 -35.0L-118.2 -41.3L-116.8 -46.9L-115.2 -52.0L-113.2 -56.6L-110.9 -60.9L-108.2 -64.8L-105.3 -68.3L-102.0 -71.6L-98.4 -74.6L-94.4 -77.4L-90.1 -79.9L-85.4 -82.1L-80.2 -84.1L-74.7 -85.8L-68.6 -87.4L-61.9 -88.6L-54.5 -89.7L-46.1 -90.5L-36.4 -91.1L-24.3 -91.4L-0.0 -91.5L24.3 -91.4L36.4 -91.1L46.1 -90.5L54.5 -89.7L61.9 -88.6L68.6 -87.4L74.7 -85.8L80.2 -84.1L85.4 -82.1L90.1 -79.9L94.4 -77.4L98.4 -74.6L102.0 -71.6L105.3 -68.3L108.2 -64.8L110.9 -60.9L113.2 -56.6L115.2 -52.0L116.8 -46.9L118.2 -41.3L119.3 -35.0L120.0 -27.6L120.5 -18.4Z" fill="url(#n3b)"/>
+    <path d="M120.6 0.0L120.5 18.4L120.0 27.6L119.3 35.0L118.2 41.3L116.8 46.9L115.2 52.0L113.2 56.6L110.9 60.9L108.2 64.8L105.3 68.3L102.0 71.6L98.4 74.6L94.4 77.4L90.1 79.9L85.4 82.1L80.2 84.1L74.7 85.8L68.6 87.4L61.9 88.6L54.5 89.7L46.1 90.5L36.4 91.1L24.3 91.4L0.0 91.5L-24.3 91.4L-36.4 91.1L-46.1 90.5L-54.5 89.7L-61.9 88.6L-68.6 87.4L-74.7 85.8L-80.2 84.1L-85.4 82.1L-90.1 79.9L-94.4 77.4L-98.4 74.6L-102.0 71.6L-105.3 68.3L-108.2 64.8L-110.9 60.9L-113.2 56.6L-115.2 52.0L-116.8 46.9L-118.2 41.3L-119.3 35.0L-120.0 27.6L-120.5 18.4L-120.6 0.0L-120.5 -18.4L-120.0 -27.6L-119.3 -35.0L-118.2 -41.3L-116.8 -46.9L-115.2 -52.0L-113.2 -56.6L-110.9 -60.9L-108.2 -64.8L-105.3 -68.3L-102.0 -71.6L-98.4 -74.6L-94.4 -77.4L-90.1 -79.9L-85.4 -82.1L-80.2 -84.1L-74.7 -85.8L-68.6 -87.4L-61.9 -88.6L-54.5 -89.7L-46.1 -90.5L-36.4 -91.1L-24.3 -91.4L-0.0 -91.5L24.3 -91.4L36.4 -91.1L46.1 -90.5L54.5 -89.7L61.9 -88.6L68.6 -87.4L74.7 -85.8L80.2 -84.1L85.4 -82.1L90.1 -79.9L94.4 -77.4L98.4 -74.6L102.0 -71.6L105.3 -68.3L108.2 -64.8L110.9 -60.9L113.2 -56.6L115.2 -52.0L116.8 -46.9L118.2 -41.3L119.3 -35.0L120.0 -27.6L120.5 -18.4Z" fill="url(#n3e)"/>
+    <path d="M120.6 0.0L120.5 18.4L120.0 27.6L119.3 35.0L118.2 41.3L116.8 46.9L115.2 52.0L113.2 56.6L110.9 60.9L108.2 64.8L105.3 68.3L102.0 71.6L98.4 74.6L94.4 77.4L90.1 79.9L85.4 82.1L80.2 84.1L74.7 85.8L68.6 87.4L61.9 88.6L54.5 89.7L46.1 90.5L36.4 91.1L24.3 91.4L0.0 91.5L-24.3 91.4L-36.4 91.1L-46.1 90.5L-54.5 89.7L-61.9 88.6L-68.6 87.4L-74.7 85.8L-80.2 84.1L-85.4 82.1L-90.1 79.9L-94.4 77.4L-98.4 74.6L-102.0 71.6L-105.3 68.3L-108.2 64.8L-110.9 60.9L-113.2 56.6L-115.2 52.0L-116.8 46.9L-118.2 41.3L-119.3 35.0L-120.0 27.6L-120.5 18.4L-120.6 0.0L-120.5 -18.4L-120.0 -27.6L-119.3 -35.0L-118.2 -41.3L-116.8 -46.9L-115.2 -52.0L-113.2 -56.6L-110.9 -60.9L-108.2 -64.8L-105.3 -68.3L-102.0 -71.6L-98.4 -74.6L-94.4 -77.4L-90.1 -79.9L-85.4 -82.1L-80.2 -84.1L-74.7 -85.8L-68.6 -87.4L-61.9 -88.6L-54.5 -89.7L-46.1 -90.5L-36.4 -91.1L-24.3 -91.4L-0.0 -91.5L24.3 -91.4L36.4 -91.1L46.1 -90.5L54.5 -89.7L61.9 -88.6L68.6 -87.4L74.7 -85.8L80.2 -84.1L85.4 -82.1L90.1 -79.9L94.4 -77.4L98.4 -74.6L102.0 -71.6L105.3 -68.3L108.2 -64.8L110.9 -60.9L113.2 -56.6L115.2 -52.0L116.8 -46.9L118.2 -41.3L119.3 -35.0L120.0 -27.6L120.5 -18.4Z" fill="url(#n3h)"/>
+    
+    <rect x="-95.11999999999999" y="-45.2" width="190.23999999999998" height="90.4" rx="45.2" fill="#DFE3EC"/>
+    <rect x="-91.52" y="-41.6" width="183.04" height="83.2" rx="41.6" fill="url(#n3g)"/>
+    <path d="M-62.4 -32.6 H-5.2" stroke="#fff" stroke-opacity=".12" stroke-width="5" stroke-linecap="round"/>
+    <g class="look" filter="url(#eyeglow)"><g class="eye"><rect x="-45.76" y="-19.76" width="20.8" height="39.52" rx="10.4" fill="#5EC8FF"/></g><g class="eye"><rect x="24.96" y="-19.76" width="20.8" height="39.52" rx="10.4" fill="#5EC8FF"/></g></g>
+    
+  </g></g></g>
+  <g class="rise" style="animation-delay:0.2s">
+  <g >
+    <rect x="346" y="106" width="264" height="160" rx="22" fill="#000" opacity=".45" filter="url(#n3soft)"/>
+    <rect x="340" y="101" width="264" height="160" rx="22" fill="#1a1636"/>
+    <rect x="340" y="96" width="264" height="160" rx="22" fill="#100e24"/>
+    <rect x="340" y="96" width="264" height="160" rx="22" fill="url(#n3glass)"/>
+    <rect x="340.75" y="96.75" width="262.5" height="158.5" rx="22" fill="none" stroke="url(#n3edge)" stroke-width="1.5" opacity=".9"/>
+    <path d="M362 97.2 H582" stroke="#fff" stroke-opacity=".35" stroke-width="1"/>
+  </g>
+    <circle cx="374" cy="132" r="14" fill="#22d3ee" opacity=".2"/><circle cx="374" cy="132" r="6" fill="#22d3ee" filter="url(#n3glow)"/>
+    <text x="398" y="138" font-size="15" font-weight="800" fill="#22d3ee" letter-spacing="1.5">GAME MODE</text>
+    <text x="364" y="184" font-size="15" fill="#eef0ff">Ari rises out of the light</text><text x="364" y="206" font-size="15" fill="#eef0ff">when a game fills the screen</text></g><g class="rise" style="animation-delay:0.45s">
+  <g >
+    <rect x="630" y="106" width="264" height="160" rx="22" fill="#000" opacity=".45" filter="url(#n3soft)"/>
+    <rect x="624" y="101" width="264" height="160" rx="22" fill="#1a1636"/>
+    <rect x="624" y="96" width="264" height="160" rx="22" fill="#100e24"/>
+    <rect x="624" y="96" width="264" height="160" rx="22" fill="url(#n3glass)"/>
+    <rect x="624.75" y="96.75" width="262.5" height="158.5" rx="22" fill="none" stroke="url(#n3edge)" stroke-width="1.5" opacity=".9"/>
+    <path d="M646 97.2 H866" stroke="#fff" stroke-opacity=".35" stroke-width="1"/>
+  </g>
+    <circle cx="658" cy="132" r="14" fill="#e879f9" opacity=".2"/><circle cx="658" cy="132" r="6" fill="#e879f9" filter="url(#n3glow)"/>
+    <text x="682" y="138" font-size="15" font-weight="800" fill="#e879f9" letter-spacing="1.5">REAL FPS</text>
+    <text x="648" y="184" font-size="15" fill="#eef0ff">The game's own frame rate, as</text><text x="648" y="206" font-size="15" fill="#eef0ff">Windows records it</text></g><g class="rise" style="animation-delay:0.7s">
+  <g >
+    <rect x="914" y="106" width="264" height="160" rx="22" fill="#000" opacity=".45" filter="url(#n3soft)"/>
+    <rect x="908" y="101" width="264" height="160" rx="22" fill="#1a1636"/>
+    <rect x="908" y="96" width="264" height="160" rx="22" fill="#100e24"/>
+    <rect x="908" y="96" width="264" height="160" rx="22" fill="url(#n3glass)"/>
+    <rect x="908.75" y="96.75" width="262.5" height="158.5" rx="22" fill="none" stroke="url(#n3edge)" stroke-width="1.5" opacity=".9"/>
+    <path d="M930 97.2 H1150" stroke="#fff" stroke-opacity=".35" stroke-width="1"/>
+  </g>
+    <circle cx="942" cy="132" r="14" fill="#fbbf24" opacity=".2"/><circle cx="942" cy="132" r="6" fill="#fbbf24" filter="url(#n3glow)"/>
+    <text x="966" y="138" font-size="15" font-weight="800" fill="#fbbf24" letter-spacing="1.5">YOUR NUMBERS</text>
+    <text x="932" y="184" font-size="15" fill="#eef0ff">Four stats beside Ari, in the</text><text x="932" y="206" font-size="15" fill="#eef0ff">size and colour you pick</text></g>
+</g>
+<rect x=".75" y=".75" width="1198.5" height="298.5" rx="30" fill="none" stroke="url(#n3edge)" stroke-width="1.5" opacity=".6"/>
+</svg>
